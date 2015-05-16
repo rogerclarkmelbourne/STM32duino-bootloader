@@ -40,11 +40,13 @@
 #define BLINK_SLOW 0x100000
 
 
+// The USB clock is the same for all boards
+#define RCC_APB1ENR_USB_CLK   0x00800000 
 
 
 
 /* On the Mini, LED is PB1 */
-#if TARGET == MAPLE_MINI
+#if defined TARGET_MAPLE_MINI
 
 /* Porting information Please read.
 
@@ -80,6 +82,9 @@
 	Bit 2 IOPAEN: IO port A clock enable
 	
 */
+
+	#define HAS_MAPLE_HARDWARE 1
+
 	#define FLASH_PAGE_SIZE 0x400
 
 	#define LED_BANK         GPIOB
@@ -103,8 +108,10 @@
 	#define USB_DISC_CR           GPIO_CRH(USB_DISC_BANK)
 	#define USB_DISC_CR_MASK      0xFFFFFF0F
 	#define USB_DISC_CR_OUTPUT_OD 0x00000050
+
 	#define RCC_APB2ENR_USB       0x00000008
-	#define RCC_APB1ENR_USB_CLK   0x00800000	
+
+
 
 	
 	
@@ -128,8 +135,11 @@
 	
 	
 	
-#elif TARGET == MAPLE_REV3
+#elif defined TARGET_MAPLE_REV3
 
+	#define HAS_MAPLE_HARDWARE 1
+	#define FLASH_PAGE_SIZE 0x800
+	
 	#define LED_BANK         GPIOB
 	#define LED              1
 	#define LED_BANK_CR      GPIO_CRL(LED_BANK)
@@ -152,7 +162,6 @@
 	#define USB_DISC_CR_MASK      0xFFFFFF0F
 	#define USB_DISC_CR_OUTPUT_OD 0x00000050
 	#define RCC_APB2ENR_USB       0x00000008
-	#define RCC_APB1ENR_USB_CLK   0x00800000	
 
 	
 // Use the usb_description_strings_util.html to make new strngs for the next 3 arrays if you need to change the text.
@@ -174,8 +183,9 @@
 	
 	#define FLASH_PAGE_SIZE 0x400
 	
-#elif TARGET == MAPLE_REV5
+#elif defined TARGET_MAPLE_REV5
 
+	#define HAS_MAPLE_HARDWARE 1
 	#define FLASH_PAGE_SIZE 0x800
 
 	#define LED_BANK         GPIOA
@@ -199,8 +209,8 @@
 	#define USB_DISC_CR           GPIO_CRH(USB_DISC_BANK)
 	#define USB_DISC_CR_MASK      0xFFFFFF0F
 	#define USB_DISC_CR_OUTPUT_OD 0x00000050
-	#define RCC_APB2ENR_USB       0x00000008
-	#define RCC_APB1ENR_USB_CLK   0x00800000	
+	#define RCC_APB2ENR_USB       0x00000080 
+	
 
 	
 // Use the usb_description_strings_util.html to make new strngs for the next 3 arrays if you need to change the text.
@@ -219,7 +229,8 @@
 	#define USER_CODE_FLASH0X8002000	((u32)0x08002000)
 	#define FLASH_END         			((u32)0x08040000)		
 	
-#elif TARGET == GENERIC_STM32F103C8
+#elif defined TARGET_GENERIC_STM32F103C8
+
 
 /* Most generic STM32F103C8 boards have the LED on PC13 */
 	//#warning "Data for STM32F103C8"
@@ -227,30 +238,26 @@
 	#define FLASH_PAGE_SIZE 0x400	
 	
 	#define LED_BANK         GPIOC
-	#define LED              13
+	#define LED              12
 	// Note GPIO_CRH is high register for bits 8 to 15. (GPIO_CRL would be for bits 0 to 7)
 	#define LED_BANK_CR      GPIO_CRH(LED_BANK)
 	// Bit mask for pin 13. Thus is the high 32 bits of the control register with 4 bits per pin 
 	#define LED_CR_MASK      0xFF0FFFFF
-	#define LED_CR_MODE      0x00000010
-	#define RCC_APB2ENR_LED  0x00000010 /* enable Port C  . Bit 4 IOPAEN: IO port C clock enable*/
+	#define LED_CR_MODE      0x00100000
+	#define RCC_APB2ENR_LED  0x00100000 /* enable Port C  . Bit 4 IOPAEN: IO port C clock enable*/
 
-	/* Assign Button to PB8 the same as on the Maple mini */
-	#define BUTTON_BANK      GPIOB
-	#define BUTTON           8
-	#define BUT_BANK_CR      GPIO_CRH(BUTTON_BANK)
-	#define BUT_CR_MASK      0xFFFFFFF0
-	#define BUT_CR_OUTPUT_IN 0x00000004
-	#define RCC_APB2ENR_BUT  0x00000008 /* enable Port B  . Bit 2 IOPAEN: IO port B clock enable*/
 	
-	/* USB Disc Pin Setup.   USB DISC is PB9 */
-	#define USB_DISC_BANK         GPIOB
-	#define USB_DISC              9
-	#define USB_DISC_CR           GPIO_CRH(USB_DISC_BANK)
-	#define USB_DISC_CR_MASK      0xFFFFFF0F
-	#define USB_DISC_CR_OUTPUT_OD 0x00000050
-	#define RCC_APB2ENR_USB       0x00000008
-	#define RCC_APB1ENR_USB_CLK   0x00800000	
+	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D- line*/
+	#define USB_DISC_BANK GPIOA
+	#define USB_DISC 12
+	#define USB_DISC_CR GPIO_CRH(USB_DISC_BANK)
+	#define USB_DISC_CR_MASK 0xFFF0FFFF
+	#define USB_DISC_CR_OUTPUT_PP 	0x00010000
+	#define USB_DISC_CR_INPUT 		0x00040000
+	#define RCC_APB2ENR_USB 		0x00000004 // enable PA */
+
+	
+	
 
 // Use the usb_description_strings_util.html to make new strngs for the next 3 arrays if you need to change the text.
 	#define ALT0_STR_LEN 0x90

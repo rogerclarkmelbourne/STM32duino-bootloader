@@ -37,19 +37,39 @@ void setupUSB (void) {
   /* enable USB DISC Pin */
   pRCC->APB2ENR |= RCC_APB2ENR_USB;
 
-  /* Setup USB DISC pin as output open drain */
+
+
+#ifdef HAS_MAPLE_HARDWARE	
+  /* Setup USB DISC pin as output open drain */	
   SET_REG(USB_DISC_CR,
-          (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_OUTPUT_OD);
+          (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_OUTPUT_OD);  
   gpio_write_bit(USB_DISC_BANK,USB_DISC,1);
 
   /* turn on the USB clock */
   pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
 
-  /* initialize the usb application */
   gpio_write_bit(USB_DISC_BANK,USB_DISC,0);  /* present ourselves to the host */
+#else
+
+// USE PA12 which is connected to USB pin D-
+  SET_REG(USB_DISC_CR,
+          (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_OUTPUT_PP);
+
+  gpio_write_bit(USB_DISC_BANK,USB_DISC,0);  /* present ourselves to the host */
+  
+  volatile unsigned x = 48000000/4/100; do { ; }while(--x);// wait a moment
+  /* turn on the USB clock */
+   SET_REG(USB_DISC_CR,
+          (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_INPUT); //Sets the PA12 as floating input
+  pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
+#endif  
+  /* initialize the usb application */
   usbAppInit();
 
 }
+
+
+
 
 #if 0
 void usbDsbBus(void) {
