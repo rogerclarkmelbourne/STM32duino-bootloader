@@ -41,18 +41,13 @@ int main()
     setupCLK();
     setupLED();
     setupUSB();
-#ifdef HAS_MAPLE_HARDWARE
     setupBUTTON();
-#endif	
     setupFLASH();
 
     strobePin(LED_BANK, LED, STARTUP_BLINKS, BLINK_FAST);
 
 	/* wait for host to upload program or halt bootloader */
-	bool no_user_jump = (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000)) ;
-#ifdef HAS_MAPLE_HARDWARE
-	no_user_jump=no_user_jump || readPin(BUTTON_BANK,BUTTON);
-#endif	
+	bool no_user_jump = (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000)) || readPin(BUTTON_BANK,BUTTON) ;
 	
 	int delay_count = 0;
 

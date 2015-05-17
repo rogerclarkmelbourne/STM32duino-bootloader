@@ -110,14 +110,13 @@ void setupLED (void) {
 }
 
 void setupBUTTON (void) {
-#ifdef HAS_MAPLE_HARDWARE
   /* enable button pin */
   pRCC->APB2ENR |= RCC_APB2ENR_BUT;
 
   /* Setup button pin as floating input */
-  SET_REG(BUT_BANK_CR,(GET_REG(BUT_BANK_CR) & BUT_CR_MASK) | BUT_CR_OUTPUT_IN);
-  gpio_write_bit(BUTTON_BANK, BUTTON,1);
-#endif  
+  SET_REG(BUT_BANK_CR,(GET_REG(BUT_BANK_CR) & BUT_CR_MASK) | BUT_CR_INPUT_PU_PD);
+  
+  gpio_write_bit(BUTTON_BANK, BUTTON,0);
 }
 
 void setupFLASH() {

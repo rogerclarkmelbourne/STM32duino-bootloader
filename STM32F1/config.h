@@ -83,6 +83,8 @@
 	
 */
 
+#warning "Target MAPLE_MINI"
+
 	#define HAS_MAPLE_HARDWARE 1
 
 	#define FLASH_PAGE_SIZE 0x400
@@ -99,7 +101,7 @@
 	#define BUTTON           8
 	#define BUT_BANK_CR      GPIO_CRH(BUTTON_BANK)
 	#define BUT_CR_MASK      0xFFFFFFF0
-	#define BUT_CR_OUTPUT_IN 0x00000004
+	#define BUT_CR_INPUT_PU_PD  0x00000008
 	#define RCC_APB2ENR_BUT  0x00000008 /* enable Port B (bit 3 - see table above IOPBEN)*/
 	
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
@@ -137,6 +139,8 @@
 	
 #elif defined TARGET_MAPLE_REV3
 
+#warning "Target MAPLE_REV3"
+
 	#define HAS_MAPLE_HARDWARE 1
 	#define FLASH_PAGE_SIZE 0x800
 	
@@ -152,7 +156,7 @@
 	#define BUTTON           8
 	#define BUT_BANK_CR      GPIO_CRH(BUTTON_BANK)
 	#define BUT_CR_MASK      0xFFFFFFF0
-	#define BUT_CR_OUTPUT_IN 0x00000004
+	#define BUT_CR_INPUT_PU_PD 0x00000008
 	#define RCC_APB2ENR_BUT  0x00000008 /* enable PB */
 
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
@@ -160,7 +164,7 @@
 	#define USB_DISC              9
 	#define USB_DISC_CR           GPIO_CRH(USB_DISC_BANK)
 	#define USB_DISC_CR_MASK      0xFFFFFF0F
-	#define USB_DISC_CR_OUTPUT_OD 0x00000050
+	#define BUT_CR_INPUT_PD 0x00000050
 	#define RCC_APB2ENR_USB       0x00000008
 
 	
@@ -184,6 +188,7 @@
 	#define FLASH_PAGE_SIZE 0x400
 	
 #elif defined TARGET_MAPLE_REV5
+#warning "Target MAPLE_REV5"
 
 	#define HAS_MAPLE_HARDWARE 1
 	#define FLASH_PAGE_SIZE 0x800
@@ -200,7 +205,7 @@
 	#define BUTTON           9
 	#define BUT_BANK_CR      GPIO_CRH(BUTTON_BANK)
 	#define BUT_CR_MASK      0xFFFFFF0F
-	#define BUT_CR_OUTPUT_IN 0x00000004
+	#define BUT_CR_INPUT_PU_PD 0x00000008
 	#define RCC_APB2ENR_BUT  0x00000010 /* enable Port C (Bit 4)*/
 
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
@@ -229,14 +234,14 @@
 	#define USER_CODE_FLASH0X8002000	((u32)0x08002000)
 	#define FLASH_END         			((u32)0x08040000)		
 	
-#elif defined TARGET_GENERIC_STM32F103C8
+#elif defined TARGET_GENERIC_MEDIUM_DENSITY
 
 
 /* Most generic STM32F103C8 boards have the LED on PC13 */
-	//#warning "Data for STM32F103C8"
+	#warning "Target GENERIC_MEDIUM_DENSITY"
 	
 	#define FLASH_PAGE_SIZE 0x400	
-	
+	/*
 	#define LED_BANK         GPIOC
 	#define LED              12
 	// Note GPIO_CRH is high register for bits 8 to 15. (GPIO_CRL would be for bits 0 to 7)
@@ -244,8 +249,22 @@
 	// Bit mask for pin 13. Thus is the high 32 bits of the control register with 4 bits per pin 
 	#define LED_CR_MASK      0xFF0FFFFF
 	#define LED_CR_MODE      0x00100000
-	#define RCC_APB2ENR_LED  0x00100000 /* enable Port C  . Bit 4 IOPAEN: IO port C clock enable*/
-
+	#define RCC_APB2ENR_LED  0x00100000 // enable Port C  . Bit 4 IOPAEN: IO port C clock enable
+*/
+	
+	#define LED_BANK         GPIOB
+	#define LED              1
+	#define LED_BANK_CR      GPIO_CRL(LED_BANK)
+	#define LED_CR_MASK      0xFFFFFF0F
+	#define LED_CR_MODE      0x00000010
+	#define RCC_APB2ENR_LED  0x00000008 /* enable Port B (bit 3 - see table above IOPBEN)*/
+	
+	#define BUTTON_BANK GPIOC
+	#define BUTTON 9
+	#define BUT_BANK_CR GPIO_CRH(BUTTON_BANK)
+	#define BUT_CR_MASK 0xFFFFFF0F
+	#define BUT_CR_INPUT_PU_PD 0x00000080 // Input PU/PD
+	#define RCC_APB2ENR_BUT 0x00000010 // enable PC		
 	
 	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D- line*/
 	#define USB_DISC_BANK GPIOA
@@ -277,6 +296,69 @@
 	
 	// 64k flash
 	#define FLASH_END         			((u32)0x08010000)		
+
+#elif defined TARGET_GENERIC_HIGH_DENSITY
+
+/* Most generic STM32F103C8 boards have the LED on PC13 */
+	//#warning "Data for STM32F103C8"
+	
+	#define FLASH_PAGE_SIZE 0x800	
+	/*
+	#define LED_BANK         GPIOC
+	#define LED              12
+	// Note GPIO_CRH is high register for bits 8 to 15. (GPIO_CRL would be for bits 0 to 7)
+	#define LED_BANK_CR      GPIO_CRH(LED_BANK)
+	// Bit mask for pin 13. Thus is the high 32 bits of the control register with 4 bits per pin 
+	#define LED_CR_MASK      0xFF0FFFFF
+	#define LED_CR_MODE      0x00100000
+	#define RCC_APB2ENR_LED  0x00100000 // enable Port C  . Bit 4 IOPAEN: IO port C clock enable
+*/
+
+	#define LED_BANK         GPIOB
+	#define LED              1
+	#define LED_BANK_CR      GPIO_CRL(LED_BANK)
+	#define LED_CR_MASK      0xFFFFFF0F
+	#define LED_CR_MODE      0x00000010
+	#define RCC_APB2ENR_LED  0x00000008 /* enable Port B (bit 3 - see table above IOPBEN)*/
+	
+	#define BUTTON_BANK GPIOC
+	#define BUTTON 9
+	#define BUT_BANK_CR GPIO_CRH(BUTTON_BANK)
+	#define BUT_CR_MASK 0xFFFFFF0F
+	#define BUT_CR_INPUT_PU_PD 0x00000080 // Input PU/PD
+	#define RCC_APB2ENR_BUT 0x00000010 // enable PC	
+	
+	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D- line*/
+	#define USB_DISC_BANK GPIOA
+	#define USB_DISC 12
+	#define USB_DISC_CR GPIO_CRH(USB_DISC_BANK)
+	#define USB_DISC_CR_MASK 		0xFFF0FFFF
+	#define USB_DISC_CR_OUTPUT_PP 	0x00010000
+	#define USB_DISC_CR_INPUT 		0x00040000
+	#define RCC_APB2ENR_USB 		0x00000004 // enable PA */
+
+	
+	
+
+// Use the usb_description_strings_util.html to make new strngs for the next 3 arrays if you need to change the text.
+	#define ALT0_STR_LEN 0x90
+	#define ALT0_MSG_STR 'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'2',0,'.',0,'0',0,'.',0,'r',0,'c',0,'1',0,' ',0,'E',0,'R',0,'R',0,'O',0,'R',0,'.',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'R',0,'A',0,'M',0,' ',0,'i',0,'s',0,' ',0,'n',0,'o',0,'t',0,' ',0,'s',0,'u',0,'p',0,'p',0,'o',0,'r',0,'t',0,'e',0,'d',0,'.',0,' ',0,'(',0,'S',0,'T',0,'M',0,'3',0,'2',0,'F',0,'1',0,'0',0,'3',0,'C',0,'8',0,')',0
+
+	#define ALT1_STR_LEN 0x86
+	#define ALT1_MSG_STR 'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'2',0,'.',0,'0',0,'.',0,'r',0,'c',0,'1',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'a',0,'d',0,'d',0,'r',0,'e',0,'s',0,'s',0,' ',0,'0',0,'x',0,'8',0,'0',0,'0',0,'5',0,'0',0,'0',0,'0',0,' ',0,'(',0,'S',0,'T',0,'M',0,'3',0,'2',0,'F',0,'1',0,'0',0,'3',0,'C',0,'8',0,')',0
+
+	#define ALT2_STR_LEN 0x86
+	#define ALT2_MSG_STR 'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'2',0,'.',0,'0',0,'.',0,'r',0,'c',0,'1',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'a',0,'d',0,'d',0,'r',0,'e',0,'s',0,'s',0,' ',0,'0',0,'x',0,'8',0,'0',0,'0',0,'2',0,'0',0,'0',0,'0',0,' ',0,'(',0,'S',0,'T',0,'M',0,'3',0,'2',0,'F',0,'1',0,'0',0,'3',0,'C',0,'8',0,')',0
+
+
+	#define USER_CODE_RAM     			((u32)0x20000C00)
+	#define RAM_END           			((u32)0x20005000)
+	#define USER_CODE_FLASH0X8005000   	((u32)0x08005000)
+	#define USER_CODE_FLASH0X8002000	((u32)0x08002000)
+	
+	// 64k flash
+	#define FLASH_END         			((u32)0x08010000)		
+	
 	
 #else
 #error "No config for this target"

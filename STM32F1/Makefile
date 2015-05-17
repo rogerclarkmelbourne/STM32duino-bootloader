@@ -39,8 +39,7 @@ ASFLAGS = -Wa,-adhlns=$(BUILDDIR)/$(<:.s=.lst)#,--g$(DEBUG)
 LDFLAGS = -nostartfiles -Wl,-Map=$(TARGET).map,--cref,--gc-sections
 LDFLAGS += -lc -lgcc
 
-# Set the linker script
-LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
+
 
 # Define programs and commands.
 SHELL = sh
@@ -116,12 +115,17 @@ all: begin gccversion build sizeafter finished end
 maple-mini: begin gccversion build_maple-mini sizeafter finished  copy_maple_mini end
 maple-rev3: begin gccversion build_maple-rev3 sizeafter finished  copy_maple-rev3 end
 maple-rev5: begin gccversion build_maple-rev5 sizeafter finished  copy_maple-rev5 end
-generic-stm32f103c8: begin gccversion build_generic-stm32f103c8 sizeafter finished  copy_generic-stm32f103c8 end
+generic-medium-density: begin gccversion build_generic-medium-density sizeafter finished  copy_generic-medium-density end
+generic-high-density: begin gccversion build_generic-high-density sizeafter finished  copy_generic-high-density end
+
 
 build: elf bin lss sym
 
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
+# Set the linker script
+build_maple-mini: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
+
 build_maple-mini: elf bin lss sym
 copy_maple_mini: 
 	@echo
@@ -131,6 +135,9 @@ copy_maple_mini:
 	@echo
 
 build_maple-rev3: TARGETFLAGS= -DTARGET_MAPLE_REV3
+# Set the linker script
+build_maple-rev3: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
+
 build_maple-rev3: elf bin lss sym
 copy_maple-rev3: 
 	@echo
@@ -140,6 +147,8 @@ copy_maple-rev3:
 	@echo
 
 build_maple-rev5: TARGETFLAGS= -DTARGET_MAPLE_REV5
+# Set the linker script
+build_maple-rev5: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
 build_maple-rev5: elf bin lss sym
 copy_maple-rev5: 
 	@echo
@@ -149,14 +158,28 @@ copy_maple-rev5:
 	@echo
 	
 	
-build_generic-stm32f103c8: TARGETFLAGS= -DTARGET_GENERIC_STM32F103C8
-build_generic-stm32f103c8: elf bin lss sym
-copy_generic-stm32f103c8: 
+build_generic-medium-density: TARGETFLAGS= -DTARGET_GENERIC_MEDIUM_DENSITY
+# Set the linker script
+build_generic-medium-density: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
+build_generic-medium-density: elf bin lss sym
+copy_generic-medium-density: 
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
-	cp $(TARGET).bin binaries/generic_stm32f103c8_boot20.bin
+	cp $(TARGET).bin binaries/generic_medium_density_boot20.bin
 	@echo	
+	
+build_generic-high-density: TARGETFLAGS= -DTARGET_GENERIC_HIGH_DENSITY
+build_generic-high-density: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-high-density: elf bin lss sym
+copy_generic-high-density: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/generic_high_density_boot20.bin
+	@echo		
+	
+	
 
 	
 bin: $(TARGET).bin
