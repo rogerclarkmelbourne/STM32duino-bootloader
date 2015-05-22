@@ -39,12 +39,13 @@ int main()
 {
     systemReset(); // peripherals but not PC
     setupCLK();
-    setupLED();
+    setupLEDAndButton();
     setupUSB();
-    setupBUTTON();
     setupFLASH();
+	
 
-    strobePin(LED_BANK, LED, STARTUP_BLINKS, BLINK_FAST);
+	strobePin(LED_BANK, LED, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
+
 
 	/* wait for host to upload program or halt bootloader */
 	bool no_user_jump = (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000)) || readPin(BUTTON_BANK,BUTTON) ;
@@ -54,7 +55,7 @@ int main()
     while ((delay_count++ < BOOTLOADER_WAIT) || no_user_jump)
 	{
 
-        strobePin(LED_BANK, LED, 1, BLINK_SLOW);
+        strobePin(LED_BANK, LED, 1, BLINK_SLOW,LED_ON_STATE);
 
         if (dfuUploadStarted()) 
 		{
@@ -76,7 +77,7 @@ int main()
 		else
 		{
 			// Nothing to execute in either Flash or RAM
-			strobePin(LED_BANK, LED, 5, BLINK_FAST);
+			strobePin(LED_BANK, LED, 5, BLINK_FAST,LED_ON_STATE);
 			systemHardReset();
 		}
 	}

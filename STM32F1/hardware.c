@@ -43,7 +43,7 @@ void resetPin(u32 bank, u8 pin) {
 }
 */
 void gpio_write_bit(u32 bank, u8 pin, u8 val) {
-    val = !val;          /* "set" bits are lower than "reset" bits  */
+    val = !val;          // "set" bits are lower than "reset" bits  
     SET_REG(GPIO_BSRR(bank), (1U << pin) << (16 * val));
 }
 
@@ -56,19 +56,25 @@ bool readPin(u32 bank, u8 pin) {
     }
 }
 
-void strobePin(u32 bank, u8 pin, u8 count, u32 rate) {
-    gpio_write_bit( bank,pin,0);
+void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState) 
+{
+    gpio_write_bit( bank,pin,1-onState);
 
     u32 c;
-    while (count-- > 0) {
-        for (c = rate; c > 0; c--) {
+    while (count-- > 0) 
+	{
+        for (c = rate; c > 0; c--)
+		{
             asm volatile("nop");
         }
-        gpio_write_bit( bank,pin,1);
-        for (c = rate; c > 0; c--) {
+		
+        gpio_write_bit( bank,pin,onState);
+		
+        for (c = rate; c > 0; c--)
+		{
             asm volatile("nop");
         }
-        gpio_write_bit( bank,pin,0);
+        gpio_write_bit( bank,pin,1-onState);
     }
 }
 
@@ -98,25 +104,36 @@ void setupCLK(void) {
     /* Set SYSCLK as PLL */
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00000002);
     while ((GET_REG(RCC_CFGR) & 0x00000008) == 0); /* wait for it to come on */
+	
+    pRCC->APB2ENR |= 0B111111100;// Enable All GPIO channels (A to G)
+	pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
 }
 
-void setupLED (void) {
-  /* enable LED pin */
-  pRCC->APB2ENR |= RCC_APB2ENR_LED;
 
-  /* Setup LED pin as output open drain */
-  SET_REG(LED_BANK_CR,(GET_REG(LED_BANK_CR) & LED_CR_MASK) | LED_CR_MODE);
-  gpio_write_bit(LED_BANK, LED,1);
-}
+void setupLEDAndButton (void) {
 
-void setupBUTTON (void) {
-  /* enable button pin */
-  pRCC->APB2ENR |= RCC_APB2ENR_BUT;
-
-  /* Setup button pin as floating input */
-  SET_REG(BUT_BANK_CR,(GET_REG(BUT_BANK_CR) & BUT_CR_MASK) | BUT_CR_INPUT_PU_PD);
+ // SET_REG(AFIO_MAPR,(GET_REG(AFIO_MAPR) & ~AFIO_MAPR_SWJ_CFG) | AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW);// Try to disable SWD AND JTAG so we can use those pins (not sure if this works).
   
-  gpio_write_bit(BUTTON_BANK, BUTTON,0);
+
+  
+
+// just for testing
+
+
+  
+  SET_REG(GPIO_CR(BUTTON_BANK,BUTTON),(GPIO_CR(BUTTON_BANK,BUTTON) & crMask(BUTTON)) | 0x08<<CR_SHITF(BUTTON));
+  gpio_write_bit(BUTTON_BANK, BUTTON,0);// set pulldown resistor.
+ 
+/* 
+  #define LED2_BANK         GPIOB
+  #define LED2              1	 
+
+  SET_REG(GPIO_CR(LED2_BANK,LED2),(GET_REG(GPIO_CR(LED2_BANK,LED2)) & crMask(LED2)) | 0x01 << CR_SHITF(LED2)); 
+  strobePin(LED2_BANK, LED2, 50, BLINK_FAST);// Just testing other gpio pins  
+  */
+  SET_REG(GPIO_CR(LED_BANK,LED),(GET_REG(GPIO_CR(LED_BANK,LED)) & crMask(LED)) | 0x01 << CR_SHITF(LED));
+ 
+  
 }
 
 void setupFLASH() {
@@ -153,6 +170,8 @@ void jumpToUser(u32 usrAddr) {
     flashLock();
     usbDsbISR();
     nvicDisableInterrupts();
+	usbDsbBus();
+	
 // Does nothing, as PC12 is not connected on teh Maple mini according to the schemmatic     setPin(GPIOC, 12); // disconnect usb from host. todo, macroize pin
     systemReset(); // resets clocks and periphs, not core regs
 
@@ -286,6 +305,14 @@ void flashUnlock() {
     SET_REG(FLASH_KEYR, FLASH_KEY2);
 }
 
-
-
+unsigned int crMask(int pin)
+{
+	unsigned int mask;
+	if (pin>=8)
+	{
+		pin-=8;
+	}
+	mask = 0x0F << (pin<<2);
+	return ~mask;
+}	
 

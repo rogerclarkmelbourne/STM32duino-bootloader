@@ -52,34 +52,15 @@
 
 	These defineds are use to setup the hardware of the GPIO. 
 	See http://www.st.com/web/en/resource/technical/document/reference_manual/CD00171190.pdf
-	
 
 	Two GPIO pins need to be defined, the LED and the Button.
-	
 	
 	For each pin, the following is required
 	
 	LED_BANK, this is the GPIO port, e.g. GPIOA,GPIOB, GPIOC etc etc etc
 	LED, this is the pin number e.g PB1 = 1
-	LED_BANK_CR, this is the address of the port control register 
-	
-	for pins  0 to 7 its GPIO_CRL(LED_BANK)
-	for pins  8 to 15 its GPIO_CRH(LED_BANK)
-
-	This is because 2 different control registers are needed for the lower and upper 8 bits in the GPIO port (see the programming manual)
-	
-	LED_CR_MASK, this is the 4 bit mask used to mask in the CR mode , i.e there are 4 bits per pin, hence pin 1 = 0xFFFFFF0F  pin 0 would be 0xFFFFFFF0 etc
-	
-	RCC_APB2ENR_LED, this is the clock control register for the port, without this setting to the RCC m the whole GPIO port wont work at all
-	See 7.3.7 APB2 peripheral clock enable register (RCC_APB2ENR) in the manual. page 112 and 113
-	Bit 8 IOPGEN: IO port G clock enable
-
-	Bit 7 IOPFEN: IO port F clock enable
-	Bit 6 IOPEEN: IO port E clock enable
-	Bit 5 IOPDEN: IO port D clock enable
-	Bit 4 IOPCEN: IO port C clock enable
-	Bit 3 IOPBEN: IO port B clock enable
-	Bit 2 IOPAEN: IO port A clock enable
+	LED_ON_STATE is whether the pin needs to be 1 or 0 for the LED to be lit, this is needed because on some boards the led is wired between Vcc and the Pin
+	instead of from the pin to Gnd
 	
 */
 
@@ -89,20 +70,16 @@
 
 	#define FLASH_PAGE_SIZE 0x400
 
+
 	#define LED_BANK         GPIOB
 	#define LED              1
-	#define LED_BANK_CR      GPIO_CRL(LED_BANK)
-	#define LED_CR_MASK      0xFFFFFF0F
-	#define LED_CR_MODE      0x00000010
-	#define RCC_APB2ENR_LED  0x00000008 /* enable Port B (bit 3 - see table above IOPBEN)*/
+	#define LED_ON_STATE	 1	
 
+	
 	/* On the Mini, BUT is PB8 */
 	#define BUTTON_BANK      GPIOB
 	#define BUTTON           8
-	#define BUT_BANK_CR      GPIO_CRH(BUTTON_BANK)
-	#define BUT_CR_MASK      0xFFFFFFF0
-	#define BUT_CR_INPUT_PU_PD  0x00000008
-	#define RCC_APB2ENR_BUT  0x00000008 /* enable Port B (bit 3 - see table above IOPBEN)*/
+
 	
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK         GPIOB
@@ -110,11 +87,6 @@
 	#define USB_DISC_CR           GPIO_CRH(USB_DISC_BANK)
 	#define USB_DISC_CR_MASK      0xFFFFFF0F
 	#define USB_DISC_CR_OUTPUT_OD 0x00000050
-
-	#define RCC_APB2ENR_USB       0x00000008
-
-
-
 	
 	
 // Use the usb_description_strings_util.html to make new strngs for the next 3 arrays if you need to change the text.
@@ -146,18 +118,11 @@
 	
 	#define LED_BANK         GPIOB
 	#define LED              1
-	#define LED_BANK_CR      GPIO_CRL(LED_BANK)
-	#define LED_CR_MASK      0xFFFFFF0F
-	#define LED_CR_MODE      0x00000010
-	#define RCC_APB2ENR_LED  0x00000008 /* enable PB */
+	#define LED_ON_STATE	 1
 
 	/* On the Mini, BUT is PB8 */
 	#define BUTTON_BANK      GPIOB
 	#define BUTTON           8
-	#define BUT_BANK_CR      GPIO_CRH(BUTTON_BANK)
-	#define BUT_CR_MASK      0xFFFFFFF0
-	#define BUT_CR_INPUT_PU_PD 0x00000008
-	#define RCC_APB2ENR_BUT  0x00000008 /* enable PB */
 
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK         GPIOB
@@ -195,18 +160,12 @@
 
 	#define LED_BANK         GPIOA
 	#define LED              5
-	#define LED_BANK_CR      GPIO_CRL(LED_BANK)
-	#define LED_CR_MASK      0xFF0FFFFF
-	#define LED_CR_MODE      0x00000010
-	#define RCC_APB2ENR_LED  0x00000004 /* enable Part A (Bit 2) */
+	#define LED_ON_STATE	 0
 
 	/* On the Mini, BUT is PB8 */
 	#define BUTTON_BANK      GPIOC
 	#define BUTTON           9
-	#define BUT_BANK_CR      GPIO_CRH(BUTTON_BANK)
-	#define BUT_CR_MASK      0xFFFFFF0F
-	#define BUT_CR_INPUT_PU_PD 0x00000008
-	#define RCC_APB2ENR_BUT  0x00000010 /* enable Port C (Bit 4)*/
+
 
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK         GPIOB
@@ -241,30 +200,14 @@
 	#warning "Target GENERIC_MEDIUM_DENSITY"
 	
 	#define FLASH_PAGE_SIZE 0x400	
-	/*
+	
 	#define LED_BANK         GPIOC
-	#define LED              12
-	// Note GPIO_CRH is high register for bits 8 to 15. (GPIO_CRL would be for bits 0 to 7)
-	#define LED_BANK_CR      GPIO_CRH(LED_BANK)
-	// Bit mask for pin 13. Thus is the high 32 bits of the control register with 4 bits per pin 
-	#define LED_CR_MASK      0xFF0FFFFF
-	#define LED_CR_MODE      0x00100000
-	#define RCC_APB2ENR_LED  0x00100000 // enable Port C  . Bit 4 IOPAEN: IO port C clock enable
-*/
-	
-	#define LED_BANK         GPIOB
-	#define LED              1
-	#define LED_BANK_CR      GPIO_CRL(LED_BANK)
-	#define LED_CR_MASK      0xFFFFFF0F
-	#define LED_CR_MODE      0x00000010
-	#define RCC_APB2ENR_LED  0x00000008 /* enable Port B (bit 3 - see table above IOPBEN)*/
-	
+	#define LED              13
+	#define LED_ON_STATE	 0
+
 	#define BUTTON_BANK GPIOC
-	#define BUTTON 9
-	#define BUT_BANK_CR GPIO_CRH(BUTTON_BANK)
-	#define BUT_CR_MASK 0xFFFFFF0F
-	#define BUT_CR_INPUT_PU_PD 0x00000080 // Input PU/PD
-	#define RCC_APB2ENR_BUT 0x00000010 // enable PC		
+	#define BUTTON 14
+
 	
 	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D- line*/
 	#define USB_DISC_BANK GPIOA
@@ -303,30 +246,14 @@
 	//#warning "Data for STM32F103C8"
 	
 	#define FLASH_PAGE_SIZE 0x800	
-	/*
-	#define LED_BANK         GPIOC
-	#define LED              12
-	// Note GPIO_CRH is high register for bits 8 to 15. (GPIO_CRL would be for bits 0 to 7)
-	#define LED_BANK_CR      GPIO_CRH(LED_BANK)
-	// Bit mask for pin 13. Thus is the high 32 bits of the control register with 4 bits per pin 
-	#define LED_CR_MASK      0xFF0FFFFF
-	#define LED_CR_MODE      0x00100000
-	#define RCC_APB2ENR_LED  0x00100000 // enable Port C  . Bit 4 IOPAEN: IO port C clock enable
-*/
 
-	#define LED_BANK         GPIOB
-	#define LED              1
-	#define LED_BANK_CR      GPIO_CRL(LED_BANK)
-	#define LED_CR_MASK      0xFFFFFF0F
-	#define LED_CR_MODE      0x00000010
-	#define RCC_APB2ENR_LED  0x00000008 /* enable Port B (bit 3 - see table above IOPBEN)*/
+
+	#define LED_BANK         GPIOG
+	#define LED              15
+	#define LED_ON_STATE	 1
 	
-	#define BUTTON_BANK GPIOC
-	#define BUTTON 9
-	#define BUT_BANK_CR GPIO_CRH(BUTTON_BANK)
-	#define BUT_CR_MASK 0xFFFFFF0F
-	#define BUT_CR_INPUT_PU_PD 0x00000080 // Input PU/PD
-	#define RCC_APB2ENR_BUT 0x00000010 // enable PC	
+	#define BUTTON_BANK 	GPIOC
+	#define BUTTON 			14
 	
 	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D- line*/
 	#define USB_DISC_BANK GPIOA
@@ -337,8 +264,6 @@
 	#define USB_DISC_CR_INPUT 		0x00040000
 	#define RCC_APB2ENR_USB 		0x00000004 // enable PA */
 
-	
-	
 
 // Use the usb_description_strings_util.html to make new strngs for the next 3 arrays if you need to change the text.
 	#define ALT0_STR_LEN 0x90
@@ -367,7 +292,6 @@
 
 #define STARTUP_BLINKS 5
 #define BOOTLOADER_WAIT 6
-
 
 
 #define VEND_ID0 0xAF

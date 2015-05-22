@@ -35,33 +35,33 @@
 
 void setupUSB (void) {
   /* enable USB DISC Pin */
-  pRCC->APB2ENR |= RCC_APB2ENR_USB;
-
+ // pRCC->APB2ENR |= RCC_APB2ENR_USB;// done in setupCLK()
 
 
 #ifdef HAS_MAPLE_HARDWARE	
   /* Setup USB DISC pin as output open drain */	
-  SET_REG(USB_DISC_CR,
-          (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_OUTPUT_OD);  
+  SET_REG(USB_DISC_CR,(GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_OUTPUT_OD);  
   gpio_write_bit(USB_DISC_BANK,USB_DISC,1);
 
   /* turn on the USB clock */
-  pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
+  //pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;// done in setupCLK()
 
   gpio_write_bit(USB_DISC_BANK,USB_DISC,0);  /* present ourselves to the host */
 #else
-
 // USE PA12 which is connected to USB pin D-
   SET_REG(USB_DISC_CR,
           (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_OUTPUT_PP);
 
   gpio_write_bit(USB_DISC_BANK,USB_DISC,0);  /* present ourselves to the host */
   
-  volatile unsigned x = 48000000/4/100; do { ; }while(--x);// wait a moment
+  volatile unsigned int delay;
+  for(delay = 0;delay<1024;delay++);
+
+  //  volatile unsigned x = 1024; do { ; }while(--x);// wait a moment
   /* turn on the USB clock */
    SET_REG(USB_DISC_CR,
           (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_INPUT); //Sets the PA12 as floating input
-  pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
+ //  pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
 #endif  
   /* initialize the usb application */
   usbAppInit();
@@ -71,11 +71,16 @@ void setupUSB (void) {
 
 
 
-#if 0
 void usbDsbBus(void) {
-  gpio_write_bit(USB_DISC_BANK,USB_DISC,1);
+// setPin(USB_DISC_BANK,USB_DISC);
+usbPowerOff();
+// SET_REG(USB_DISC_CR,
+// (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_OUTPUT);
+// resetPin(USB_DISC_BANK, USB_DISC); /* Pull DP+ down */
+// volatile unsigned x = 500000; do { ; }while(--x);
+// SET_REG(USB_DISC_CR,
+// (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_INPUT); //Sets the PA12 as floating input
 }
-#endif
 
 vu32 bDeviceState = UNCONNECTED;
 

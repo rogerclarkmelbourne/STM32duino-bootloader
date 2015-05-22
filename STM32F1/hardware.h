@@ -39,6 +39,9 @@
 #define GPIOE ((u32)0x40011800)
 #define GPIOF ((u32)0x40011C00)
 #define GPIOG ((u32)0x40012000)
+#define AFIO_BASE              	((u32)0x40010000)
+#define AFIO_MAPR  				(AFIO_BASE + 0x04)
+
 
 #define RCC_CR      RCC
 #define RCC_CFGR    (RCC + 0x04)
@@ -69,6 +72,7 @@
 #define GPIO_IDR(port)  (port+0x08)
 #define GPIO_ODR(port)  (port+0x0c)
 #define GPIO_BSRR(port) (port+0x10)
+#define GPIO_CR(port,pin) (port + (0x04*(pin>7)))
 
 #define SCS_BASE   ((u32)0xE000E000)
 #define NVIC_BASE  (SCS_BASE + 0x0100)
@@ -106,6 +110,19 @@
 #define __VAL(__TIMCLK, __PERIOD) ((__TIMCLK/1000000UL)*__PERIOD)
 #define __PSC(__TIMCLK, __PERIOD)  (((__VAL(__TIMCLK, __PERIOD)+49999UL)/50000UL) - 1)
 #define __ARR(__TIMCLK, __PERIOD) ((__VAL(__TIMCLK, __PERIOD)/(__PSC(__TIMCLK, __PERIOD)+1)) - 1)
+
+// SWD and JTAG DEBUGGING
+#define AFIO_MAPR_SWJ_CFG                      (0x7 << 24)
+#define AFIO_MAPR_SWJ_CFG_FULL_SWJ             (0x0 << 24)
+#define AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_NJRST    (0x1 << 24)
+#define AFIO_MAPR_SWJ_CFG_NO_JTAG_SW           (0x2 << 24)
+#define AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW        (0x4 << 24)
+
+        
+
+
+// more bit twiddling to set Control register bits
+#define CR_SHITF(pin) ((pin - 8*(pin>7))<<2)
 
 #define SET_REG(addr,val) do { *(vu32*)(addr)=val; } while(0)
 #define GET_REG(addr)     (*(vu32*)(addr))
@@ -172,16 +189,16 @@ typedef struct {
 //void setPin(u32 bank, u8 pin);
 //void resetPin(u32 bank, u8 pin);
 void gpio_write_bit(u32 bank, u8 pin, u8 val);
+unsigned int crMask(int pin);
 
 bool readPin(u32 bank, u8 pin);
-void strobePin(u32 bank, u8 pin, u8 count, u32 rate);
+void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState);
 
 void systemHardReset(void);
 void systemReset(void);
 void setupCLK(void);
-void setupLED(void);
+void setupLEDAndButton(void);
 void setupFLASH(void);
-void setupBUTTON(void);
 bool checkUserCode(u32 usrAddr);
 void jumpToUser(u32 usrAddr);
 
@@ -193,4 +210,6 @@ void flashUnlock(void);
 void nvicInit(NVIC_InitTypeDef *);
 void nvicDisableInterrupts(void);
 
+
+	
 #endif
