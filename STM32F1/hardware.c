@@ -111,29 +111,12 @@ void setupCLK(void) {
 
 
 void setupLEDAndButton (void) {
-
  // SET_REG(AFIO_MAPR,(GET_REG(AFIO_MAPR) & ~AFIO_MAPR_SWJ_CFG) | AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW);// Try to disable SWD AND JTAG so we can use those pins (not sure if this works).
-  
-
-  
-
-// just for testing
-
-
-  
-  SET_REG(GPIO_CR(BUTTON_BANK,BUTTON),(GPIO_CR(BUTTON_BANK,BUTTON) & crMask(BUTTON)) | 0x08<<CR_SHITF(BUTTON));
-  gpio_write_bit(BUTTON_BANK, BUTTON,0);// set pulldown resistor.
  
-/* 
-  #define LED2_BANK         GPIOB
-  #define LED2              1	 
-
-  SET_REG(GPIO_CR(LED2_BANK,LED2),(GET_REG(GPIO_CR(LED2_BANK,LED2)) & crMask(LED2)) | 0x01 << CR_SHITF(LED2)); 
-  strobePin(LED2_BANK, LED2, 50, BLINK_FAST);// Just testing other gpio pins  
-  */
-  SET_REG(GPIO_CR(LED_BANK,LED),(GET_REG(GPIO_CR(LED_BANK,LED)) & crMask(LED)) | 0x01 << CR_SHITF(LED));
+  SET_REG(GPIO_CR(BUTTON_BANK,BUTTON),(GPIO_CR(BUTTON_BANK,BUTTON) & crMask(BUTTON)) | CR_INPUT_PU_PD << CR_SHITF(BUTTON));
+  gpio_write_bit(BUTTON_BANK, BUTTON,0);// set pulldown resistor in case there is no button.
  
-  
+  SET_REG(GPIO_CR(LED_BANK,LED_PIN),(GET_REG(GPIO_CR(LED_BANK,LED_PIN)) & crMask(LED_PIN)) | CR_OUTPUT_PP << CR_SHITF(LED_PIN));
 }
 
 void setupFLASH() {
@@ -308,6 +291,8 @@ void flashUnlock() {
     SET_REG(FLASH_KEYR, FLASH_KEY2);
 }
 
+
+// Used to create the control register masking pattern, when setting control register mode.
 unsigned int crMask(int pin)
 {
 	unsigned int mask;
@@ -318,4 +303,3 @@ unsigned int crMask(int pin)
 	mask = 0x0F << (pin<<2);
 	return ~mask;
 }	
-

@@ -115,7 +115,8 @@ all: begin gccversion build sizeafter finished end
 maple-mini: begin gccversion build_maple-mini sizeafter finished  copy_maple_mini end
 maple-rev3: begin gccversion build_maple-rev3 sizeafter finished  copy_maple-rev3 end
 maple-rev5: begin gccversion build_maple-rev5 sizeafter finished  copy_maple-rev5 end
-generic-medium-density: begin gccversion build_generic-medium-density sizeafter finished  copy_generic-medium-density end
+generic-f103c-pc13: begin gccversion build_generic-f103c-pc13 sizeafter finished  copy_generic-f103c-pc13 end
+generic-f103c-pd2: begin gccversion build_generic-f103c-pd2 sizeafter finished  copy_generic-f103c-pd2 end
 generic-high-density: begin gccversion build_generic-high-density sizeafter finished  copy_generic-high-density end
 
 
@@ -158,16 +159,27 @@ copy_maple-rev5:
 	@echo
 	
 	
-build_generic-medium-density: TARGETFLAGS= -DTARGET_GENERIC_MEDIUM_DENSITY
+build_generic-f103c-pc13: TARGETFLAGS= -DTARGET_GENERIC_MEDIUM_DENSITY -DLED_BANK=GPIOC -DLED_PIN=13 -DLED_ON_STATE=0
 # Set the linker script
-build_generic-medium-density: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
-build_generic-medium-density: elf bin lss sym
-copy_generic-medium-density: 
+build_generic-f103c-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
+build_generic-f103c-pc13: elf bin lss sym
+copy_generic-f103c-pc13: 
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_medium_density_boot20.bin
 	@echo	
+	
+build_generic-f103c-pd2: TARGETFLAGS= -DTARGET_GENERIC_MEDIUM_DENSITY -DLED_BANK=GPIOC -DLED_PIN=13
+# Set the linker script
+build_generic-f103c-pd2: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
+build_generic-f103c-pd2: elf bin lss sym
+copy_generic-f103c-pd2: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/generic_medium_density_boot20.bin
+	@echo		
 	
 build_generic-high-density: TARGETFLAGS= -DTARGET_GENERIC_HIGH_DENSITY
 build_generic-high-density: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld

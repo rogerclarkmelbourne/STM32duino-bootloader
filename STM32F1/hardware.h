@@ -74,6 +74,11 @@
 #define GPIO_BSRR(port) (port+0x10)
 #define GPIO_CR(port,pin) (port + (0x04*(pin>7)))
 
+#define CR_OUTPUT_OD 		0x05
+#define CR_OUTPUT_PP		0x01	
+#define CR_INPUT 	  		0x04
+#define CR_INPUT_PU_PD		0x08
+
 #define SCS_BASE   ((u32)0xE000E000)
 #define NVIC_BASE  (SCS_BASE + 0x0100)
 #define SCB_BASE   (SCS_BASE + 0x0D00)
