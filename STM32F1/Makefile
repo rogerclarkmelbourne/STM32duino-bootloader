@@ -118,6 +118,7 @@ maple-rev5: begin gccversion build_maple-rev5 sizeafter finished  copy_maple-rev
 generic-pc13: begin gccversion build_generic-pc13 sizeafter finished  copy_generic-pc13 end
 generic-pg15: begin gccversion build_generic-pg15 sizeafter finished  copy_generic-pg15 end
 generic-pd2: begin gccversion build_generic-pd2 sizeafter finished  copy_generic-pd2 end
+generic-pd1: begin gccversion build_generic-pd1 sizeafter finished  copy_generic-pd1 end
 
 build: elf bin lss sym
 
@@ -190,6 +191,18 @@ copy_generic-pd2:
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pd2.bin
 	@echo	
+	
+	
+build_generic-pd1: TARGETFLAGS= -DTARGET_GENERIC_F103 -DLED_BANK=GPIOD -DLED_PIN=1 -DLED_ON_STATE=1
+# Set the linker script
+build_generic-pd1: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-pd1: elf bin lss sym
+copy_generic-pd1: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/generic_boot20_pd1.bin
+	@echo		
 	
 	
 bin: $(TARGET).bin
