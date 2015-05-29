@@ -39,7 +39,9 @@
 #define ENDP3_RXADDR    0x110
 
 #define bMaxPacketSize  0x40    /* 64B,  maximum for usb FS devices */
-#define wTransferSize   FLASH_PAGE_SIZE  /* This is important, because transfers have to match with the flash page size, otherwise it erases a page before its finished copying to that page */
+//#define wTransferSize   FLASH_PAGE_SIZE  /* This is important, because transfers have to match with the flash page size, otherwise it erases a page before its finished copying to that page */
+#define dummyTransferSize 0x800
+int wTransferSize;
 
 #define NUM_ENDPTS      0x01
 

@@ -30,7 +30,7 @@
  *
  *
  */
-
+#include "hardware.h"
 #include "dfu.h"
 #include "usb.h"
 
@@ -41,7 +41,10 @@ static volatile DFUStatus dfuAppStatus;       /* includes state */
 volatile dfuUploadTypes_t userUploadType = DFU_UPLOAD_NONE;
 volatile bool dfuBusy = FALSE;
 
-static volatile u8 recvBuffer[wTransferSize] __attribute__((aligned(4)));
+
+//static volatile u8 recvBuffer[wTransferSize] __attribute__((aligned(4)));
+static volatile u8 recvBuffer[LARGEST_FLASH_PAGE_SIZE] __attribute__((aligned(4)));
+
 static volatile u32 userFirmwareLen = 0;
 static volatile u16 thisBlockLen = 0;
 static volatile u16 uploadBlockLen = 0;
@@ -66,10 +69,15 @@ void dfuInit(void) {
     dfuBusy = FALSE;
 }
 
+
+
+
 bool dfuUpdateByRequest(void) {
     /* were using the global pInformation struct from usb_lib here,
        see comment in maple_dfu.h around DFUEvent struct */
     dfuBusy = TRUE;
+	
+
 
     u8 startState = dfuAppStatus.bState;
     dfuAppStatus.bStatus = OK;
@@ -136,11 +144,11 @@ bool dfuUpdateByRequest(void) {
 					*/
 				case 1:
 				    userAppAddr = USER_CODE_FLASH0X8005000;
-					userAppEnd = FLASH_END;
+					userAppEnd = getFlashEnd();
 					break;
 				case 2: 
 				    userAppAddr = USER_CODE_FLASH0X8002000;
-					userAppEnd = FLASH_END;
+					userAppEnd = getFlashEnd();
 					break;
 				default:
 				// Roger Clark. 

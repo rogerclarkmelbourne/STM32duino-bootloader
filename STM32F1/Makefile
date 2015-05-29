@@ -115,17 +115,15 @@ all: begin gccversion build sizeafter finished end
 maple-mini: begin gccversion build_maple-mini sizeafter finished  copy_maple_mini end
 maple-rev3: begin gccversion build_maple-rev3 sizeafter finished  copy_maple-rev3 end
 maple-rev5: begin gccversion build_maple-rev5 sizeafter finished  copy_maple-rev5 end
-generic-f103c-pc13: begin gccversion build_generic-f103c-pc13 sizeafter finished  copy_generic-f103c-pc13 end
-generic-f103c-pd2: begin gccversion build_generic-f103c-pd2 sizeafter finished  copy_generic-f103c-pd2 end
-generic-high-density: begin gccversion build_generic-high-density sizeafter finished  copy_generic-high-density end
-
+generic-pc13: begin gccversion build_generic-pc13 sizeafter finished  copy_generic-pc13 end
+generic-pg15: begin gccversion build_generic-pg15 sizeafter finished  copy_generic-pg15 end
+generic-pd2: begin gccversion build_generic-pd2 sizeafter finished  copy_generic-pd2 end
 
 build: elf bin lss sym
 
-
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
 # Set the linker script
-build_maple-mini: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
+build_maple-mini: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 
 build_maple-mini: elf bin lss sym
 copy_maple_mini: 
@@ -137,7 +135,7 @@ copy_maple_mini:
 
 build_maple-rev3: TARGETFLAGS= -DTARGET_MAPLE_REV3
 # Set the linker script
-build_maple-rev3: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
+build_maple-rev3: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 
 build_maple-rev3: elf bin lss sym
 copy_maple-rev3: 
@@ -149,7 +147,7 @@ copy_maple-rev3:
 
 build_maple-rev5: TARGETFLAGS= -DTARGET_MAPLE_REV5
 # Set the linker script
-build_maple-rev5: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
+build_maple-rev5: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_maple-rev5: elf bin lss sym
 copy_maple-rev5: 
 	@echo
@@ -159,40 +157,40 @@ copy_maple-rev5:
 	@echo
 	
 	
-build_generic-f103c-pc13: TARGETFLAGS= -DTARGET_GENERIC_MEDIUM_DENSITY -DLED_BANK=GPIOC -DLED_PIN=13 -DLED_ON_STATE=0
+build_generic-pc13: TARGETFLAGS= -DTARGET_GENERIC_F103 -DLED_BANK=GPIOC -DLED_PIN=13 -DLED_ON_STATE=0
 # Set the linker script
-build_generic-f103c-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
-build_generic-f103c-pc13: elf bin lss sym
-copy_generic-f103c-pc13: 
+build_generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-pc13: elf bin lss sym
+copy_generic-pc13: 
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
-	cp $(TARGET).bin binaries/generic_medium_density_boot20.bin
+	cp $(TARGET).bin binaries/generic_boot20_pc13.bin
 	@echo	
 	
-build_generic-f103c-pd2: TARGETFLAGS= -DTARGET_GENERIC_MEDIUM_DENSITY -DLED_BANK=GPIOC -DLED_PIN=13
+build_generic-pg15: TARGETFLAGS= -DTARGET_GENERIC_F103 -DLED_BANK=GPIOG -DLED_PIN=15 -DLED_ON_STATE=1
 # Set the linker script
-build_generic-f103c-pd2: LDFLAGS +=-T$(ST_LIB)/c_only_md.ld
-build_generic-f103c-pd2: elf bin lss sym
-copy_generic-f103c-pd2: 
+build_generic-pg15: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-pg15: elf bin lss sym
+copy_generic-pg15: 
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
-	cp $(TARGET).bin binaries/generic_medium_density_boot20.bin
+	cp $(TARGET).bin binaries/generic_boot20_pg15.bin
 	@echo		
-	
-build_generic-high-density: TARGETFLAGS= -DTARGET_GENERIC_HIGH_DENSITY
-build_generic-high-density: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
-build_generic-high-density: elf bin lss sym
-copy_generic-high-density: 
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin binaries/generic_high_density_boot20.bin
-	@echo		
-	
-	
 
+
+build_generic-pd2: TARGETFLAGS= -DTARGET_GENERIC_F103 -DLED_BANK=GPIOD -DLED_PIN=2 -DLED_ON_STATE=1
+# Set the linker script
+build_generic-pd2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-pd2: elf bin lss sym
+copy_generic-pd2: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/generic_boot20_pd2.bin
+	@echo	
+	
 	
 bin: $(TARGET).bin
 elf: $(TARGET).elf

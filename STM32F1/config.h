@@ -35,6 +35,8 @@
 
 #include "common.h"
 
+
+
 /* Speed controls for strobing the LED pin */
 #define BLINK_FAST 0x50000
 #define BLINK_SLOW 0x100000
@@ -60,8 +62,8 @@
 #define USER_CODE_FLASH0X8005000   	((u32)0x08005000)
 #define USER_CODE_FLASH0X8002000	((u32)0x08002000)
 
+#define LARGEST_FLASH_PAGE_SIZE 0x800
 
-#if defined TARGET_MAPLE_MINI
 
 /* Porting information Please read.
 
@@ -73,17 +75,18 @@
 	For each pin, the following is required
 	
 	LED_BANK, this is the GPIO port, e.g. GPIOA,GPIOB, GPIOC etc etc etc
-	LED, this is the pin number e.g PB1 = 1
+	LED_PIN, this is the pin number e.g PB1 = 1
 	LED_ON_STATE is whether the pin needs to be 1 or 0 for the LED to be lit, this is needed because on some boards the led is wired between Vcc and the Pin
-	instead of from the pin to Gnd
-	
+	instead of from the pin to GND
 */
+
+#if defined TARGET_MAPLE_MINI
+
+
 	#define HAS_MAPLE_HARDWARE 1
-	
-	#define FLASH_PAGE_SIZE 0x400
 
 	#define LED_BANK         GPIOB
-	#define LED_PIN              1
+	#define LED_PIN          1
 	#define LED_ON_STATE	 1	
 
 	/* On the Mini, BUT is PB8 */
@@ -96,16 +99,14 @@
 
 	#define USER_CODE_RAM     			((u32)0x20000C00)
 	#define RAM_END           			((u32)0x20005000)
-
-	#define FLASH_END         			((u32)0x08020000)
 	
 	
 #elif defined TARGET_MAPLE_REV3
 
-#warning "Target MAPLE_REV3"
+	#warning "Target MAPLE_REV3"
 
+// Flag that this type of board has the custom maple disconnect hardware
 	#define HAS_MAPLE_HARDWARE 1
-	#define FLASH_PAGE_SIZE 0x800
 	
 	#define LED_BANK         GPIOB
 	#define LED_PIN              1
@@ -120,15 +121,12 @@
 
 	#define USER_CODE_RAM     			((u32)0x20000C00)
 	#define RAM_END           			((u32)0x20005000)
-	#define FLASH_END         			((u32)0x08020000)	
-	
-	#define FLASH_PAGE_SIZE 0x400
 	
 #elif defined TARGET_MAPLE_REV5
-#warning "Target MAPLE_REV5"
+	#warning "Target MAPLE_REV5"
 
+// Flag that this type of board has the custom maple disconnect hardware
 	#define HAS_MAPLE_HARDWARE 1
-	#define FLASH_PAGE_SIZE 0x800
 
 	#define LED_BANK         GPIOA
 	#define LED_PIN              5
@@ -144,71 +142,30 @@
 	
 	#define USER_CODE_RAM     			((u32)0x20000C00)
 	#define RAM_END           			((u32)0x20005000)
-	#define FLASH_END         			((u32)0x08040000)		
 	
-#elif defined TARGET_GENERIC_MEDIUM_DENSITY
-
-
-/* Most generic STM32F103C8 boards have the LED on PC13 */
-	#warning "Target GENERIC_MEDIUM_DENSITY"
+#elif defined TARGET_GENERIC_F103
+	#warning "Target TARGET_GENERIC_F103"
 	
-	#define FLASH_PAGE_SIZE 0x400	
-	
-//	#define LED_BANK         GPIOC
-//	#define LED_PIN          13
-//	#define LED_ON_STATE	 0
+// LED now defined in the make file
 
+	// this is fairly meaningless on generic boards, but change this if you want to use a button
 	#define BUTTON_BANK GPIOC
 	#define BUTTON 14
-
 	
-	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D- line*/
+	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
 	#define USB_DISC_BANK         GPIOA
 	#define USB_DISC              12
 
 	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)
-
-	// 64k flash
-	#define FLASH_END         			((u32)0x08010000)		
-
-#elif defined TARGET_GENERIC_HIGH_DENSITY
-
-/* Most generic STM32F103C8 boards have the LED on PC13 */
-	//#warning "Data for STM32F103C8"
-	
-	#define FLASH_PAGE_SIZE 0x800	
-
-
-	#define LED_BANK         GPIOG
-	#define LED_PIN              15
-	#define LED_ON_STATE	 1
-	
-	#define BUTTON_BANK 	GPIOC
-	#define BUTTON 			14
-	
-	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D- line*/
-	#define USB_DISC_BANK         	GPIOA
-	#define USB_DISC              	12
-
-	
-
-
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)
-	
-// lots of flash
-	#define FLASH_END         			((u32)0x08010000)		
-	
-	
+	#define RAM_END           			((u32)0x20005000)	
 #else
-#error "No config for this target"
+
+	#error "No config for this target"
 
 #endif
 
 #define STARTUP_BLINKS 5
 #define BOOTLOADER_WAIT 6
-
 
 #define VEND_ID0 0xAF
 #define VEND_ID1 0x1E

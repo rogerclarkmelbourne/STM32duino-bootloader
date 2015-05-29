@@ -69,8 +69,8 @@ u8 u8_usbFunctionalDescriptor[9] = {
     0x03,   /*bmAttributes, bitCanDnload | bitCanUpload */
     0xFF,   /*DetachTimeOut= 255 ms*/
     0x00,
-    (wTransferSize & 0x00FF),
-    (wTransferSize & 0xFF00) >> 8, /* TransferSize = 1024 Byte*/
+    (dummyTransferSize & 0x00FF),
+    (dummyTransferSize & 0xFF00) >> 8, /* TransferSize = 1024 Byte*/
     0x10,                          /* bcdDFUVersion = 1.1 */
     0x01
 };
@@ -139,8 +139,8 @@ u8 u8_usbConfigDescriptorDFU[u8_usbConfigDescriptorDFU_LENGTH] = {
     0x03,   /*bmAttributes, bitCanDnload | bitCanUpload */
     0xFF,   /*DetachTimeOut= 255 ms*/
     0x00,
-    (wTransferSize & 0x00FF),
-    (wTransferSize & 0xFF00) >> 8, /* TransferSize = 1024 Byte*/
+    (dummyTransferSize & 0x00FF),
+    (dummyTransferSize & 0xFF00) >> 8, /* TransferSize = 1024 Byte*/
     0x10,                          /* bcdDFUVersion = 1.1 */
     0x01
     /***********************************************************/

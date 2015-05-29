@@ -215,6 +215,7 @@ void flashUnlock(void);
 void nvicInit(NVIC_InitTypeDef *);
 void nvicDisableInterrupts(void);
 
-
+int getFlashEnd(void);
+int getFlashPageSize(void);
 	
 #endif

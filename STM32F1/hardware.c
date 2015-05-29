@@ -243,7 +243,7 @@ bool flashErasePage(u32 pageAddr) {
 }
 bool flashErasePages(u32 pageAddr, u16 n) {
     while (n-- > 0) {
-        if (!flashErasePage(pageAddr + FLASH_PAGE_SIZE * n)) {
+        if (!flashErasePage(pageAddr + wTransferSize * n)) {
             return FALSE;
         }
     }
@@ -303,3 +303,24 @@ unsigned int crMask(int pin)
 	mask = 0x0F << (pin<<2);
 	return ~mask;
 }	
+
+#define FLASH_SIZE_REG 0x1FFFF7E0
+int getFlashEnd(void)
+{
+	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register 
+	return ((int)(*flashSize & 0xffff) * 1024) + 0x08000000;
+}
+
+int getFlashPageSize(void)
+{
+
+	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register 
+	if ((*flashSize & 0xffff) > 128)
+	{
+		return 0x800;
+	}
+	else
+	{
+		return 0x400;
+	}
+}

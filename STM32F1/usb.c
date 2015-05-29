@@ -33,11 +33,15 @@
 #include "usb.h"
 #include "dfu.h"
 
+
+extern u8 u8_usbConfigDescriptorDFU[];
+extern u8 u8_usbFunctionalDescriptor[];
+
 void setupUSB (void) {
 
 #ifdef HAS_MAPLE_HARDWARE	
   /* Setup USB DISC pin as output open drain */	
-  SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC),(GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC)) & crMask(USB_DISC)) | CR_OUTPUT_OD << CR_SHITF(LED));  
+  SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC),(GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC)) & crMask(USB_DISC)) | CR_OUTPUT_OD << CR_SHITF(LED_PIN));  
   gpio_write_bit(USB_DISC_BANK,USB_DISC,1);
 
   /* turn on the USB clock */
@@ -61,6 +65,14 @@ void setupUSB (void) {
  //  pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
 #endif  
   /* initialize the usb application */
+  
+  wTransferSize=getFlashPageSize();
+  u8_usbConfigDescriptorDFU[41]=(wTransferSize & 0x00FF);
+  u8_usbConfigDescriptorDFU[42]=(wTransferSize & 0xFF00)>>8;
+  
+  u8_usbFunctionalDescriptor[5]=(wTransferSize & 0x00FF);
+  u8_usbFunctionalDescriptor[6]=(wTransferSize & 0xFF00)>>8;  
+  
   usbAppInit();
 
 }
