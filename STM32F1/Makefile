@@ -158,7 +158,7 @@ copy_maple-rev5:
 	@echo
 	
 	
-build_generic-pc13: TARGETFLAGS= -DTARGET_GENERIC_F103 -DLED_BANK=GPIOC -DLED_PIN=13 -DLED_ON_STATE=0
+build_generic-pc13: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13
 # Set the linker script
 build_generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pc13: elf bin lss sym
@@ -169,7 +169,7 @@ copy_generic-pc13:
 	cp $(TARGET).bin binaries/generic_boot20_pc13.bin
 	@echo	
 	
-build_generic-pg15: TARGETFLAGS= -DTARGET_GENERIC_F103 -DLED_BANK=GPIOG -DLED_PIN=15 -DLED_ON_STATE=1
+build_generic-pg15: TARGETFLAGS= -DTARGET_GENERIC_F103_PG15
 # Set the linker script
 build_generic-pg15: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pg15: elf bin lss sym
@@ -181,7 +181,7 @@ copy_generic-pg15:
 	@echo		
 
 
-build_generic-pd2: TARGETFLAGS= -DTARGET_GENERIC_F103 -DLED_BANK=GPIOD -DLED_PIN=2 -DLED_ON_STATE=1
+build_generic-pd2: TARGETFLAGS= -DTARGET_GENERIC_F103_PD2
 # Set the linker script
 build_generic-pd2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pd2: elf bin lss sym
@@ -193,7 +193,7 @@ copy_generic-pd2:
 	@echo	
 	
 	
-build_generic-pd1: TARGETFLAGS= -DTARGET_GENERIC_F103 -DLED_BANK=GPIOD -DLED_PIN=1 -DLED_ON_STATE=1
+build_generic-pd1: TARGETFLAGS= -DTARGET_GENERIC_F103_PD1
 # Set the linker script
 build_generic-pd1: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pd1: elf bin lss sym

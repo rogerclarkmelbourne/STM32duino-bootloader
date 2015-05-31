@@ -143,12 +143,13 @@
 	#define USER_CODE_RAM     			((u32)0x20000C00)
 	#define RAM_END           			((u32)0x20005000)
 	
-#elif defined TARGET_GENERIC_F103
-	#warning "Target TARGET_GENERIC_F103"
+#elif defined TARGET_GENERIC_F103_PC13
 	
-// LED now defined in the make file
+	#define LED_BANK			GPIOC 
+	#define LED_PIN 			13
+	#define LED_ON_STATE		0
 
-	// this is fairly meaningless on generic boards, but change this if you want to use a button
+	// Button (if you have one)
 	#define BUTTON_BANK GPIOC
 	#define BUTTON 14
 	
@@ -156,8 +157,64 @@
 	#define USB_DISC_BANK         GPIOA
 	#define USB_DISC              12
 
+	// Ram stuff not really needed any more
 	#define USER_CODE_RAM     			((u32)0x20000C00)
 	#define RAM_END           			((u32)0x20005000)	
+	
+#elif defined TARGET_GENERIC_F103_PG15
+	
+	#define LED_BANK			GPIOG 
+	#define LED_PIN 			15
+	#define LED_ON_STATE		1
+
+	// Button (if you have one)
+	#define BUTTON_BANK GPIOC
+	#define BUTTON 14
+	
+	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
+	#define USB_DISC_BANK         GPIOA
+	#define USB_DISC              12
+
+	// Ram stuff not really needed any more
+	#define USER_CODE_RAM     			((u32)0x20000C00)
+	#define RAM_END           			((u32)0x20005000)		
+	
+#elif defined TARGET_GENERIC_F103_PD2
+	
+	#define LED_BANK			GPIOD 
+	#define LED_PIN 			2
+	#define LED_ON_STATE		1
+
+	// Button (if you have one)
+	#define BUTTON_BANK GPIOC
+	#define BUTTON 14
+	
+	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
+	#define USB_DISC_BANK         GPIOA
+	#define USB_DISC              12
+
+	// Ram stuff not really needed any more
+	#define USER_CODE_RAM     			((u32)0x20000C00)
+	#define RAM_END           			((u32)0x20005000)		
+	
+#elif defined TARGET_GENERIC_F103_PD1
+	
+	#define LED_BANK			GPIOD 
+	#define LED_PIN 			1
+	#define LED_ON_STATE		1
+
+	// Button (if you have one)
+	#define BUTTON_BANK GPIOC
+	#define BUTTON 14
+	
+	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
+	#define USB_DISC_BANK         GPIOA
+	#define USB_DISC              12
+
+	// Ram stuff not really needed any more
+	#define USER_CODE_RAM     			((u32)0x20000C00)
+	#define RAM_END           			((u32)0x20005000)		
+	
 #else
 
 	#error "No config for this target"
