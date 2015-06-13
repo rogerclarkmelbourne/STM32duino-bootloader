@@ -232,6 +232,26 @@
 	// Ram stuff not really needed any more
 	#define USER_CODE_RAM     			((u32)0x20000C00)
 	#define RAM_END           			((u32)0x20005000)		
+
+
+#elif defined TARGET_GENERIC_F103_PB9
+	
+	#define LED_BANK			GPIOB 
+	#define LED_PIN 			9
+	#define LED_ON_STATE		1
+
+	// Button (if you have one)
+	#define BUTTON_BANK GPIOC
+	#define BUTTON 14
+	
+	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
+	#define USB_DISC_BANK         GPIOA
+	#define USB_DISC              12
+
+	// Ram stuff not really needed any more
+	#define USER_CODE_RAM     			((u32)0x20000C00)
+	#define RAM_END           			((u32)0x20005000)		
+	
 	
 #else
 
