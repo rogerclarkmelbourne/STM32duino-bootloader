@@ -49,7 +49,11 @@ void setupUSB (void) {
 
   gpio_write_bit(USB_DISC_BANK,USB_DISC,0);  /* present ourselves to the host */
 #else
-// USE PA12 which is connected to USB pin D-
+
+/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
+#define USB_DISC_BANK         GPIOA
+#define USB_DISC              12
+
   SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC),
           (GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC)) & crMask(USB_DISC)) | CR_OUTPUT_PP << CR_SHITF(USB_DISC));
 

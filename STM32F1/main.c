@@ -48,7 +48,7 @@ int main()
 
 
 	/* wait for host to upload program or halt bootloader */
-	bool no_user_jump = (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000)) || readPin(BUTTON_BANK,BUTTON) ;
+	bool no_user_jump = (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000)) || readButtonState() ;
 	
 	int delay_count = 0;
 

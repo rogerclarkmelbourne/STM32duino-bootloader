@@ -64,6 +64,9 @@
 
 #define LARGEST_FLASH_PAGE_SIZE 0x800
 
+// Upload to RAM has been removed / depreacted so these values a not used any more
+#define USER_CODE_RAM     			((u32)0x20000C00)
+#define RAM_END           			((u32)0x20005000)
 
 /* Porting information Please read.
 
@@ -82,7 +85,6 @@
 
 #if defined TARGET_MAPLE_MINI
 
-
 	#define HAS_MAPLE_HARDWARE 1
 
 	#define LED_BANK         GPIOB
@@ -96,10 +98,6 @@
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK       GPIOB
 	#define USB_DISC            9
-
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)
-	
 	
 #elif defined TARGET_MAPLE_REV3
 
@@ -118,9 +116,6 @@
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK         GPIOB
 	#define USB_DISC              9
-
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)
 	
 #elif defined TARGET_MAPLE_REV5
 	#warning "Target MAPLE_REV5"
@@ -140,9 +135,6 @@
 	#define USB_DISC_BANK         GPIOB
 	#define USB_DISC              9
 	
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)
-	
 #elif defined TARGET_GENERIC_F103_PC13
 	
 	#define LED_BANK			GPIOC 
@@ -150,16 +142,11 @@
 	#define LED_ON_STATE		0
 
 	// Button (if you have one)
+	
 	#define BUTTON_BANK GPIOC
 	#define BUTTON 14
+	#define BUTTON_PRESSED_STATE 1
 	
-	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
-	#define USB_DISC_BANK         GPIOA
-	#define USB_DISC              12
-
-	// Ram stuff not really needed any more
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)	
 	
 #elif defined TARGET_GENERIC_F103_PG15
 	
@@ -170,14 +157,7 @@
 	// Button (if you have one)
 	#define BUTTON_BANK GPIOC
 	#define BUTTON 14
-	
-	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
-	#define USB_DISC_BANK         GPIOA
-	#define USB_DISC              12
-
-	// Ram stuff not really needed any more
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)		
+	#define BUTTON_PRESSED_STATE 1
 	
 #elif defined TARGET_GENERIC_F103_PD2
 	
@@ -188,14 +168,7 @@
 	// Button (if you have one)
 	#define BUTTON_BANK GPIOC
 	#define BUTTON 14
-	
-	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
-	#define USB_DISC_BANK         GPIOA
-	#define USB_DISC              12
-
-	// Ram stuff not really needed any more
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)		
+	#define BUTTON_PRESSED_STATE 1
 	
 #elif defined TARGET_GENERIC_F103_PD1
 	
@@ -206,15 +179,8 @@
 	// Button (if you have one)
 	#define BUTTON_BANK GPIOC
 	#define BUTTON 14
-	
-	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
-	#define USB_DISC_BANK         GPIOA
-	#define USB_DISC              12
+	#define BUTTON_PRESSED_STATE 1
 
-	// Ram stuff not really needed any more
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)		
-	
 #elif defined TARGET_GENERIC_F103_PA1
 	
 	#define LED_BANK			GPIOA 
@@ -224,15 +190,7 @@
 	// Button (if you have one)
 	#define BUTTON_BANK GPIOC
 	#define BUTTON 14
-	
-	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
-	#define USB_DISC_BANK         GPIOA
-	#define USB_DISC              12
-
-	// Ram stuff not really needed any more
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)		
-
+	#define BUTTON_PRESSED_STATE 1
 
 #elif defined TARGET_GENERIC_F103_PB9
 	
@@ -243,25 +201,16 @@
 	// Button (if you have one)
 	#define BUTTON_BANK GPIOC
 	#define BUTTON 14
-	
-	/* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+ line*/
-	#define USB_DISC_BANK         GPIOA
-	#define USB_DISC              12
+	#define BUTTON_PRESSED_STATE 1
 
-	// Ram stuff not really needed any more
-	#define USER_CODE_RAM     			((u32)0x20000C00)
-	#define RAM_END           			((u32)0x20005000)		
-	
-	
 #else
-
 	#error "No config for this target"
-
 #endif
 
 #define STARTUP_BLINKS 5
 #define BOOTLOADER_WAIT 6
 
+// defines for USB (DONT CHANGE)
 #define VEND_ID0 0xAF
 #define VEND_ID1 0x1E
 #define PROD_ID0 0x03
