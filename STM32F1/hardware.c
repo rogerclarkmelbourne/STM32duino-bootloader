@@ -59,15 +59,11 @@ bool readPin(u32 bank, u8 pin) {
 bool readButtonState() {
     // todo, implement read
 	bool state=FALSE;
- #if defined(BUTTON_BANK) && defined (BUTTON) && defined (BUTTON_PRESSED_STATE)	
-    if (GET_REG(GPIO_IDR(BUTTON_BANK)) & (0x01 << BUTTON)) 
+ #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)	
+    if (GET_REG(GPIO_IDR(BUTTON_BANK)) & (0x01 << BUTTON_PIN)) 
 	{
         state = TRUE;
     } 
-	else 
-	{
-        state= FALSE;
-    }
 	
 	if (BUTTON_PRESSED_STATE==0)
 	{
@@ -134,10 +130,10 @@ void setupCLK(void) {
 void setupLEDAndButton (void) {
  // SET_REG(AFIO_MAPR,(GET_REG(AFIO_MAPR) & ~AFIO_MAPR_SWJ_CFG) | AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW);// Try to disable SWD AND JTAG so we can use those pins (not sure if this works).
  
- #if defined(BUTTON_BANK) && defined (BUTTON) && defined (BUTTON_PRESSED_STATE)
-  SET_REG(GPIO_CR(BUTTON_BANK,BUTTON),(GPIO_CR(BUTTON_BANK,BUTTON) & crMask(BUTTON)) | CR_INPUT_PU_PD << CR_SHITF(BUTTON));
+ #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)
+  SET_REG(GPIO_CR(BUTTON_BANK,BUTTON_PIN),(GPIO_CR(BUTTON_BANK,BUTTON_PIN) & crMask(BUTTON_PIN)) | CR_INPUT_PU_PD << CR_SHITF(BUTTON_PIN));
   
-  gpio_write_bit(BUTTON_BANK, BUTTON,1-BUTTON_PRESSED_STATE);// set pulldown resistor in case there is no button.
+  gpio_write_bit(BUTTON_BANK, BUTTON_PIN,1-BUTTON_PRESSED_STATE);// set pulldown resistor in case there is no button.
  #endif
   SET_REG(GPIO_CR(LED_BANK,LED_PIN),(GET_REG(GPIO_CR(LED_BANK,LED_PIN)) & crMask(LED_PIN)) | CR_OUTPUT_PP << CR_SHITF(LED_PIN));
 }

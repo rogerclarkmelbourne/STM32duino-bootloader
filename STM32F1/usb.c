@@ -60,7 +60,7 @@ void setupUSB (void) {
   gpio_write_bit(USB_DISC_BANK,USB_DISC,0);  /* present ourselves to the host */
   
   volatile unsigned int delay;
-  for(delay = 0;delay<1024;delay++);
+  for(delay = 0;delay<256;delay++);
 
   //  volatile unsigned x = 1024; do { ; }while(--x);// wait a moment
   /* turn on the USB clock */
