@@ -121,7 +121,7 @@ generic-pd2: begin gccversion build_generic-pd2 sizeafter finished  copy_generic
 generic-pd1: begin gccversion build_generic-pd1 sizeafter finished  copy_generic-pd1 end
 generic-pa1: begin gccversion build_generic-pa1 sizeafter finished  copy_generic-pa1 end
 generic-pb9: begin gccversion build_generic-pb9 sizeafter finished  copy_generic-pb9 end
-
+generic-pe2: begin gccversion build_generic-pe2 sizeafter finished  copy_generic-pe2 end
 
 build: elf bin lss sym
 
@@ -228,6 +228,20 @@ copy_generic-pb9:
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pb9.bin
 	@echo	
+	
+
+build_generic-pe2: TARGETFLAGS= -DTARGET_GENERIC_F103_PE2
+# Set the linker script
+build_generic-pe2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-pe2: elf bin lss sym
+copy_generic-pe2: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/generic_boot20_pe2.bin
+	@echo		
+	
+	
 	
 	
 bin: $(TARGET).bin
