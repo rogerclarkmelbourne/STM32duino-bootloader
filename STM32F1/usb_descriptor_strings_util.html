@@ -10,26 +10,12 @@ function convertText(txt,idNum)
 	}
 	return txt2.substring(0,txt2.length-1)+"<br/>";
 }
-document.write("<pre>Maple mini\n\n");
-document.write("\t"+convertText("Bootloader 2.0.rc1 ERROR. Upload to RAM is not supported. (Maple-mini)",0)+"<br/>");
-document.write("\t"+convertText("Bootloader 2.0.rc1 Upload to Flash address 0x8005000 (Maple-mini)",1)+"<br/>");
-document.write("\t"+convertText("Bootloader 2.0.rc1 Upload to Flash address 0x8002000 (Maple-mini)",2)+"<br/>");
+var bootloaderName = "STM32duino bootloader v1.0 ";
+document.write("<pre>USB Strings for config.h\n\n");
+document.write("\t"+convertText(bootloaderName + " ERROR. Upload to RAM not supported.",0)+"<br/>");
+document.write("\t"+convertText(bootloaderName + " Upload to Flash 0x8005000",1)+"<br/>");
+document.write("\t"+convertText(bootloaderName + " Upload to Flash 0x8002000",2)+"<br/>");
 
-document.write("<pre>Maple Rev3\n\n");
-document.write("\t"+convertText("Bootloader 2.0.rc1 ERROR. Upload to RAM is not supported. (Maple-Rev3)",0)+"<br/>");
-document.write("\t"+convertText("Bootloader 2.0.rc1 Upload to Flash address 0x8005000 (Maple-Rev3)",1)+"<br/>");
-document.write("\t"+convertText("Bootloader 2.0.rc1 Upload to Flash address 0x8002000 (Maple-Rev3)",2)+"<br/>");
-
-document.write("<pre>Maple REV5 / RET 5 \n\n");
-document.write("\t"+convertText("Bootloader 2.0.rc1 ERROR. Upload to RAM is not supported. (Maple-Rev5)",0)+"<br/>");
-document.write("\t"+convertText("Bootloader 2.0.rc1 Upload to Flash address 0x8005000 (Maple-Rev5)",1)+"<br/>");
-document.write("\t"+convertText("Bootloader 2.0.rc1 Upload to Flash address 0x8002000 (Maple-Rev5)",2)+"<br/>");
-
-
-document.write("<pre>Generic STM32F103C8-LED_PC13\n\n");
-document.write("\t"+convertText("Bootloader 2.0.rc1 ERROR. Upload to RAM is not supported. (STM32F103C8)",0)+"<br/>");
-document.write("\t"+convertText("Bootloader 2.0.rc1 Upload to Flash address 0x8005000 (STM32F103C8)",1)+"<br/>");
-document.write("\t"+convertText("Bootloader 2.0.rc1 Upload to Flash address 0x8002000 (STM32F103C8)",2)+"<br/>");
 
 document.write("</pre>");
 </script>

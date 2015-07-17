@@ -49,14 +49,14 @@
 
 // Use the usb_description_strings_util.html to make new strngs for the next 3 arrays if you need to change the text.
 
-#define ALT0_STR_LEN 0x8E
-#define ALT0_MSG_STR 'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'2',0,'.',0,'0',0,'.',0,'r',0,'c',0,'1',0,' ',0,'E',0,'R',0,'R',0,'O',0,'R',0,'.',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'R',0,'A',0,'M',0,' ',0,'i',0,'s',0,' ',0,'n',0,'o',0,'t',0,' ',0,'s',0,'u',0,'p',0,'p',0,'o',0,'r',0,'t',0,'e',0,'d',0,'.',0,' ',0,'(',0,'M',0,'a',0,'p',0,'l',0,'e',0,'-',0,'m',0,'i',0,'n',0,'i',0,')',0
+#define ALT0_STR_LEN 0x80
+#define ALT0_MSG_STR 'S',0,'T',0,'M',0,'3',0,'2',0,'d',0,'u',0,'i',0,'n',0,'o',0,' ',0,'b',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'v',0,'1',0,'.',0,'0',0,' ',0,' ',0,'E',0,'R',0,'R',0,'O',0,'R',0,'.',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'R',0,'A',0,'M',0,' ',0,'n',0,'o',0,'t',0,' ',0,'s',0,'u',0,'p',0,'p',0,'o',0,'r',0,'t',0,'e',0,'d',0,'.',0
 
-#define ALT1_STR_LEN 0x84
-#define ALT1_MSG_STR 'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'2',0,'.',0,'0',0,'.',0,'r',0,'c',0,'1',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'a',0,'d',0,'d',0,'r',0,'e',0,'s',0,'s',0,' ',0,'0',0,'x',0,'8',0,'0',0,'0',0,'5',0,'0',0,'0',0,'0',0,' ',0,'(',0,'M',0,'a',0,'p',0,'l',0,'e',0,'-',0,'m',0,'i',0,'n',0,'i',0,')',0
+#define ALT1_STR_LEN 0x6C
+#define ALT1_MSG_STR 'S',0,'T',0,'M',0,'3',0,'2',0,'d',0,'u',0,'i',0,'n',0,'o',0,' ',0,'b',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'v',0,'1',0,'.',0,'0',0,' ',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'0',0,'x',0,'8',0,'0',0,'0',0,'5',0,'0',0,'0',0,'0',0
 
-#define ALT2_STR_LEN 0x84
-#define ALT2_MSG_STR 'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'2',0,'.',0,'0',0,'.',0,'r',0,'c',0,'1',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'a',0,'d',0,'d',0,'r',0,'e',0,'s',0,'s',0,' ',0,'0',0,'x',0,'8',0,'0',0,'0',0,'2',0,'0',0,'0',0,'0',0,' ',0,'(',0,'M',0,'a',0,'p',0,'l',0,'e',0,'-',0,'m',0,'i',0,'n',0,'i',0,')',0
+#define ALT2_STR_LEN 0x6C
+#define ALT2_MSG_STR 'S',0,'T',0,'M',0,'3',0,'2',0,'d',0,'u',0,'i',0,'n',0,'o',0,' ',0,'b',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'v',0,'1',0,'.',0,'0',0,' ',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'0',0,'x',0,'8',0,'0',0,'0',0,'2',0,'0',0,'0',0,'0',0
 
 // Jump locations for legacy bootloader (0x8005000) and new / smaller bootloder (0x8002000)
 #define USER_CODE_FLASH0X8005000   	((u32)0x08005000)
@@ -66,6 +66,8 @@
 
 // Upload to RAM has been removed / depreacted so these values a not used any more
 #define USER_CODE_RAM     			((u32)0x20000C00)
+
+// RAM_END, set ram end to the end of ram on the device wth the least RAM (STM32F103C)
 #define RAM_END           			((u32)0x20005000)
 
 /* Porting information Please read.
@@ -81,6 +83,10 @@
 	LED_PIN, this is the pin number e.g PB1 = 1
 	LED_ON_STATE is whether the pin needs to be 1 or 0 for the LED to be lit, this is needed because on some boards the led is wired between Vcc and the Pin
 	instead of from the pin to GND
+	
+	BUTTON_BANK   Port name of the pin used for the button 
+	#define BUTTON_PIN  
+	#define BUTTON_PRESSED_STATE 1	
 */
 
 #if defined TARGET_MAPLE_MINI
