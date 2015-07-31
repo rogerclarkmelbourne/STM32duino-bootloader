@@ -215,6 +215,12 @@
 	#define LED_BANK			GPIOE 
 	#define LED_PIN 			2
 	#define LED_ON_STATE		1
+
+#elif defined TARGET_GENERIC_F103_PA9
+	
+	#define LED_BANK			GPIOA 
+	#define LED_PIN 			9
+	#define LED_ON_STATE		1
 	
 #else
 	#error "No config for this target"
