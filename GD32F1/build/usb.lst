@@ -1,0 +1,2182 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"usb.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.nothingProc,"ax",%progbits
+  19              		.align	1
+  20              		.global	nothingProc
+  21              		.thumb
+  22              		.thumb_func
+  24              	nothingProc:
+  25              	.LFB2:
+  26              		.file 1 "usb.c"
+   1:usb.c         **** /* *****************************************************************************
+   2:usb.c         ****  * The MIT License
+   3:usb.c         ****  *
+   4:usb.c         ****  * Copyright (c) 2010 LeafLabs LLC.
+   5:usb.c         ****  *
+   6:usb.c         ****  * Permission is hereby granted, free of charge, to any person obtaining a copy
+   7:usb.c         ****  * of this software and associated documentation files (the "Software"), to deal
+   8:usb.c         ****  * in the Software without restriction, including without limitation the rights
+   9:usb.c         ****  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  10:usb.c         ****  * copies of the Software, and to permit persons to whom the Software is
+  11:usb.c         ****  * furnished to do so, subject to the following conditions:
+  12:usb.c         ****  *
+  13:usb.c         ****  * The above copyright notice and this permission notice shall be included in
+  14:usb.c         ****  * all copies or substantial portions of the Software.
+  15:usb.c         ****  *
+  16:usb.c         ****  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  17:usb.c         ****  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  18:usb.c         ****  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  19:usb.c         ****  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  20:usb.c         ****  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  21:usb.c         ****  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  22:usb.c         ****  * THE SOFTWARE.
+  23:usb.c         ****  * ****************************************************************************/
+  24:usb.c         **** 
+  25:usb.c         **** /**
+  26:usb.c         ****  *  @file usb.c
+  27:usb.c         ****  *
+  28:usb.c         ****  *  @brief usb-specific hardware setup, NVIC, clocks, and usb activities
+  29:usb.c         ****  *  in the pre-attached state. includes some of the lower level callbacks
+  30:usb.c         ****  *  needed by the usb library, like suspend,resume,init,etc
+  31:usb.c         ****  */
+  32:usb.c         **** 
+  33:usb.c         **** #include "usb.h"
+  34:usb.c         **** #include "dfu.h"
+  35:usb.c         **** 
+  36:usb.c         **** 
+  37:usb.c         **** extern u8 u8_usbConfigDescriptorDFU[];
+  38:usb.c         **** extern u8 u8_usbFunctionalDescriptor[];
+  39:usb.c         **** 
+  40:usb.c         **** void setupUSB (void) {
+  41:usb.c         **** 
+  42:usb.c         **** #ifdef HAS_MAPLE_HARDWARE	
+  43:usb.c         ****   /* Setup USB DISC pin as output open drain */	
+  44:usb.c         ****   SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC),(GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC)) & crMask(USB_DI
+  45:usb.c         ****   gpio_write_bit(USB_DISC_BANK,USB_DISC,1);
+  46:usb.c         **** 
+  47:usb.c         ****   /* turn on the USB clock */
+  48:usb.c         ****   //pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;// done in setupCLK()
+  49:usb.c         **** 
+  50:usb.c         ****   gpio_write_bit(USB_DISC_BANK,USB_DISC,0);  /* present ourselves to the host */
+  51:usb.c         **** #else
+  52:usb.c         **** 
+  53:usb.c         **** /* Generic boards don't have disconnect hardware, so we drive PA12 which is connected to the usb D+
+  54:usb.c         **** #define USB_DISC_BANK         GPIOA
+  55:usb.c         **** #define USB_DISC              12
+  56:usb.c         **** 
+  57:usb.c         ****   SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC),
+  58:usb.c         ****           (GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC)) & crMask(USB_DISC)) | CR_OUTPUT_PP << CR_SHITF(
+  59:usb.c         **** 
+  60:usb.c         ****   gpio_write_bit(USB_DISC_BANK,USB_DISC,0);  /* present ourselves to the host */
+  61:usb.c         ****   
+  62:usb.c         ****   volatile unsigned int delay;
+  63:usb.c         ****   for(delay = 0;delay<256;delay++);
+  64:usb.c         **** 
+  65:usb.c         ****   //  volatile unsigned x = 1024; do { ; }while(--x);// wait a moment
+  66:usb.c         ****   /* turn on the USB clock */
+  67:usb.c         ****    SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC),
+  68:usb.c         ****           (GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC)) & crMask(USB_DISC)) | CR_INPUT << CR_SHITF(USB_
+  69:usb.c         ****  //  pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
+  70:usb.c         **** #endif  
+  71:usb.c         ****   /* initialize the usb application */
+  72:usb.c         ****   
+  73:usb.c         ****   wTransferSize=getFlashPageSize();
+  74:usb.c         ****   u8_usbConfigDescriptorDFU[41]=(wTransferSize & 0x00FF);
+  75:usb.c         ****   u8_usbConfigDescriptorDFU[42]=(wTransferSize & 0xFF00)>>8;
+  76:usb.c         ****   
+  77:usb.c         ****   u8_usbFunctionalDescriptor[5]=(wTransferSize & 0x00FF);
+  78:usb.c         ****   u8_usbFunctionalDescriptor[6]=(wTransferSize & 0xFF00)>>8;  
+  79:usb.c         ****   
+  80:usb.c         ****   usbAppInit();
+  81:usb.c         **** 
+  82:usb.c         **** }
+  83:usb.c         **** 
+  84:usb.c         **** 
+  85:usb.c         **** 
+  86:usb.c         **** 
+  87:usb.c         **** void usbDsbBus(void) {
+  88:usb.c         **** // setPin(USB_DISC_BANK,USB_DISC);
+  89:usb.c         **** usbPowerOff();
+  90:usb.c         **** // SET_REG(USB_DISC_CR,
+  91:usb.c         **** // (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_OUTPUT);
+  92:usb.c         **** // resetPin(USB_DISC_BANK, USB_DISC); /* Pull DP+ down */
+  93:usb.c         **** // volatile unsigned x = 500000; do { ; }while(--x);
+  94:usb.c         **** // SET_REG(USB_DISC_CR,
+  95:usb.c         **** // (GET_REG(USB_DISC_CR) & USB_DISC_CR_MASK) | USB_DISC_CR_INPUT); //Sets the PA12 as floating inpu
+  96:usb.c         **** }
+  97:usb.c         **** 
+  98:usb.c         **** vu32 bDeviceState = UNCONNECTED;
+  99:usb.c         **** 
+ 100:usb.c         **** /* tracks sequential behavior of the ISTR */
+ 101:usb.c         **** vu16 wIstr;
+ 102:usb.c         **** vu8 bIntPackSOF = 0;
+ 103:usb.c         **** 
+ 104:usb.c         **** DEVICE Device_Table = {
+ 105:usb.c         ****     NUM_ENDPTS,
+ 106:usb.c         ****     1
+ 107:usb.c         **** };
+ 108:usb.c         **** 
+ 109:usb.c         **** DEVICE_PROP Device_Property = {
+ 110:usb.c         ****     usbInit,
+ 111:usb.c         ****     usbReset,
+ 112:usb.c         ****     usbStatusIn,
+ 113:usb.c         ****     usbStatusOut,
+ 114:usb.c         ****     usbDataSetup,
+ 115:usb.c         ****     usbNoDataSetup,
+ 116:usb.c         ****     usbGetInterfaceSetting,
+ 117:usb.c         ****     usbGetDeviceDescriptor,
+ 118:usb.c         ****     usbGetConfigDescriptor,
+ 119:usb.c         ****     usbGetStringDescriptor,
+ 120:usb.c         ****     usbGetFunctionalDescriptor,
+ 121:usb.c         ****     0,
+ 122:usb.c         ****     bMaxPacketSize
+ 123:usb.c         **** };
+ 124:usb.c         **** 
+ 125:usb.c         **** USER_STANDARD_REQUESTS User_Standard_Requests = {
+ 126:usb.c         ****     usbGetConfiguration,
+ 127:usb.c         ****     usbSetConfiguration,
+ 128:usb.c         ****     usbGetInterface,
+ 129:usb.c         ****     usbSetInterface,
+ 130:usb.c         ****     usbGetStatus,
+ 131:usb.c         ****     usbClearFeature,
+ 132:usb.c         ****     usbSetEndpointFeature,
+ 133:usb.c         ****     usbSetDeviceFeature,
+ 134:usb.c         ****     usbSetDeviceAddress
+ 135:usb.c         **** };
+ 136:usb.c         **** 
+ 137:usb.c         **** void (*pEpInt_IN[7])(void) = {
+ 138:usb.c         ****     nothingProc,
+ 139:usb.c         ****     nothingProc,
+ 140:usb.c         ****     nothingProc,
+ 141:usb.c         ****     nothingProc,
+ 142:usb.c         ****     nothingProc,
+ 143:usb.c         ****     nothingProc,
+ 144:usb.c         ****     nothingProc,
+ 145:usb.c         **** };
+ 146:usb.c         **** 
+ 147:usb.c         **** void (*pEpInt_OUT[7])(void) = {
+ 148:usb.c         ****     nothingProc,
+ 149:usb.c         ****     nothingProc,
+ 150:usb.c         ****     nothingProc,
+ 151:usb.c         ****     nothingProc,
+ 152:usb.c         ****     nothingProc,
+ 153:usb.c         ****     nothingProc,
+ 154:usb.c         ****     nothingProc,
+ 155:usb.c         **** };
+ 156:usb.c         **** 
+ 157:usb.c         **** struct {
+ 158:usb.c         ****     volatile RESUME_STATE eState;
+ 159:usb.c         ****     volatile u8 bESOFcnt;
+ 160:usb.c         **** } ResumeS;
+ 161:usb.c         **** 
+ 162:usb.c         **** /* dummy proc */
+ 163:usb.c         **** void nothingProc(void) {
+  27              		.loc 1 163 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 7047     		bx	lr
+  33              		.cfi_endproc
+  34              	.LFE2:
+  36              		.section	.text.usbStatusIn,"ax",%progbits
+  37              		.align	1
+  38              		.global	usbStatusIn
+  39              		.thumb
+  40              		.thumb_func
+  42              	usbStatusIn:
+  43              	.LFB11:
+ 164:usb.c         **** }
+ 165:usb.c         **** 
+ 166:usb.c         **** /* Function Definitions */
+ 167:usb.c         **** void usbAppInit(void) {
+ 168:usb.c         ****     /* hook in to usb_core, depends on all those damn
+ 169:usb.c         ****        non encapsulated externs! */
+ 170:usb.c         ****     USB_Init();
+ 171:usb.c         **** }
+ 172:usb.c         **** 
+ 173:usb.c         **** void usbSuspend(void) {
+ 174:usb.c         ****     u16 wCNTR;
+ 175:usb.c         ****     wCNTR = _GetCNTR();
+ 176:usb.c         ****     wCNTR |= CNTR_FSUSP | CNTR_LPMODE;
+ 177:usb.c         ****     _SetCNTR(wCNTR);
+ 178:usb.c         **** 
+ 179:usb.c         ****     /* run any power reduction handlers */
+ 180:usb.c         ****     bDeviceState = SUSPENDED;
+ 181:usb.c         **** }
+ 182:usb.c         **** 
+ 183:usb.c         **** void usbResumeInit(void) {
+ 184:usb.c         ****     u16 wCNTR;
+ 185:usb.c         **** 
+ 186:usb.c         ****     /* restart any clocks that had been stopped */
+ 187:usb.c         **** 
+ 188:usb.c         ****     wCNTR = _GetCNTR();
+ 189:usb.c         ****     wCNTR &= (~CNTR_LPMODE);
+ 190:usb.c         ****     _SetCNTR(wCNTR);
+ 191:usb.c         **** 
+ 192:usb.c         ****     /* undo power reduction handlers here */
+ 193:usb.c         **** 
+ 194:usb.c         ****     _SetCNTR(ISR_MSK);
+ 195:usb.c         **** }
+ 196:usb.c         **** 
+ 197:usb.c         **** void usbResume(RESUME_STATE eResumeSetVal) {
+ 198:usb.c         ****     u16 wCNTR;
+ 199:usb.c         **** 
+ 200:usb.c         ****     if (eResumeSetVal != RESUME_ESOF)
+ 201:usb.c         ****         ResumeS.eState = eResumeSetVal;
+ 202:usb.c         **** 
+ 203:usb.c         ****     switch (ResumeS.eState) {
+ 204:usb.c         ****     case RESUME_EXTERNAL:
+ 205:usb.c         ****         usbResumeInit();
+ 206:usb.c         ****         ResumeS.eState = RESUME_OFF;
+ 207:usb.c         ****         break;
+ 208:usb.c         ****     case RESUME_INTERNAL:
+ 209:usb.c         ****         usbResumeInit();
+ 210:usb.c         ****         ResumeS.eState = RESUME_START;
+ 211:usb.c         ****         break;
+ 212:usb.c         ****     case RESUME_LATER:
+ 213:usb.c         ****         ResumeS.bESOFcnt = 2;
+ 214:usb.c         ****         ResumeS.eState = RESUME_WAIT;
+ 215:usb.c         ****         break;
+ 216:usb.c         ****     case RESUME_WAIT:
+ 217:usb.c         ****         ResumeS.bESOFcnt--;
+ 218:usb.c         ****         if (ResumeS.bESOFcnt == 0)
+ 219:usb.c         ****             ResumeS.eState = RESUME_START;
+ 220:usb.c         ****         break;
+ 221:usb.c         ****     case RESUME_START:
+ 222:usb.c         ****         wCNTR = _GetCNTR();
+ 223:usb.c         ****         wCNTR |= CNTR_RESUME;
+ 224:usb.c         ****         _SetCNTR(wCNTR);
+ 225:usb.c         ****         ResumeS.eState = RESUME_ON;
+ 226:usb.c         ****         ResumeS.bESOFcnt = 10;
+ 227:usb.c         ****         break;
+ 228:usb.c         ****     case RESUME_ON:
+ 229:usb.c         ****         ResumeS.bESOFcnt--;
+ 230:usb.c         ****         if (ResumeS.bESOFcnt == 0) {
+ 231:usb.c         ****             wCNTR = _GetCNTR();
+ 232:usb.c         ****             wCNTR &= (~CNTR_RESUME);
+ 233:usb.c         ****             _SetCNTR(wCNTR);
+ 234:usb.c         ****             ResumeS.eState = RESUME_OFF;
+ 235:usb.c         ****         }
+ 236:usb.c         ****         break;
+ 237:usb.c         ****     case RESUME_OFF:
+ 238:usb.c         ****     case RESUME_ESOF:
+ 239:usb.c         ****     default:
+ 240:usb.c         ****         ResumeS.eState = RESUME_OFF;
+ 241:usb.c         ****         break;
+ 242:usb.c         ****     }
+ 243:usb.c         **** }
+ 244:usb.c         **** 
+ 245:usb.c         **** RESULT usbPowerOn(void) {
+ 246:usb.c         ****     u16 wRegVal;
+ 247:usb.c         **** 
+ 248:usb.c         ****     wRegVal = CNTR_FRES;
+ 249:usb.c         ****     _SetCNTR(wRegVal);
+ 250:usb.c         **** 
+ 251:usb.c         ****     wInterrupt_Mask = 0;
+ 252:usb.c         ****     _SetCNTR(wInterrupt_Mask);
+ 253:usb.c         ****     _SetISTR(0);
+ 254:usb.c         ****     wInterrupt_Mask = CNTR_RESETM | CNTR_SUSPM | CNTR_WKUPM; /* the bare minimum */
+ 255:usb.c         ****     _SetCNTR(wInterrupt_Mask);
+ 256:usb.c         **** 
+ 257:usb.c         ****     return USB_SUCCESS;
+ 258:usb.c         **** }
+ 259:usb.c         **** 
+ 260:usb.c         **** RESULT usbPowerOff(void) {
+ 261:usb.c         ****     _SetCNTR(CNTR_FRES);
+ 262:usb.c         ****     _SetISTR(0);
+ 263:usb.c         ****     _SetCNTR(CNTR_FRES + CNTR_PDWN);
+ 264:usb.c         **** 
+ 265:usb.c         ****     /* note that all weve done here is powerdown the
+ 266:usb.c         ****        usb peripheral. we have no disabled the clocks,
+ 267:usb.c         ****        pulled the usb_disc pin back up, or reset the
+ 268:usb.c         ****        application state machines */
+ 269:usb.c         **** 
+ 270:usb.c         ****     return USB_SUCCESS;
+ 271:usb.c         **** }
+ 272:usb.c         **** 
+ 273:usb.c         **** void usbInit(void) {
+ 274:usb.c         ****     dfuInit();
+ 275:usb.c         **** 
+ 276:usb.c         ****     pInformation->Current_Configuration = 0;
+ 277:usb.c         ****     usbPowerOn();
+ 278:usb.c         **** 
+ 279:usb.c         ****     _SetISTR(0);
+ 280:usb.c         ****     wInterrupt_Mask = ISR_MSK;
+ 281:usb.c         ****     _SetCNTR(wInterrupt_Mask);
+ 282:usb.c         **** 
+ 283:usb.c         ****     usbEnbISR(); /* configure the cortex M3 private peripheral NVIC */
+ 284:usb.c         ****     bDeviceState = UNCONNECTED;
+ 285:usb.c         **** }
+ 286:usb.c         **** 
+ 287:usb.c         **** void usbReset(void) {
+ 288:usb.c         ****     dfuUpdateByReset();
+ 289:usb.c         **** 
+ 290:usb.c         ****     pInformation->Current_Configuration = 0;
+ 291:usb.c         ****     pInformation->Current_Feature = usbConfigDescriptorDFU.Descriptor[7];
+ 292:usb.c         **** 
+ 293:usb.c         ****     _SetBTABLE(BTABLE_ADDRESS);
+ 294:usb.c         **** 
+ 295:usb.c         ****     /* setup the ctrl endpoint */
+ 296:usb.c         ****     _SetEPType(ENDP0, EP_CONTROL);
+ 297:usb.c         ****     _SetEPTxStatus(ENDP0, EP_TX_STALL);
+ 298:usb.c         **** 
+ 299:usb.c         ****     _SetEPRxAddr(ENDP0, ENDP0_RXADDR);
+ 300:usb.c         ****     _SetEPTxAddr(ENDP0, ENDP0_TXADDR);
+ 301:usb.c         **** 
+ 302:usb.c         ****     Clear_Status_Out(ENDP0);
+ 303:usb.c         **** 
+ 304:usb.c         ****     SetEPRxCount(ENDP0, pProperty->MaxPacketSize);
+ 305:usb.c         ****     //  SetEPTxCount(ENDP0, pProperty->MaxPacketSize);
+ 306:usb.c         ****     SetEPRxValid(ENDP0);
+ 307:usb.c         **** 
+ 308:usb.c         ****     bDeviceState = ATTACHED;
+ 309:usb.c         ****     SetDeviceAddress(0); /* different than usbSetDeviceAddr! comes from usb_core */
+ 310:usb.c         **** }
+ 311:usb.c         **** 
+ 312:usb.c         **** void usbStatusIn(void) {
+  44              		.loc 1 312 0
+  45              		.cfi_startproc
+  46              		@ args = 0, pretend = 0, frame = 0
+  47              		@ frame_needed = 0, uses_anonymous_args = 0
+  48              		@ link register save eliminated.
+  49 0000 7047     		bx	lr
+  50              		.cfi_endproc
+  51              	.LFE11:
+  53              		.section	.text.usbStatusOut,"ax",%progbits
+  54              		.align	1
+  55              		.global	usbStatusOut
+  56              		.thumb
+  57              		.thumb_func
+  59              	usbStatusOut:
+  60              	.LFB12:
+ 313:usb.c         **** }
+ 314:usb.c         **** 
+ 315:usb.c         **** void usbStatusOut(void) {
+  61              		.loc 1 315 0
+  62              		.cfi_startproc
+  63              		@ args = 0, pretend = 0, frame = 0
+  64              		@ frame_needed = 0, uses_anonymous_args = 0
+  65              		@ link register save eliminated.
+  66 0000 7047     		bx	lr
+  67              		.cfi_endproc
+  68              	.LFE12:
+  70              		.section	.text.usbGetInterfaceSetting,"ax",%progbits
+  71              		.align	1
+  72              		.global	usbGetInterfaceSetting
+  73              		.thumb
+  74              		.thumb_func
+  76              	usbGetInterfaceSetting:
+  77              	.LFB15:
+ 316:usb.c         **** }
+ 317:usb.c         **** 
+ 318:usb.c         **** RESULT usbDataSetup(u8 request) {
+ 319:usb.c         ****     u8 *(*CopyRoutine)(u16);
+ 320:usb.c         ****     CopyRoutine = NULL;
+ 321:usb.c         **** 
+ 322:usb.c         ****     /* handle dfu class requests */
+ 323:usb.c         ****     if ((pInformation->USBbmRequestType & (REQUEST_TYPE | RECIPIENT)) == (CLASS_REQUEST | INTERFACE
+ 324:usb.c         ****         if (dfuUpdateByRequest()) {
+ 325:usb.c         ****             /* successfull state transition, handle the request */
+ 326:usb.c         ****             switch (request) {
+ 327:usb.c         ****             case(DFU_GETSTATUS):
+ 328:usb.c         ****                 CopyRoutine = dfuCopyStatus;
+ 329:usb.c         ****                 break;
+ 330:usb.c         ****             case(DFU_GETSTATE):
+ 331:usb.c         ****                 CopyRoutine = dfuCopyState;
+ 332:usb.c         ****                 break;
+ 333:usb.c         ****             case(DFU_DNLOAD):
+ 334:usb.c         ****                 CopyRoutine = dfuCopyDNLOAD;
+ 335:usb.c         ****                 break;
+ 336:usb.c         ****             case(DFU_UPLOAD):
+ 337:usb.c         ****                 CopyRoutine = dfuCopyUPLOAD;
+ 338:usb.c         ****                 break;
+ 339:usb.c         ****             default:
+ 340:usb.c         ****                 /* leave copy routine null */
+ 341:usb.c         ****                 break;
+ 342:usb.c         ****             }
+ 343:usb.c         ****         }
+ 344:usb.c         ****     }
+ 345:usb.c         **** 
+ 346:usb.c         ****     if (CopyRoutine != NULL) {
+ 347:usb.c         ****         pInformation->Ctrl_Info.CopyData = CopyRoutine;
+ 348:usb.c         ****         pInformation->Ctrl_Info.Usb_wOffset = 0;
+ 349:usb.c         ****         (*CopyRoutine)(0);
+ 350:usb.c         **** 
+ 351:usb.c         ****         return USB_SUCCESS;
+ 352:usb.c         ****     }
+ 353:usb.c         **** 
+ 354:usb.c         ****     return USB_UNSUPPORT;
+ 355:usb.c         **** }
+ 356:usb.c         **** 
+ 357:usb.c         **** RESULT usbNoDataSetup(u8 request) {
+ 358:usb.c         ****     if ((pInformation->USBbmRequestType & (REQUEST_TYPE | RECIPIENT)) == (CLASS_REQUEST | INTERFACE
+ 359:usb.c         ****         /* todo, keep track of the destination interface, often stored in wIndex */
+ 360:usb.c         ****         if (dfuUpdateByRequest()) {
+ 361:usb.c         ****             return USB_SUCCESS;
+ 362:usb.c         ****         }
+ 363:usb.c         ****     }
+ 364:usb.c         ****     return USB_UNSUPPORT;
+ 365:usb.c         **** }
+ 366:usb.c         **** 
+ 367:usb.c         **** RESULT usbGetInterfaceSetting(u8 interface, u8 altSetting) {
+  78              		.loc 1 367 0
+  79              		.cfi_startproc
+  80              		@ args = 0, pretend = 0, frame = 0
+  81              		@ frame_needed = 0, uses_anonymous_args = 0
+  82              		@ link register save eliminated.
+  83              	.LVL0:
+ 368:usb.c         ****     /* alt setting 0 -> program RAM, alt setting 1 -> FLASH */
+ 369:usb.c         ****     if (interface > NUM_ALT_SETTINGS) {
+ 370:usb.c         ****         return USB_UNSUPPORT;
+  84              		.loc 1 370 0
+  85 0000 0328     		cmp	r0, #3
+ 371:usb.c         ****     } else {
+ 372:usb.c         ****         return USB_SUCCESS;
+ 373:usb.c         ****     }
+ 374:usb.c         **** }
+  86              		.loc 1 374 0
+  87 0002 8CBF     		ite	hi
+  88 0004 0220     		movhi	r0, #2
+  89 0006 0020     		movls	r0, #0
+  90              	.LVL1:
+  91 0008 7047     		bx	lr
+  92              		.cfi_endproc
+  93              	.LFE15:
+  95              		.section	.text.usbGetConfiguration,"ax",%progbits
+  96              		.align	1
+  97              		.global	usbGetConfiguration
+  98              		.thumb
+  99              		.thumb_func
+ 101              	usbGetConfiguration:
+ 102              	.LFB20:
+ 375:usb.c         **** 
+ 376:usb.c         **** u8 *usbGetDeviceDescriptor(u16 len) {
+ 377:usb.c         ****     return Standard_GetDescriptorData(len, &usbDeviceDescriptorDFU);
+ 378:usb.c         **** }
+ 379:usb.c         **** 
+ 380:usb.c         **** u8 *usbGetConfigDescriptor(u16 len) {
+ 381:usb.c         ****     return Standard_GetDescriptorData(len, &usbConfigDescriptorDFU);
+ 382:usb.c         **** }
+ 383:usb.c         **** 
+ 384:usb.c         **** u8 *usbGetStringDescriptor(u16 len) {
+ 385:usb.c         ****     u8 strIndex = pInformation->USBwValue0;
+ 386:usb.c         ****     if (strIndex > STR_DESC_LEN) {
+ 387:usb.c         ****         return NULL;
+ 388:usb.c         ****     } else {
+ 389:usb.c         ****         return Standard_GetDescriptorData(len, &usbStringDescriptor[strIndex]);
+ 390:usb.c         ****     }
+ 391:usb.c         **** }
+ 392:usb.c         **** 
+ 393:usb.c         **** u8 *usbGetFunctionalDescriptor(u16 len) {
+ 394:usb.c         ****     return Standard_GetDescriptorData(len, &usbFunctionalDescriptor);
+ 395:usb.c         **** }
+ 396:usb.c         **** 
+ 397:usb.c         **** 
+ 398:usb.c         **** 
+ 399:usb.c         **** /***** start of USER STANDARD REQUESTS ******
+ 400:usb.c         ****  *
+ 401:usb.c         ****  * These are the USER STANDARD REQUESTS, they are handled
+ 402:usb.c         ****  * in the core but we are given these callbacks at the
+ 403:usb.c         ****  * application level
+ 404:usb.c         ****  *******************************************/
+ 405:usb.c         **** 
+ 406:usb.c         **** void usbGetConfiguration(void) {
+ 103              		.loc 1 406 0
+ 104              		.cfi_startproc
+ 105              		@ args = 0, pretend = 0, frame = 0
+ 106              		@ frame_needed = 0, uses_anonymous_args = 0
+ 107              		@ link register save eliminated.
+ 108 0000 7047     		bx	lr
+ 109              		.cfi_endproc
+ 110              	.LFE20:
+ 112              		.section	.text.usbSetConfiguration,"ax",%progbits
+ 113              		.align	1
+ 114              		.global	usbSetConfiguration
+ 115              		.thumb
+ 116              		.thumb_func
+ 118              	usbSetConfiguration:
+ 119              	.LFB21:
+ 407:usb.c         ****     /* nothing process */
+ 408:usb.c         **** }
+ 409:usb.c         **** 
+ 410:usb.c         **** void usbSetConfiguration(void) {
+ 120              		.loc 1 410 0
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 0
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 124              		@ link register save eliminated.
+ 411:usb.c         ****     if (pInformation->Current_Configuration != 0) {
+ 125              		.loc 1 411 0
+ 126 0000 034B     		ldr	r3, .L14
+ 127 0002 1B68     		ldr	r3, [r3]
+ 128 0004 9B7A     		ldrb	r3, [r3, #10]	@ zero_extendqisi2
+ 129 0006 13B1     		cbz	r3, .L8
+ 412:usb.c         ****         bDeviceState = CONFIGURED;
+ 130              		.loc 1 412 0
+ 131 0008 024B     		ldr	r3, .L14+4
+ 132 000a 0522     		movs	r2, #5
+ 133 000c 1A60     		str	r2, [r3]
+ 134              	.L8:
+ 135 000e 7047     		bx	lr
+ 136              	.L15:
+ 137              		.align	2
+ 138              	.L14:
+ 139 0010 00000000 		.word	pInformation
+ 140 0014 00000000 		.word	.LANCHOR0
+ 141              		.cfi_endproc
+ 142              	.LFE21:
+ 144              		.section	.text.usbGetInterface,"ax",%progbits
+ 145              		.align	1
+ 146              		.global	usbGetInterface
+ 147              		.thumb
+ 148              		.thumb_func
+ 150              	usbGetInterface:
+ 151              	.LFB22:
+ 413:usb.c         ****     }
+ 414:usb.c         **** }
+ 415:usb.c         **** 
+ 416:usb.c         **** void usbGetInterface(void) {
+ 152              		.loc 1 416 0
+ 153              		.cfi_startproc
+ 154              		@ args = 0, pretend = 0, frame = 0
+ 155              		@ frame_needed = 0, uses_anonymous_args = 0
+ 156              		@ link register save eliminated.
+ 157 0000 7047     		bx	lr
+ 158              		.cfi_endproc
+ 159              	.LFE22:
+ 161              		.section	.text.usbSetInterface,"ax",%progbits
+ 162              		.align	1
+ 163              		.global	usbSetInterface
+ 164              		.thumb
+ 165              		.thumb_func
+ 167              	usbSetInterface:
+ 168              	.LFB23:
+ 417:usb.c         ****     /* nothing process */
+ 418:usb.c         **** }
+ 419:usb.c         **** 
+ 420:usb.c         **** void usbSetInterface(void) {
+ 169              		.loc 1 420 0
+ 170              		.cfi_startproc
+ 171              		@ args = 0, pretend = 0, frame = 0
+ 172              		@ frame_needed = 0, uses_anonymous_args = 0
+ 173              		@ link register save eliminated.
+ 174 0000 7047     		bx	lr
+ 175              		.cfi_endproc
+ 176              	.LFE23:
+ 178              		.section	.text.usbGetStatus,"ax",%progbits
+ 179              		.align	1
+ 180              		.global	usbGetStatus
+ 181              		.thumb
+ 182              		.thumb_func
+ 184              	usbGetStatus:
+ 185              	.LFB24:
+ 421:usb.c         ****     /* nothing process */
+ 422:usb.c         **** }
+ 423:usb.c         **** 
+ 424:usb.c         **** void usbGetStatus(void) {
+ 186              		.loc 1 424 0
+ 187              		.cfi_startproc
+ 188              		@ args = 0, pretend = 0, frame = 0
+ 189              		@ frame_needed = 0, uses_anonymous_args = 0
+ 190              		@ link register save eliminated.
+ 191 0000 7047     		bx	lr
+ 192              		.cfi_endproc
+ 193              	.LFE24:
+ 195              		.section	.text.usbClearFeature,"ax",%progbits
+ 196              		.align	1
+ 197              		.global	usbClearFeature
+ 198              		.thumb
+ 199              		.thumb_func
+ 201              	usbClearFeature:
+ 202              	.LFB25:
+ 425:usb.c         ****     /* nothing process */
+ 426:usb.c         **** }
+ 427:usb.c         **** 
+ 428:usb.c         **** void usbClearFeature(void) {
+ 203              		.loc 1 428 0
+ 204              		.cfi_startproc
+ 205              		@ args = 0, pretend = 0, frame = 0
+ 206              		@ frame_needed = 0, uses_anonymous_args = 0
+ 207              		@ link register save eliminated.
+ 208 0000 7047     		bx	lr
+ 209              		.cfi_endproc
+ 210              	.LFE25:
+ 212              		.section	.text.usbSetEndpointFeature,"ax",%progbits
+ 213              		.align	1
+ 214              		.global	usbSetEndpointFeature
+ 215              		.thumb
+ 216              		.thumb_func
+ 218              	usbSetEndpointFeature:
+ 219              	.LFB26:
+ 429:usb.c         ****     /* nothing process */
+ 430:usb.c         **** }
+ 431:usb.c         **** 
+ 432:usb.c         **** void usbSetEndpointFeature(void) {
+ 220              		.loc 1 432 0
+ 221              		.cfi_startproc
+ 222              		@ args = 0, pretend = 0, frame = 0
+ 223              		@ frame_needed = 0, uses_anonymous_args = 0
+ 224              		@ link register save eliminated.
+ 225 0000 7047     		bx	lr
+ 226              		.cfi_endproc
+ 227              	.LFE26:
+ 229              		.section	.text.usbSetDeviceFeature,"ax",%progbits
+ 230              		.align	1
+ 231              		.global	usbSetDeviceFeature
+ 232              		.thumb
+ 233              		.thumb_func
+ 235              	usbSetDeviceFeature:
+ 236              	.LFB27:
+ 433:usb.c         ****     /* nothing process */
+ 434:usb.c         **** }
+ 435:usb.c         **** 
+ 436:usb.c         **** void usbSetDeviceFeature(void) {
+ 237              		.loc 1 436 0
+ 238              		.cfi_startproc
+ 239              		@ args = 0, pretend = 0, frame = 0
+ 240              		@ frame_needed = 0, uses_anonymous_args = 0
+ 241              		@ link register save eliminated.
+ 242 0000 7047     		bx	lr
+ 243              		.cfi_endproc
+ 244              	.LFE27:
+ 246              		.section	.text.usbSetDeviceAddress,"ax",%progbits
+ 247              		.align	1
+ 248              		.global	usbSetDeviceAddress
+ 249              		.thumb
+ 250              		.thumb_func
+ 252              	usbSetDeviceAddress:
+ 253              	.LFB28:
+ 437:usb.c         ****     /* nothing process */
+ 438:usb.c         **** }
+ 439:usb.c         **** 
+ 440:usb.c         **** void usbSetDeviceAddress(void) {
+ 254              		.loc 1 440 0
+ 255              		.cfi_startproc
+ 256              		@ args = 0, pretend = 0, frame = 0
+ 257              		@ frame_needed = 0, uses_anonymous_args = 0
+ 258              		@ link register save eliminated.
+ 441:usb.c         ****     bDeviceState = ADDRESSED;
+ 259              		.loc 1 441 0
+ 260 0000 014B     		ldr	r3, .L23
+ 261 0002 0422     		movs	r2, #4
+ 262 0004 1A60     		str	r2, [r3]
+ 263 0006 7047     		bx	lr
+ 264              	.L24:
+ 265              		.align	2
+ 266              	.L23:
+ 267 0008 00000000 		.word	.LANCHOR0
+ 268              		.cfi_endproc
+ 269              	.LFE28:
+ 271              		.section	.text.usbReset,"ax",%progbits
+ 272              		.align	1
+ 273              		.global	usbReset
+ 274              		.thumb
+ 275              		.thumb_func
+ 277              	usbReset:
+ 278              	.LFB10:
+ 287:usb.c         **** void usbReset(void) {
+ 279              		.loc 1 287 0
+ 280              		.cfi_startproc
+ 281              		@ args = 0, pretend = 0, frame = 0
+ 282              		@ frame_needed = 0, uses_anonymous_args = 0
+ 283 0000 10B5     		push	{r4, lr}
+ 284              		.cfi_def_cfa_offset 8
+ 285              		.cfi_offset 4, -8
+ 286              		.cfi_offset 14, -4
+ 288:usb.c         ****     dfuUpdateByReset();
+ 287              		.loc 1 288 0
+ 288 0002 FFF7FEFF 		bl	dfuUpdateByReset
+ 289              	.LVL2:
+ 290:usb.c         ****     pInformation->Current_Configuration = 0;
+ 290              		.loc 1 290 0
+ 291 0006 214B     		ldr	r3, .L26
+ 291:usb.c         ****     pInformation->Current_Feature = usbConfigDescriptorDFU.Descriptor[7];
+ 292              		.loc 1 291 0
+ 293 0008 214A     		ldr	r2, .L26+4
+ 290:usb.c         ****     pInformation->Current_Configuration = 0;
+ 294              		.loc 1 290 0
+ 295 000a 1B68     		ldr	r3, [r3]
+ 296 000c 0024     		movs	r4, #0
+ 291:usb.c         ****     pInformation->Current_Feature = usbConfigDescriptorDFU.Descriptor[7];
+ 297              		.loc 1 291 0
+ 298 000e 1268     		ldr	r2, [r2]
+ 290:usb.c         ****     pInformation->Current_Configuration = 0;
+ 299              		.loc 1 290 0
+ 300 0010 9C72     		strb	r4, [r3, #10]
+ 291:usb.c         ****     pInformation->Current_Feature = usbConfigDescriptorDFU.Descriptor[7];
+ 301              		.loc 1 291 0
+ 302 0012 D279     		ldrb	r2, [r2, #7]	@ zero_extendqisi2
+ 302:usb.c         ****     Clear_Status_Out(ENDP0);
+ 303              		.loc 1 302 0
+ 304 0014 2046     		mov	r0, r4
+ 291:usb.c         ****     pInformation->Current_Feature = usbConfigDescriptorDFU.Descriptor[7];
+ 305              		.loc 1 291 0
+ 306 0016 5A72     		strb	r2, [r3, #9]
+ 293:usb.c         ****     _SetBTABLE(BTABLE_ADDRESS);
+ 307              		.loc 1 293 0
+ 308 0018 1E4A     		ldr	r2, .L26+8
+ 296:usb.c         ****     _SetEPType(ENDP0, EP_CONTROL);
+ 309              		.loc 1 296 0
+ 310 001a 1F4B     		ldr	r3, .L26+12
+ 293:usb.c         ****     _SetBTABLE(BTABLE_ADDRESS);
+ 311              		.loc 1 293 0
+ 312 001c 1460     		str	r4, [r2]
+ 296:usb.c         ****     _SetEPType(ENDP0, EP_CONTROL);
+ 313              		.loc 1 296 0
+ 314 001e 1968     		ldr	r1, [r3]
+ 315 0020 21F4EC41 		bic	r1, r1, #30208
+ 316 0024 21F07001 		bic	r1, r1, #112
+ 317 0028 41F40071 		orr	r1, r1, #512
+ 318 002c 89B2     		uxth	r1, r1
+ 319 002e 1960     		str	r1, [r3]
+ 320              	.LBB4:
+ 297:usb.c         ****     _SetEPTxStatus(ENDP0, EP_TX_STALL);
+ 321              		.loc 1 297 0
+ 322 0030 1968     		ldr	r1, [r3]
+ 323 0032 21F4E041 		bic	r1, r1, #28672
+ 324 0036 21F04001 		bic	r1, r1, #64
+ 325 003a 89B2     		uxth	r1, r1
+ 326              	.LVL3:
+ 327 003c 81F01001 		eor	r1, r1, #16
+ 328              	.LVL4:
+ 329 0040 1960     		str	r1, [r3]
+ 330              	.LBE4:
+ 299:usb.c         ****     _SetEPRxAddr(ENDP0, ENDP0_RXADDR);
+ 331              		.loc 1 299 0
+ 332 0042 1168     		ldr	r1, [r2]
+ 333              	.LVL5:
+ 334 0044 154B     		ldr	r3, .L26+16
+ 335              	.LVL6:
+ 336 0046 89B2     		uxth	r1, r1
+ 337 0048 0B44     		add	r3, r3, r1
+ 338 004a 5B00     		lsls	r3, r3, #1
+ 339 004c 4021     		movs	r1, #64
+ 340 004e 1960     		str	r1, [r3]
+ 300:usb.c         ****     _SetEPTxAddr(ENDP0, ENDP0_TXADDR);
+ 341              		.loc 1 300 0
+ 342 0050 1368     		ldr	r3, [r2]
+ 343 0052 8022     		movs	r2, #128
+ 344 0054 9BB2     		uxth	r3, r3
+ 345 0056 03F10053 		add	r3, r3, #536870912
+ 346 005a 03F54053 		add	r3, r3, #12288
+ 347 005e 5B00     		lsls	r3, r3, #1
+ 348 0060 1A60     		str	r2, [r3]
+ 302:usb.c         ****     Clear_Status_Out(ENDP0);
+ 349              		.loc 1 302 0
+ 350 0062 FFF7FEFF 		bl	Clear_Status_Out
+ 351              	.LVL7:
+ 304:usb.c         ****     SetEPRxCount(ENDP0, pProperty->MaxPacketSize);
+ 352              		.loc 1 304 0
+ 353 0066 0E4B     		ldr	r3, .L26+20
+ 354 0068 2046     		mov	r0, r4
+ 355 006a 1B68     		ldr	r3, [r3]
+ 356 006c 93F83010 		ldrb	r1, [r3, #48]	@ zero_extendqisi2
+ 357 0070 FFF7FEFF 		bl	SetEPRxCount
+ 358              	.LVL8:
+ 306:usb.c         ****     SetEPRxValid(ENDP0);
+ 359              		.loc 1 306 0
+ 360 0074 2046     		mov	r0, r4
+ 361 0076 FFF7FEFF 		bl	SetEPRxValid
+ 362              	.LVL9:
+ 308:usb.c         ****     bDeviceState = ATTACHED;
+ 363              		.loc 1 308 0
+ 364 007a 0A4B     		ldr	r3, .L26+24
+ 365 007c 0122     		movs	r2, #1
+ 309:usb.c         ****     SetDeviceAddress(0); /* different than usbSetDeviceAddr! comes from usb_core */
+ 366              		.loc 1 309 0
+ 367 007e 2046     		mov	r0, r4
+ 310:usb.c         **** }
+ 368              		.loc 1 310 0
+ 369 0080 BDE81040 		pop	{r4, lr}
+ 308:usb.c         ****     bDeviceState = ATTACHED;
+ 370              		.loc 1 308 0
+ 371 0084 1A60     		str	r2, [r3]
+ 309:usb.c         ****     SetDeviceAddress(0); /* different than usbSetDeviceAddr! comes from usb_core */
+ 372              		.loc 1 309 0
+ 373 0086 FFF7FEBF 		b	SetDeviceAddress
+ 374              	.LVL10:
+ 375              	.L27:
+ 376 008a 00BF     		.align	2
+ 377              	.L26:
+ 378 008c 00000000 		.word	pInformation
+ 379 0090 00000000 		.word	usbConfigDescriptorDFU
+ 380 0094 505C0040 		.word	1073765456
+ 381 0098 005C0040 		.word	1073765376
+ 382 009c 04300020 		.word	536883204
+ 383 00a0 00000000 		.word	pProperty
+ 384 00a4 00000000 		.word	.LANCHOR0
+ 385              		.cfi_endproc
+ 386              	.LFE10:
+ 388              		.section	.text.usbDataSetup,"ax",%progbits
+ 389              		.align	1
+ 390              		.global	usbDataSetup
+ 391              		.thumb
+ 392              		.thumb_func
+ 394              	usbDataSetup:
+ 395              	.LFB13:
+ 318:usb.c         **** RESULT usbDataSetup(u8 request) {
+ 396              		.loc 1 318 0
+ 397              		.cfi_startproc
+ 398              		@ args = 0, pretend = 0, frame = 0
+ 399              		@ frame_needed = 0, uses_anonymous_args = 0
+ 400              	.LVL11:
+ 401 0000 38B5     		push	{r3, r4, r5, lr}
+ 402              		.cfi_def_cfa_offset 16
+ 403              		.cfi_offset 3, -16
+ 404              		.cfi_offset 4, -12
+ 405              		.cfi_offset 5, -8
+ 406              		.cfi_offset 14, -4
+ 323:usb.c         ****     if ((pInformation->USBbmRequestType & (REQUEST_TYPE | RECIPIENT)) == (CLASS_REQUEST | INTERFACE
+ 407              		.loc 1 323 0
+ 408 0002 124B     		ldr	r3, .L42
+ 318:usb.c         **** RESULT usbDataSetup(u8 request) {
+ 409              		.loc 1 318 0
+ 410 0004 0546     		mov	r5, r0
+ 323:usb.c         ****     if ((pInformation->USBbmRequestType & (REQUEST_TYPE | RECIPIENT)) == (CLASS_REQUEST | INTERFACE
+ 411              		.loc 1 323 0
+ 412 0006 1A68     		ldr	r2, [r3]
+ 413 0008 1C46     		mov	r4, r3
+ 414 000a 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 415 000c 02F07F02 		and	r2, r2, #127
+ 416 0010 212A     		cmp	r2, #33
+ 417 0012 19D1     		bne	.L30
+ 324:usb.c         ****         if (dfuUpdateByRequest()) {
+ 418              		.loc 1 324 0
+ 419 0014 FFF7FEFF 		bl	dfuUpdateByRequest
+ 420              	.LVL12:
+ 421 0018 B0B1     		cbz	r0, .L30
+ 326:usb.c         ****             switch (request) {
+ 422              		.loc 1 326 0
+ 423 001a 681E     		subs	r0, r5, #1
+ 424 001c 0428     		cmp	r0, #4
+ 425 001e 13D8     		bhi	.L30
+ 426 0020 DFE800F0 		tbb	[pc, r0]
+ 427              	.L32:
+ 428 0024 03       		.byte	(.L31-.L32)/2
+ 429 0025 05       		.byte	(.L33-.L32)/2
+ 430 0026 07       		.byte	(.L34-.L32)/2
+ 431 0027 12       		.byte	(.L30-.L32)/2
+ 432 0028 09       		.byte	(.L37-.L32)/2
+ 433 0029 00       		.align	1
+ 434              	.L31:
+ 435              	.LVL13:
+ 334:usb.c         ****                 CopyRoutine = dfuCopyDNLOAD;
+ 436              		.loc 1 334 0
+ 437 002a 094B     		ldr	r3, .L42+4
+ 335:usb.c         ****                 break;
+ 438              		.loc 1 335 0
+ 439 002c 04E0     		b	.L35
+ 440              	.LVL14:
+ 441              	.L33:
+ 337:usb.c         ****                 CopyRoutine = dfuCopyUPLOAD;
+ 442              		.loc 1 337 0
+ 443 002e 094B     		ldr	r3, .L42+8
+ 338:usb.c         ****                 break;
+ 444              		.loc 1 338 0
+ 445 0030 02E0     		b	.L35
+ 446              	.LVL15:
+ 447              	.L34:
+ 328:usb.c         ****                 CopyRoutine = dfuCopyStatus;
+ 448              		.loc 1 328 0
+ 449 0032 094B     		ldr	r3, .L42+12
+ 450 0034 00E0     		b	.L35
+ 451              	.L37:
+ 331:usb.c         ****                 CopyRoutine = dfuCopyState;
+ 452              		.loc 1 331 0
+ 453 0036 094B     		ldr	r3, .L42+16
+ 454              	.LVL16:
+ 455              	.L35:
+ 347:usb.c         ****         pInformation->Ctrl_Info.CopyData = CopyRoutine;
+ 456              		.loc 1 347 0
+ 457 0038 2268     		ldr	r2, [r4]
+ 348:usb.c         ****         pInformation->Ctrl_Info.Usb_wOffset = 0;
+ 458              		.loc 1 348 0
+ 459 003a 0024     		movs	r4, #0
+ 349:usb.c         ****         (*CopyRoutine)(0);
+ 460              		.loc 1 349 0
+ 461 003c 2046     		mov	r0, r4
+ 347:usb.c         ****         pInformation->Ctrl_Info.CopyData = CopyRoutine;
+ 462              		.loc 1 347 0
+ 463 003e 9361     		str	r3, [r2, #24]
+ 348:usb.c         ****         pInformation->Ctrl_Info.Usb_wOffset = 0;
+ 464              		.loc 1 348 0
+ 465 0040 5482     		strh	r4, [r2, #18]	@ movhi
+ 349:usb.c         ****         (*CopyRoutine)(0);
+ 466              		.loc 1 349 0
+ 467 0042 9847     		blx	r3
+ 468              	.LVL17:
+ 351:usb.c         ****         return USB_SUCCESS;
+ 469              		.loc 1 351 0
+ 470 0044 2046     		mov	r0, r4
+ 471 0046 38BD     		pop	{r3, r4, r5, pc}
+ 472              	.LVL18:
+ 473              	.L30:
+ 354:usb.c         ****     return USB_UNSUPPORT;
+ 474              		.loc 1 354 0
+ 475 0048 0220     		movs	r0, #2
+ 355:usb.c         **** }
+ 476              		.loc 1 355 0
+ 477 004a 38BD     		pop	{r3, r4, r5, pc}
+ 478              	.L43:
+ 479              		.align	2
+ 480              	.L42:
+ 481 004c 00000000 		.word	pInformation
+ 482 0050 00000000 		.word	dfuCopyDNLOAD
+ 483 0054 00000000 		.word	dfuCopyUPLOAD
+ 484 0058 00000000 		.word	dfuCopyStatus
+ 485 005c 00000000 		.word	dfuCopyState
+ 486              		.cfi_endproc
+ 487              	.LFE13:
+ 489              		.section	.text.usbGetDeviceDescriptor,"ax",%progbits
+ 490              		.align	1
+ 491              		.global	usbGetDeviceDescriptor
+ 492              		.thumb
+ 493              		.thumb_func
+ 495              	usbGetDeviceDescriptor:
+ 496              	.LFB16:
+ 376:usb.c         **** u8 *usbGetDeviceDescriptor(u16 len) {
+ 497              		.loc 1 376 0
+ 498              		.cfi_startproc
+ 499              		@ args = 0, pretend = 0, frame = 0
+ 500              		@ frame_needed = 0, uses_anonymous_args = 0
+ 501              		@ link register save eliminated.
+ 502              	.LVL19:
+ 377:usb.c         ****     return Standard_GetDescriptorData(len, &usbDeviceDescriptorDFU);
+ 503              		.loc 1 377 0
+ 504 0000 0149     		ldr	r1, .L45
+ 505 0002 FFF7FEBF 		b	Standard_GetDescriptorData
+ 506              	.LVL20:
+ 507              	.L46:
+ 508 0006 00BF     		.align	2
+ 509              	.L45:
+ 510 0008 00000000 		.word	usbDeviceDescriptorDFU
+ 511              		.cfi_endproc
+ 512              	.LFE16:
+ 514              		.section	.text.usbGetConfigDescriptor,"ax",%progbits
+ 515              		.align	1
+ 516              		.global	usbGetConfigDescriptor
+ 517              		.thumb
+ 518              		.thumb_func
+ 520              	usbGetConfigDescriptor:
+ 521              	.LFB17:
+ 380:usb.c         **** u8 *usbGetConfigDescriptor(u16 len) {
+ 522              		.loc 1 380 0
+ 523              		.cfi_startproc
+ 524              		@ args = 0, pretend = 0, frame = 0
+ 525              		@ frame_needed = 0, uses_anonymous_args = 0
+ 526              		@ link register save eliminated.
+ 527              	.LVL21:
+ 381:usb.c         ****     return Standard_GetDescriptorData(len, &usbConfigDescriptorDFU);
+ 528              		.loc 1 381 0
+ 529 0000 0149     		ldr	r1, .L48
+ 530 0002 FFF7FEBF 		b	Standard_GetDescriptorData
+ 531              	.LVL22:
+ 532              	.L49:
+ 533 0006 00BF     		.align	2
+ 534              	.L48:
+ 535 0008 00000000 		.word	usbConfigDescriptorDFU
+ 536              		.cfi_endproc
+ 537              	.LFE17:
+ 539              		.section	.text.usbGetStringDescriptor,"ax",%progbits
+ 540              		.align	1
+ 541              		.global	usbGetStringDescriptor
+ 542              		.thumb
+ 543              		.thumb_func
+ 545              	usbGetStringDescriptor:
+ 546              	.LFB18:
+ 384:usb.c         **** u8 *usbGetStringDescriptor(u16 len) {
+ 547              		.loc 1 384 0
+ 548              		.cfi_startproc
+ 549              		@ args = 0, pretend = 0, frame = 0
+ 550              		@ frame_needed = 0, uses_anonymous_args = 0
+ 551              		@ link register save eliminated.
+ 552              	.LVL23:
+ 385:usb.c         ****     u8 strIndex = pInformation->USBwValue0;
+ 553              		.loc 1 385 0
+ 554 0000 054B     		ldr	r3, .L52
+ 555 0002 1B68     		ldr	r3, [r3]
+ 556 0004 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 557              	.LVL24:
+ 386:usb.c         ****     if (strIndex > STR_DESC_LEN) {
+ 558              		.loc 1 386 0
+ 559 0006 072B     		cmp	r3, #7
+ 560 0008 04D8     		bhi	.L51
+ 389:usb.c         ****         return Standard_GetDescriptorData(len, &usbStringDescriptor[strIndex]);
+ 561              		.loc 1 389 0
+ 562 000a 0449     		ldr	r1, .L52+4
+ 563 000c 01EBC301 		add	r1, r1, r3, lsl #3
+ 564 0010 FFF7FEBF 		b	Standard_GetDescriptorData
+ 565              	.LVL25:
+ 566              	.L51:
+ 391:usb.c         **** }
+ 567              		.loc 1 391 0
+ 568 0014 0020     		movs	r0, #0
+ 569              	.LVL26:
+ 570 0016 7047     		bx	lr
+ 571              	.L53:
+ 572              		.align	2
+ 573              	.L52:
+ 574 0018 00000000 		.word	pInformation
+ 575 001c 00000000 		.word	usbStringDescriptor
+ 576              		.cfi_endproc
+ 577              	.LFE18:
+ 579              		.section	.text.usbGetFunctionalDescriptor,"ax",%progbits
+ 580              		.align	1
+ 581              		.global	usbGetFunctionalDescriptor
+ 582              		.thumb
+ 583              		.thumb_func
+ 585              	usbGetFunctionalDescriptor:
+ 586              	.LFB19:
+ 393:usb.c         **** u8 *usbGetFunctionalDescriptor(u16 len) {
+ 587              		.loc 1 393 0
+ 588              		.cfi_startproc
+ 589              		@ args = 0, pretend = 0, frame = 0
+ 590              		@ frame_needed = 0, uses_anonymous_args = 0
+ 591              		@ link register save eliminated.
+ 592              	.LVL27:
+ 394:usb.c         ****     return Standard_GetDescriptorData(len, &usbFunctionalDescriptor);
+ 593              		.loc 1 394 0
+ 594 0000 0149     		ldr	r1, .L55
+ 595 0002 FFF7FEBF 		b	Standard_GetDescriptorData
+ 596              	.LVL28:
+ 597              	.L56:
+ 598 0006 00BF     		.align	2
+ 599              	.L55:
+ 600 0008 00000000 		.word	usbFunctionalDescriptor
+ 601              		.cfi_endproc
+ 602              	.LFE19:
+ 604              		.section	.text.usbNoDataSetup,"ax",%progbits
+ 605              		.align	1
+ 606              		.global	usbNoDataSetup
+ 607              		.thumb
+ 608              		.thumb_func
+ 610              	usbNoDataSetup:
+ 611              	.LFB14:
+ 357:usb.c         **** RESULT usbNoDataSetup(u8 request) {
+ 612              		.loc 1 357 0
+ 613              		.cfi_startproc
+ 614              		@ args = 0, pretend = 0, frame = 0
+ 615              		@ frame_needed = 0, uses_anonymous_args = 0
+ 616              	.LVL29:
+ 617 0000 08B5     		push	{r3, lr}
+ 618              		.cfi_def_cfa_offset 8
+ 619              		.cfi_offset 3, -8
+ 620              		.cfi_offset 14, -4
+ 358:usb.c         ****     if ((pInformation->USBbmRequestType & (REQUEST_TYPE | RECIPIENT)) == (CLASS_REQUEST | INTERFACE
+ 621              		.loc 1 358 0
+ 622 0002 084B     		ldr	r3, .L62
+ 623 0004 1B68     		ldr	r3, [r3]
+ 624 0006 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 625 0008 03F07F03 		and	r3, r3, #127
+ 626 000c 212B     		cmp	r3, #33
+ 627 000e 06D1     		bne	.L60
+ 628              	.LVL30:
+ 629              	.LBB7:
+ 630              	.LBB8:
+ 360:usb.c         ****         if (dfuUpdateByRequest()) {
+ 631              		.loc 1 360 0
+ 632 0010 FFF7FEFF 		bl	dfuUpdateByRequest
+ 633              	.LVL31:
+ 634 0014 0028     		cmp	r0, #0
+ 361:usb.c         ****             return USB_SUCCESS;
+ 635              		.loc 1 361 0
+ 636 0016 0CBF     		ite	eq
+ 637 0018 0220     		moveq	r0, #2
+ 638 001a 0020     		movne	r0, #0
+ 639 001c 08BD     		pop	{r3, pc}
+ 640              	.LVL32:
+ 641              	.L60:
+ 642              	.LBE8:
+ 643              	.LBE7:
+ 364:usb.c         ****     return USB_UNSUPPORT;
+ 644              		.loc 1 364 0
+ 645 001e 0220     		movs	r0, #2
+ 646              	.LVL33:
+ 365:usb.c         **** }
+ 647              		.loc 1 365 0
+ 648 0020 08BD     		pop	{r3, pc}
+ 649              	.L63:
+ 650 0022 00BF     		.align	2
+ 651              	.L62:
+ 652 0024 00000000 		.word	pInformation
+ 653              		.cfi_endproc
+ 654              	.LFE14:
+ 656              		.section	.text.setupUSB,"ax",%progbits
+ 657              		.align	1
+ 658              		.global	setupUSB
+ 659              		.thumb
+ 660              		.thumb_func
+ 662              	setupUSB:
+ 663              	.LFB0:
+  40:usb.c         **** void setupUSB (void) {
+ 664              		.loc 1 40 0
+ 665              		.cfi_startproc
+ 666              		@ args = 0, pretend = 0, frame = 8
+ 667              		@ frame_needed = 0, uses_anonymous_args = 0
+ 668 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+ 669              		.cfi_def_cfa_offset 24
+ 670              		.cfi_offset 0, -24
+ 671              		.cfi_offset 1, -20
+ 672              		.cfi_offset 2, -16
+ 673              		.cfi_offset 4, -12
+ 674              		.cfi_offset 5, -8
+ 675              		.cfi_offset 14, -4
+  57:usb.c         ****   SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC),
+ 676              		.loc 1 57 0
+ 677 0002 184C     		ldr	r4, .L69
+ 678 0004 0C20     		movs	r0, #12
+ 679 0006 2568     		ldr	r5, [r4]
+ 680 0008 FFF7FEFF 		bl	crMask
+ 681              	.LVL34:
+ 682 000c 2840     		ands	r0, r0, r5
+ 683 000e 40F48035 		orr	r5, r0, #65536
+ 684 0012 2560     		str	r5, [r4]
+  60:usb.c         ****   gpio_write_bit(USB_DISC_BANK,USB_DISC,0);  /* present ourselves to the host */
+ 685              		.loc 1 60 0
+ 686 0014 1448     		ldr	r0, .L69+4
+ 687 0016 0C21     		movs	r1, #12
+ 688 0018 0022     		movs	r2, #0
+ 689 001a FFF7FEFF 		bl	gpio_write_bit
+ 690              	.LVL35:
+  63:usb.c         ****   for(delay = 0;delay<256;delay++);
+ 691              		.loc 1 63 0
+ 692 001e 0023     		movs	r3, #0
+ 693              	.L67:
+  63:usb.c         ****   for(delay = 0;delay<256;delay++);
+ 694              		.loc 1 63 0 is_stmt 0 discriminator 2
+ 695 0020 0193     		str	r3, [sp, #4]
+ 696 0022 019B     		ldr	r3, [sp, #4]
+ 697 0024 FF2B     		cmp	r3, #255
+ 698 0026 02D8     		bhi	.L68
+ 699 0028 019B     		ldr	r3, [sp, #4]
+ 700 002a 0133     		adds	r3, r3, #1
+ 701 002c F8E7     		b	.L67
+ 702              	.L68:
+  67:usb.c         ****    SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC),
+ 703              		.loc 1 67 0 is_stmt 1
+ 704 002e 0C20     		movs	r0, #12
+ 705 0030 2568     		ldr	r5, [r4]
+ 706 0032 FFF7FEFF 		bl	crMask
+ 707              	.LVL36:
+ 708 0036 2840     		ands	r0, r0, r5
+ 709 0038 40F48025 		orr	r5, r0, #262144
+ 710 003c 2560     		str	r5, [r4]
+  73:usb.c         ****   wTransferSize=getFlashPageSize();
+ 711              		.loc 1 73 0
+ 712 003e FFF7FEFF 		bl	getFlashPageSize
+ 713              	.LVL37:
+ 714 0042 0A4B     		ldr	r3, .L69+8
+  74:usb.c         ****   u8_usbConfigDescriptorDFU[41]=(wTransferSize & 0x00FF);
+ 715              		.loc 1 74 0
+ 716 0044 C2B2     		uxtb	r2, r0
+  73:usb.c         ****   wTransferSize=getFlashPageSize();
+ 717              		.loc 1 73 0
+ 718 0046 1860     		str	r0, [r3]
+  74:usb.c         ****   u8_usbConfigDescriptorDFU[41]=(wTransferSize & 0x00FF);
+ 719              		.loc 1 74 0
+ 720 0048 094B     		ldr	r3, .L69+12
+  75:usb.c         ****   u8_usbConfigDescriptorDFU[42]=(wTransferSize & 0xFF00)>>8;
+ 721              		.loc 1 75 0
+ 722 004a C0F30720 		ubfx	r0, r0, #8, #8
+  74:usb.c         ****   u8_usbConfigDescriptorDFU[41]=(wTransferSize & 0x00FF);
+ 723              		.loc 1 74 0
+ 724 004e 83F82920 		strb	r2, [r3, #41]
+  75:usb.c         ****   u8_usbConfigDescriptorDFU[42]=(wTransferSize & 0xFF00)>>8;
+ 725              		.loc 1 75 0
+ 726 0052 83F82A00 		strb	r0, [r3, #42]
+  77:usb.c         ****   u8_usbFunctionalDescriptor[5]=(wTransferSize & 0x00FF);
+ 727              		.loc 1 77 0
+ 728 0056 074B     		ldr	r3, .L69+16
+ 729 0058 5A71     		strb	r2, [r3, #5]
+  78:usb.c         ****   u8_usbFunctionalDescriptor[6]=(wTransferSize & 0xFF00)>>8;  
+ 730              		.loc 1 78 0
+ 731 005a 9871     		strb	r0, [r3, #6]
+ 732              	.LBB9:
+ 733              	.LBB10:
+ 170:usb.c         ****     USB_Init();
+ 734              		.loc 1 170 0
+ 735 005c FFF7FEFF 		bl	USB_Init
+ 736              	.LVL38:
+ 737              	.LBE10:
+ 738              	.LBE9:
+  82:usb.c         **** }
+ 739              		.loc 1 82 0
+ 740 0060 03B0     		add	sp, sp, #12
+ 741              		@ sp needed
+ 742 0062 30BD     		pop	{r4, r5, pc}
+ 743              	.L70:
+ 744              		.align	2
+ 745              	.L69:
+ 746 0064 04080140 		.word	1073809412
+ 747 0068 00080140 		.word	1073809408
+ 748 006c 00000000 		.word	wTransferSize
+ 749 0070 00000000 		.word	u8_usbConfigDescriptorDFU
+ 750 0074 00000000 		.word	u8_usbFunctionalDescriptor
+ 751              		.cfi_endproc
+ 752              	.LFE0:
+ 754              		.section	.text.usbAppInit,"ax",%progbits
+ 755              		.align	1
+ 756              		.global	usbAppInit
+ 757              		.thumb
+ 758              		.thumb_func
+ 760              	usbAppInit:
+ 761              	.LFB3:
+ 167:usb.c         **** void usbAppInit(void) {
+ 762              		.loc 1 167 0
+ 763              		.cfi_startproc
+ 764              		@ args = 0, pretend = 0, frame = 0
+ 765              		@ frame_needed = 0, uses_anonymous_args = 0
+ 766              		@ link register save eliminated.
+ 170:usb.c         ****     USB_Init();
+ 767              		.loc 1 170 0
+ 768 0000 FFF7FEBF 		b	USB_Init
+ 769              	.LVL39:
+ 770              		.cfi_endproc
+ 771              	.LFE3:
+ 773              		.section	.text.usbSuspend,"ax",%progbits
+ 774              		.align	1
+ 775              		.global	usbSuspend
+ 776              		.thumb
+ 777              		.thumb_func
+ 779              	usbSuspend:
+ 780              	.LFB4:
+ 173:usb.c         **** void usbSuspend(void) {
+ 781              		.loc 1 173 0
+ 782              		.cfi_startproc
+ 783              		@ args = 0, pretend = 0, frame = 0
+ 784              		@ frame_needed = 0, uses_anonymous_args = 0
+ 785              		@ link register save eliminated.
+ 175:usb.c         ****     wCNTR = _GetCNTR();
+ 786              		.loc 1 175 0
+ 787 0000 044B     		ldr	r3, .L73
+ 788 0002 1A68     		ldr	r2, [r3]
+ 789 0004 92B2     		uxth	r2, r2
+ 790              	.LVL40:
+ 177:usb.c         ****     _SetCNTR(wCNTR);
+ 791              		.loc 1 177 0
+ 792 0006 42F00C02 		orr	r2, r2, #12
+ 793              	.LVL41:
+ 794 000a 1A60     		str	r2, [r3]
+ 180:usb.c         ****     bDeviceState = SUSPENDED;
+ 795              		.loc 1 180 0
+ 796 000c 024B     		ldr	r3, .L73+4
+ 797 000e 0322     		movs	r2, #3
+ 798 0010 1A60     		str	r2, [r3]
+ 799 0012 7047     		bx	lr
+ 800              	.L74:
+ 801              		.align	2
+ 802              	.L73:
+ 803 0014 405C0040 		.word	1073765440
+ 804 0018 00000000 		.word	.LANCHOR0
+ 805              		.cfi_endproc
+ 806              	.LFE4:
+ 808              		.section	.text.usbResumeInit,"ax",%progbits
+ 809              		.align	1
+ 810              		.global	usbResumeInit
+ 811              		.thumb
+ 812              		.thumb_func
+ 814              	usbResumeInit:
+ 815              	.LFB5:
+ 183:usb.c         **** void usbResumeInit(void) {
+ 816              		.loc 1 183 0
+ 817              		.cfi_startproc
+ 818              		@ args = 0, pretend = 0, frame = 0
+ 819              		@ frame_needed = 0, uses_anonymous_args = 0
+ 820              		@ link register save eliminated.
+ 188:usb.c         ****     wCNTR = _GetCNTR();
+ 821              		.loc 1 188 0
+ 822 0000 044B     		ldr	r3, .L76
+ 190:usb.c         ****     _SetCNTR(wCNTR);
+ 823              		.loc 1 190 0
+ 824 0002 4FF6FB72 		movw	r2, #65531
+ 188:usb.c         ****     wCNTR = _GetCNTR();
+ 825              		.loc 1 188 0
+ 826 0006 1968     		ldr	r1, [r3]
+ 827              	.LVL42:
+ 190:usb.c         ****     _SetCNTR(wCNTR);
+ 828              		.loc 1 190 0
+ 829 0008 0A40     		ands	r2, r2, r1
+ 830 000a 1A60     		str	r2, [r3]
+ 194:usb.c         ****     _SetCNTR(ISR_MSK);
+ 831              		.loc 1 194 0
+ 832 000c 4FF43F42 		mov	r2, #48896
+ 833 0010 1A60     		str	r2, [r3]
+ 834 0012 7047     		bx	lr
+ 835              	.L77:
+ 836              		.align	2
+ 837              	.L76:
+ 838 0014 405C0040 		.word	1073765440
+ 839              		.cfi_endproc
+ 840              	.LFE5:
+ 842              		.section	.text.usbResume,"ax",%progbits
+ 843              		.align	1
+ 844              		.global	usbResume
+ 845              		.thumb
+ 846              		.thumb_func
+ 848              	usbResume:
+ 849              	.LFB6:
+ 197:usb.c         **** void usbResume(RESUME_STATE eResumeSetVal) {
+ 850              		.loc 1 197 0
+ 851              		.cfi_startproc
+ 852              		@ args = 0, pretend = 0, frame = 0
+ 853              		@ frame_needed = 0, uses_anonymous_args = 0
+ 854              	.LVL43:
+ 855 0000 10B5     		push	{r4, lr}
+ 856              		.cfi_def_cfa_offset 8
+ 857              		.cfi_offset 4, -8
+ 858              		.cfi_offset 14, -4
+ 859 0002 1E4C     		ldr	r4, .L96
+ 200:usb.c         ****     if (eResumeSetVal != RESUME_ESOF)
+ 860              		.loc 1 200 0
+ 861 0004 0728     		cmp	r0, #7
+ 201:usb.c         ****         ResumeS.eState = eResumeSetVal;
+ 862              		.loc 1 201 0
+ 863 0006 18BF     		it	ne
+ 864 0008 2070     		strbne	r0, [r4]
+ 203:usb.c         ****     switch (ResumeS.eState) {
+ 865              		.loc 1 203 0
+ 866 000a 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 867 000c 052B     		cmp	r3, #5
+ 868 000e 32D8     		bhi	.L80
+ 869 0010 DFE803F0 		tbb	[pc, r3]
+ 870              	.L82:
+ 871 0014 03       		.byte	(.L81-.L82)/2
+ 872 0015 06       		.byte	(.L83-.L82)/2
+ 873 0016 0A       		.byte	(.L84-.L82)/2
+ 874 0017 0E       		.byte	(.L85-.L82)/2
+ 875 0018 16       		.byte	(.L86-.L82)/2
+ 876 0019 21       		.byte	(.L87-.L82)/2
+ 877              		.align	1
+ 878              	.L81:
+ 205:usb.c         ****         usbResumeInit();
+ 879              		.loc 1 205 0
+ 880 001a FFF7FEFF 		bl	usbResumeInit
+ 881              	.LVL44:
+ 882 001e 2AE0     		b	.L80
+ 883              	.LVL45:
+ 884              	.L83:
+ 209:usb.c         ****         usbResumeInit();
+ 885              		.loc 1 209 0
+ 886 0020 FFF7FEFF 		bl	usbResumeInit
+ 887              	.LVL46:
+ 210:usb.c         ****         ResumeS.eState = RESUME_START;
+ 888              		.loc 1 210 0
+ 889 0024 0423     		movs	r3, #4
+ 890 0026 27E0     		b	.L94
+ 891              	.LVL47:
+ 892              	.L84:
+ 213:usb.c         ****         ResumeS.bESOFcnt = 2;
+ 893              		.loc 1 213 0
+ 894 0028 0223     		movs	r3, #2
+ 895 002a 6370     		strb	r3, [r4, #1]
+ 214:usb.c         ****         ResumeS.eState = RESUME_WAIT;
+ 896              		.loc 1 214 0
+ 897 002c 0323     		movs	r3, #3
+ 898 002e 23E0     		b	.L94
+ 899              	.L85:
+ 217:usb.c         ****         ResumeS.bESOFcnt--;
+ 900              		.loc 1 217 0
+ 901 0030 6378     		ldrb	r3, [r4, #1]	@ zero_extendqisi2
+ 902 0032 013B     		subs	r3, r3, #1
+ 903 0034 DBB2     		uxtb	r3, r3
+ 904 0036 6370     		strb	r3, [r4, #1]
+ 218:usb.c         ****         if (ResumeS.bESOFcnt == 0)
+ 905              		.loc 1 218 0
+ 906 0038 6378     		ldrb	r3, [r4, #1]	@ zero_extendqisi2
+ 907 003a F3B9     		cbnz	r3, .L78
+ 219:usb.c         ****             ResumeS.eState = RESUME_START;
+ 908              		.loc 1 219 0
+ 909 003c 0422     		movs	r2, #4
+ 910 003e 17E0     		b	.L95
+ 911              	.L86:
+ 222:usb.c         ****         wCNTR = _GetCNTR();
+ 912              		.loc 1 222 0
+ 913 0040 0F4B     		ldr	r3, .L96+4
+ 914 0042 1A68     		ldr	r2, [r3]
+ 915 0044 92B2     		uxth	r2, r2
+ 916              	.LVL48:
+ 224:usb.c         ****         _SetCNTR(wCNTR);
+ 917              		.loc 1 224 0
+ 918 0046 42F01002 		orr	r2, r2, #16
+ 919              	.LVL49:
+ 920 004a 1A60     		str	r2, [r3]
+ 225:usb.c         ****         ResumeS.eState = RESUME_ON;
+ 921              		.loc 1 225 0
+ 922 004c 0523     		movs	r3, #5
+ 923 004e 2370     		strb	r3, [r4]
+ 226:usb.c         ****         ResumeS.bESOFcnt = 10;
+ 924              		.loc 1 226 0
+ 925 0050 0A23     		movs	r3, #10
+ 926 0052 6370     		strb	r3, [r4, #1]
+ 227:usb.c         ****         break;
+ 927              		.loc 1 227 0
+ 928 0054 10BD     		pop	{r4, pc}
+ 929              	.L87:
+ 229:usb.c         ****         ResumeS.bESOFcnt--;
+ 930              		.loc 1 229 0
+ 931 0056 6378     		ldrb	r3, [r4, #1]	@ zero_extendqisi2
+ 932 0058 013B     		subs	r3, r3, #1
+ 933 005a DBB2     		uxtb	r3, r3
+ 934 005c 6370     		strb	r3, [r4, #1]
+ 230:usb.c         ****         if (ResumeS.bESOFcnt == 0) {
+ 935              		.loc 1 230 0
+ 936 005e 6378     		ldrb	r3, [r4, #1]	@ zero_extendqisi2
+ 937 0060 5BB9     		cbnz	r3, .L78
+ 231:usb.c         ****             wCNTR = _GetCNTR();
+ 938              		.loc 1 231 0
+ 939 0062 074A     		ldr	r2, .L96+4
+ 233:usb.c         ****             _SetCNTR(wCNTR);
+ 940              		.loc 1 233 0
+ 941 0064 4FF6EF73 		movw	r3, #65519
+ 231:usb.c         ****             wCNTR = _GetCNTR();
+ 942              		.loc 1 231 0
+ 943 0068 1168     		ldr	r1, [r2]
+ 944              	.LVL50:
+ 233:usb.c         ****             _SetCNTR(wCNTR);
+ 945              		.loc 1 233 0
+ 946 006a 0B40     		ands	r3, r3, r1
+ 947 006c 1360     		str	r3, [r2]
+ 234:usb.c         ****             ResumeS.eState = RESUME_OFF;
+ 948              		.loc 1 234 0
+ 949 006e 0622     		movs	r2, #6
+ 950              	.LVL51:
+ 951              	.L95:
+ 952 0070 024B     		ldr	r3, .L96
+ 953 0072 1A70     		strb	r2, [r3]
+ 954 0074 10BD     		pop	{r4, pc}
+ 955              	.LVL52:
+ 956              	.L80:
+ 240:usb.c         ****         ResumeS.eState = RESUME_OFF;
+ 957              		.loc 1 240 0
+ 958 0076 0623     		movs	r3, #6
+ 959              	.L94:
+ 960 0078 2370     		strb	r3, [r4]
+ 961              	.L78:
+ 962 007a 10BD     		pop	{r4, pc}
+ 963              	.L97:
+ 964              		.align	2
+ 965              	.L96:
+ 966 007c 00000000 		.word	ResumeS
+ 967 0080 405C0040 		.word	1073765440
+ 968              		.cfi_endproc
+ 969              	.LFE6:
+ 971              		.section	.text.usbPowerOn,"ax",%progbits
+ 972              		.align	1
+ 973              		.global	usbPowerOn
+ 974              		.thumb
+ 975              		.thumb_func
+ 977              	usbPowerOn:
+ 978              	.LFB7:
+ 245:usb.c         **** RESULT usbPowerOn(void) {
+ 979              		.loc 1 245 0
+ 980              		.cfi_startproc
+ 981              		@ args = 0, pretend = 0, frame = 0
+ 982              		@ frame_needed = 0, uses_anonymous_args = 0
+ 983              		@ link register save eliminated.
+ 984              	.LVL53:
+ 249:usb.c         ****     _SetCNTR(wRegVal);
+ 985              		.loc 1 249 0
+ 986 0000 064B     		ldr	r3, .L99
+ 987 0002 0122     		movs	r2, #1
+ 988 0004 1A60     		str	r2, [r3]
+ 253:usb.c         ****     _SetISTR(0);
+ 989              		.loc 1 253 0
+ 990 0006 064A     		ldr	r2, .L99+4
+ 252:usb.c         ****     _SetCNTR(wInterrupt_Mask);
+ 991              		.loc 1 252 0
+ 992 0008 0020     		movs	r0, #0
+ 254:usb.c         ****     wInterrupt_Mask = CNTR_RESETM | CNTR_SUSPM | CNTR_WKUPM; /* the bare minimum */
+ 993              		.loc 1 254 0
+ 994 000a 0649     		ldr	r1, .L99+8
+ 252:usb.c         ****     _SetCNTR(wInterrupt_Mask);
+ 995              		.loc 1 252 0
+ 996 000c 1860     		str	r0, [r3]
+ 253:usb.c         ****     _SetISTR(0);
+ 997              		.loc 1 253 0
+ 998 000e 1060     		str	r0, [r2]
+ 254:usb.c         ****     wInterrupt_Mask = CNTR_RESETM | CNTR_SUSPM | CNTR_WKUPM; /* the bare minimum */
+ 999              		.loc 1 254 0
+ 1000 0010 4FF4E052 		mov	r2, #7168
+ 1001 0014 0A80     		strh	r2, [r1]	@ movhi
+ 255:usb.c         ****     _SetCNTR(wInterrupt_Mask);
+ 1002              		.loc 1 255 0
+ 1003 0016 1A60     		str	r2, [r3]
+ 258:usb.c         **** }
+ 1004              		.loc 1 258 0
+ 1005 0018 7047     		bx	lr
+ 1006              	.L100:
+ 1007 001a 00BF     		.align	2
+ 1008              	.L99:
+ 1009 001c 405C0040 		.word	1073765440
+ 1010 0020 445C0040 		.word	1073765444
+ 1011 0024 00000000 		.word	wInterrupt_Mask
+ 1012              		.cfi_endproc
+ 1013              	.LFE7:
+ 1015              		.section	.text.usbPowerOff,"ax",%progbits
+ 1016              		.align	1
+ 1017              		.global	usbPowerOff
+ 1018              		.thumb
+ 1019              		.thumb_func
+ 1021              	usbPowerOff:
+ 1022              	.LFB8:
+ 260:usb.c         **** RESULT usbPowerOff(void) {
+ 1023              		.loc 1 260 0
+ 1024              		.cfi_startproc
+ 1025              		@ args = 0, pretend = 0, frame = 0
+ 1026              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1027              		@ link register save eliminated.
+ 261:usb.c         ****     _SetCNTR(CNTR_FRES);
+ 1028              		.loc 1 261 0
+ 1029 0000 044B     		ldr	r3, .L102
+ 1030 0002 0122     		movs	r2, #1
+ 1031 0004 1A60     		str	r2, [r3]
+ 262:usb.c         ****     _SetISTR(0);
+ 1032              		.loc 1 262 0
+ 1033 0006 044A     		ldr	r2, .L102+4
+ 1034 0008 0020     		movs	r0, #0
+ 1035 000a 1060     		str	r0, [r2]
+ 263:usb.c         ****     _SetCNTR(CNTR_FRES + CNTR_PDWN);
+ 1036              		.loc 1 263 0
+ 1037 000c 0322     		movs	r2, #3
+ 1038 000e 1A60     		str	r2, [r3]
+ 271:usb.c         **** }
+ 1039              		.loc 1 271 0
+ 1040 0010 7047     		bx	lr
+ 1041              	.L103:
+ 1042 0012 00BF     		.align	2
+ 1043              	.L102:
+ 1044 0014 405C0040 		.word	1073765440
+ 1045 0018 445C0040 		.word	1073765444
+ 1046              		.cfi_endproc
+ 1047              	.LFE8:
+ 1049              		.section	.text.usbDsbBus,"ax",%progbits
+ 1050              		.align	1
+ 1051              		.global	usbDsbBus
+ 1052              		.thumb
+ 1053              		.thumb_func
+ 1055              	usbDsbBus:
+ 1056              	.LFB1:
+  87:usb.c         **** void usbDsbBus(void) {
+ 1057              		.loc 1 87 0
+ 1058              		.cfi_startproc
+ 1059              		@ args = 0, pretend = 0, frame = 0
+ 1060              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1061              		@ link register save eliminated.
+  89:usb.c         **** usbPowerOff();
+ 1062              		.loc 1 89 0
+ 1063 0000 FFF7FEBF 		b	usbPowerOff
+ 1064              	.LVL54:
+ 1065              		.cfi_endproc
+ 1066              	.LFE1:
+ 1068              		.section	.text.usbEnbISR,"ax",%progbits
+ 1069              		.align	1
+ 1070              		.global	usbEnbISR
+ 1071              		.thumb
+ 1072              		.thumb_func
+ 1074              	usbEnbISR:
+ 1075              	.LFB29:
+ 442:usb.c         **** }
+ 443:usb.c         **** /***** end of USER STANDARD REQUESTS *****/
+ 444:usb.c         **** 
+ 445:usb.c         **** 
+ 446:usb.c         **** void usbEnbISR(void) {
+ 1076              		.loc 1 446 0
+ 1077              		.cfi_startproc
+ 1078              		@ args = 0, pretend = 0, frame = 8
+ 1079              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1080 0000 07B5     		push	{r0, r1, r2, lr}
+ 1081              		.cfi_def_cfa_offset 16
+ 1082              		.cfi_offset 0, -16
+ 1083              		.cfi_offset 1, -12
+ 1084              		.cfi_offset 2, -8
+ 1085              		.cfi_offset 14, -4
+ 447:usb.c         ****     NVIC_InitTypeDef NVIC_InitStructure;
+ 448:usb.c         **** 
+ 449:usb.c         **** 
+ 450:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannel = USB_LP_IRQ;
+ 1086              		.loc 1 450 0
+ 1087 0002 1423     		movs	r3, #20
+ 1088 0004 8DF80430 		strb	r3, [sp, #4]
+ 451:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+ 1089              		.loc 1 451 0
+ 1090 0008 0023     		movs	r3, #0
+ 1091 000a 8DF80530 		strb	r3, [sp, #5]
+ 452:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+ 1092              		.loc 1 452 0
+ 1093 000e 8DF80630 		strb	r3, [sp, #6]
+ 453:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelCmd = TRUE;
+ 454:usb.c         ****     nvicInit(&NVIC_InitStructure);
+ 1094              		.loc 1 454 0
+ 1095 0012 01A8     		add	r0, sp, #4
+ 453:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelCmd = TRUE;
+ 1096              		.loc 1 453 0
+ 1097 0014 0123     		movs	r3, #1
+ 1098 0016 8DF80730 		strb	r3, [sp, #7]
+ 1099              		.loc 1 454 0
+ 1100 001a FFF7FEFF 		bl	nvicInit
+ 1101              	.LVL55:
+ 455:usb.c         **** }
+ 1102              		.loc 1 455 0
+ 1103 001e 03B0     		add	sp, sp, #12
+ 1104              		@ sp needed
+ 1105 0020 5DF804FB 		ldr	pc, [sp], #4
+ 1106              		.cfi_endproc
+ 1107              	.LFE29:
+ 1109              		.section	.text.usbInit,"ax",%progbits
+ 1110              		.align	1
+ 1111              		.global	usbInit
+ 1112              		.thumb
+ 1113              		.thumb_func
+ 1115              	usbInit:
+ 1116              	.LFB9:
+ 273:usb.c         **** void usbInit(void) {
+ 1117              		.loc 1 273 0
+ 1118              		.cfi_startproc
+ 1119              		@ args = 0, pretend = 0, frame = 0
+ 1120              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1121 0000 10B5     		push	{r4, lr}
+ 1122              		.cfi_def_cfa_offset 8
+ 1123              		.cfi_offset 4, -8
+ 1124              		.cfi_offset 14, -4
+ 274:usb.c         ****     dfuInit();
+ 1125              		.loc 1 274 0
+ 1126 0002 FFF7FEFF 		bl	dfuInit
+ 1127              	.LVL56:
+ 276:usb.c         ****     pInformation->Current_Configuration = 0;
+ 1128              		.loc 1 276 0
+ 1129 0006 094B     		ldr	r3, .L107
+ 1130 0008 0024     		movs	r4, #0
+ 1131 000a 1B68     		ldr	r3, [r3]
+ 1132 000c 9C72     		strb	r4, [r3, #10]
+ 277:usb.c         ****     usbPowerOn();
+ 1133              		.loc 1 277 0
+ 1134 000e FFF7FEFF 		bl	usbPowerOn
+ 1135              	.LVL57:
+ 279:usb.c         ****     _SetISTR(0);
+ 1136              		.loc 1 279 0
+ 1137 0012 074B     		ldr	r3, .L107+4
+ 280:usb.c         ****     wInterrupt_Mask = ISR_MSK;
+ 1138              		.loc 1 280 0
+ 1139 0014 074A     		ldr	r2, .L107+8
+ 279:usb.c         ****     _SetISTR(0);
+ 1140              		.loc 1 279 0
+ 1141 0016 1C60     		str	r4, [r3]
+ 280:usb.c         ****     wInterrupt_Mask = ISR_MSK;
+ 1142              		.loc 1 280 0
+ 1143 0018 4FF43F43 		mov	r3, #48896
+ 1144 001c 1380     		strh	r3, [r2]	@ movhi
+ 281:usb.c         ****     _SetCNTR(wInterrupt_Mask);
+ 1145              		.loc 1 281 0
+ 1146 001e 064A     		ldr	r2, .L107+12
+ 1147 0020 1360     		str	r3, [r2]
+ 283:usb.c         ****     usbEnbISR(); /* configure the cortex M3 private peripheral NVIC */
+ 1148              		.loc 1 283 0
+ 1149 0022 FFF7FEFF 		bl	usbEnbISR
+ 1150              	.LVL58:
+ 284:usb.c         ****     bDeviceState = UNCONNECTED;
+ 1151              		.loc 1 284 0
+ 1152 0026 054B     		ldr	r3, .L107+16
+ 1153 0028 1C60     		str	r4, [r3]
+ 1154 002a 10BD     		pop	{r4, pc}
+ 1155              	.L108:
+ 1156              		.align	2
+ 1157              	.L107:
+ 1158 002c 00000000 		.word	pInformation
+ 1159 0030 445C0040 		.word	1073765444
+ 1160 0034 00000000 		.word	wInterrupt_Mask
+ 1161 0038 405C0040 		.word	1073765440
+ 1162 003c 00000000 		.word	.LANCHOR0
+ 1163              		.cfi_endproc
+ 1164              	.LFE9:
+ 1166              		.section	.text.usbDsbISR,"ax",%progbits
+ 1167              		.align	1
+ 1168              		.global	usbDsbISR
+ 1169              		.thumb
+ 1170              		.thumb_func
+ 1172              	usbDsbISR:
+ 1173              	.LFB30:
+ 456:usb.c         **** 
+ 457:usb.c         **** void usbDsbISR(void) {
+ 1174              		.loc 1 457 0
+ 1175              		.cfi_startproc
+ 1176              		@ args = 0, pretend = 0, frame = 8
+ 1177              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1178 0000 07B5     		push	{r0, r1, r2, lr}
+ 1179              		.cfi_def_cfa_offset 16
+ 1180              		.cfi_offset 0, -16
+ 1181              		.cfi_offset 1, -12
+ 1182              		.cfi_offset 2, -8
+ 1183              		.cfi_offset 14, -4
+ 458:usb.c         ****     NVIC_InitTypeDef NVIC_InitStructure;
+ 459:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannel = USB_LP_IRQ;
+ 1184              		.loc 1 459 0
+ 1185 0002 1423     		movs	r3, #20
+ 1186 0004 8DF80430 		strb	r3, [sp, #4]
+ 460:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+ 461:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+ 462:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelCmd = FALSE;
+ 463:usb.c         ****     nvicInit(&NVIC_InitStructure);
+ 1187              		.loc 1 463 0
+ 1188 0008 01A8     		add	r0, sp, #4
+ 460:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+ 1189              		.loc 1 460 0
+ 1190 000a 0023     		movs	r3, #0
+ 1191 000c 8DF80530 		strb	r3, [sp, #5]
+ 461:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+ 1192              		.loc 1 461 0
+ 1193 0010 8DF80630 		strb	r3, [sp, #6]
+ 462:usb.c         ****     NVIC_InitStructure.NVIC_IRQChannelCmd = FALSE;
+ 1194              		.loc 1 462 0
+ 1195 0014 8DF80730 		strb	r3, [sp, #7]
+ 1196              		.loc 1 463 0
+ 1197 0018 FFF7FEFF 		bl	nvicInit
+ 1198              	.LVL59:
+ 464:usb.c         **** }
+ 1199              		.loc 1 464 0
+ 1200 001c 03B0     		add	sp, sp, #12
+ 1201              		@ sp needed
+ 1202 001e 5DF804FB 		ldr	pc, [sp], #4
+ 1203              		.cfi_endproc
+ 1204              	.LFE30:
+ 1206              		.section	.text.USB_LP_CAN1_RX0_IRQHandler,"ax",%progbits
+ 1207              		.align	1
+ 1208              		.global	USB_LP_CAN1_RX0_IRQHandler
+ 1209              		.thumb
+ 1210              		.thumb_func
+ 1212              	USB_LP_CAN1_RX0_IRQHandler:
+ 1213              	.LFB31:
+ 465:usb.c         **** 
+ 466:usb.c         **** void USB_LP_CAN1_RX0_IRQHandler(void) {
+ 1214              		.loc 1 466 0
+ 1215              		.cfi_startproc
+ 1216              		@ args = 0, pretend = 0, frame = 0
+ 1217              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1218 0000 70B5     		push	{r4, r5, r6, lr}
+ 1219              		.cfi_def_cfa_offset 16
+ 1220              		.cfi_offset 4, -16
+ 1221              		.cfi_offset 5, -12
+ 1222              		.cfi_offset 6, -8
+ 1223              		.cfi_offset 14, -4
+ 467:usb.c         ****     wIstr = _GetISTR();
+ 1224              		.loc 1 467 0
+ 1225 0002 274D     		ldr	r5, .L136
+ 1226 0004 274C     		ldr	r4, .L136+4
+ 1227 0006 2B68     		ldr	r3, [r5]
+ 468:usb.c         **** 
+ 469:usb.c         ****     /* go nuts with the preproc switches since this is an ISTR and must be FAST */
+ 470:usb.c         **** #if (ISR_MSK & ISTR_RESET)
+ 471:usb.c         ****     if (wIstr & ISTR_RESET & wInterrupt_Mask) {
+ 1228              		.loc 1 471 0
+ 1229 0008 274E     		ldr	r6, .L136+8
+ 467:usb.c         ****     wIstr = _GetISTR();
+ 1230              		.loc 1 467 0
+ 1231 000a 9BB2     		uxth	r3, r3
+ 1232 000c 2380     		strh	r3, [r4]	@ movhi
+ 1233              		.loc 1 471 0
+ 1234 000e 2288     		ldrh	r2, [r4]
+ 1235 0010 3388     		ldrh	r3, [r6]
+ 1236 0012 1340     		ands	r3, r3, r2
+ 1237 0014 5905     		lsls	r1, r3, #21
+ 1238 0016 05D5     		bpl	.L111
+ 472:usb.c         ****         _SetISTR((u16)CLR_RESET);
+ 1239              		.loc 1 472 0
+ 1240 0018 4FF6FF33 		movw	r3, #64511
+ 1241 001c 2B60     		str	r3, [r5]
+ 473:usb.c         ****         Device_Property.Reset();
+ 1242              		.loc 1 473 0
+ 1243 001e 234B     		ldr	r3, .L136+12
+ 1244 0020 5B68     		ldr	r3, [r3, #4]
+ 1245 0022 9847     		blx	r3
+ 1246              	.LVL60:
+ 1247              	.L111:
+ 474:usb.c         ****     }
+ 475:usb.c         **** #endif
+ 476:usb.c         **** 
+ 477:usb.c         **** 
+ 478:usb.c         **** #if (ISR_MSK & ISTR_DOVR)
+ 479:usb.c         ****     if (wIstr & ISTR_DOVR & wInterrupt_Mask) {
+ 480:usb.c         ****         _SetISTR((u16)CLR_DOVR);
+ 481:usb.c         ****     }
+ 482:usb.c         **** #endif
+ 483:usb.c         **** 
+ 484:usb.c         **** 
+ 485:usb.c         **** #if (ISR_MSK & ISTR_ERR)
+ 486:usb.c         ****     if (wIstr & ISTR_ERR & wInterrupt_Mask) {
+ 1248              		.loc 1 486 0
+ 1249 0024 2288     		ldrh	r2, [r4]
+ 1250 0026 3388     		ldrh	r3, [r6]
+ 1251 0028 1A40     		ands	r2, r2, r3
+ 1252 002a 9204     		lsls	r2, r2, #18
+ 487:usb.c         ****         _SetISTR((u16)CLR_ERR);
+ 1253              		.loc 1 487 0
+ 1254 002c 44BF     		itt	mi
+ 1255 002e 4DF6FF72 		movwmi	r2, #57343
+ 1256 0032 2A60     		strmi	r2, [r5]
+ 488:usb.c         ****     }
+ 489:usb.c         **** #endif
+ 490:usb.c         **** 
+ 491:usb.c         **** 
+ 492:usb.c         **** #if (ISR_MSK & ISTR_WKUP)
+ 493:usb.c         ****     if (wIstr & ISTR_WKUP & wInterrupt_Mask) {
+ 1257              		.loc 1 493 0
+ 1258 0034 2288     		ldrh	r2, [r4]
+ 1259 0036 1340     		ands	r3, r3, r2
+ 1260 0038 DB04     		lsls	r3, r3, #19
+ 1261 003a 05D5     		bpl	.L113
+ 494:usb.c         ****         _SetISTR((u16)CLR_WKUP);
+ 1262              		.loc 1 494 0
+ 1263 003c 4EF6FF73 		movw	r3, #61439
+ 1264 0040 2B60     		str	r3, [r5]
+ 495:usb.c         ****         usbResume(RESUME_EXTERNAL);
+ 1265              		.loc 1 495 0
+ 1266 0042 0020     		movs	r0, #0
+ 1267 0044 FFF7FEFF 		bl	usbResume
+ 1268              	.LVL61:
+ 1269              	.L113:
+ 496:usb.c         ****     }
+ 497:usb.c         **** #endif
+ 498:usb.c         **** 
+ 499:usb.c         ****     /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+ 500:usb.c         **** #if (ISR_MSK & ISTR_SUSP)
+ 501:usb.c         ****     if (wIstr & ISTR_SUSP & wInterrupt_Mask) {
+ 1270              		.loc 1 501 0
+ 1271 0048 2288     		ldrh	r2, [r4]
+ 1272 004a 3388     		ldrh	r3, [r6]
+ 1273 004c 1340     		ands	r3, r3, r2
+ 1274 004e 1805     		lsls	r0, r3, #20
+ 1275 0050 04D5     		bpl	.L114
+ 502:usb.c         **** 
+ 503:usb.c         ****         /* check if SUSPEND is possible */
+ 504:usb.c         ****         if (F_SUSPEND_ENABLED) {
+ 505:usb.c         ****             usbSuspend();
+ 1276              		.loc 1 505 0
+ 1277 0052 FFF7FEFF 		bl	usbSuspend
+ 1278              	.LVL62:
+ 506:usb.c         ****         } else {
+ 507:usb.c         ****             /* if not possible then resume after xx ms */
+ 508:usb.c         ****             usbResume(RESUME_LATER);
+ 509:usb.c         ****         }
+ 510:usb.c         ****         /* clear of the ISTR bit must be done after setting of CNTR_FSUSP */
+ 511:usb.c         ****         _SetISTR((u16)CLR_SUSP);
+ 1279              		.loc 1 511 0
+ 1280 0056 4FF2FF73 		movw	r3, #63487
+ 1281 005a 2B60     		str	r3, [r5]
+ 1282              	.L114:
+ 512:usb.c         ****     }
+ 513:usb.c         **** #endif
+ 514:usb.c         **** 
+ 515:usb.c         **** 
+ 516:usb.c         **** #if (ISR_MSK & ISTR_SOF)
+ 517:usb.c         ****     if (wIstr & ISTR_SOF & wInterrupt_Mask) {
+ 1283              		.loc 1 517 0
+ 1284 005c 2288     		ldrh	r2, [r4]
+ 1285 005e 3388     		ldrh	r3, [r6]
+ 1286 0060 1A40     		ands	r2, r2, r3
+ 1287 0062 9105     		lsls	r1, r2, #22
+ 1288 0064 07D5     		bpl	.L115
+ 518:usb.c         ****         _SetISTR((u16)CLR_SOF);
+ 1289              		.loc 1 518 0
+ 1290 0066 4FF6FF52 		movw	r2, #65023
+ 1291 006a 2A60     		str	r2, [r5]
+ 519:usb.c         ****         bIntPackSOF++;
+ 1292              		.loc 1 519 0
+ 1293 006c 104A     		ldr	r2, .L136+16
+ 1294 006e 1178     		ldrb	r1, [r2]	@ zero_extendqisi2
+ 1295 0070 0131     		adds	r1, r1, #1
+ 1296 0072 C9B2     		uxtb	r1, r1
+ 1297 0074 1170     		strb	r1, [r2]
+ 1298              	.L115:
+ 520:usb.c         ****     }
+ 521:usb.c         **** #endif
+ 522:usb.c         **** 
+ 523:usb.c         **** 
+ 524:usb.c         **** #if (ISR_MSK & ISTR_ESOF)
+ 525:usb.c         ****     if (wIstr & ISTR_ESOF & wInterrupt_Mask) {
+ 1299              		.loc 1 525 0
+ 1300 0076 2288     		ldrh	r2, [r4]
+ 1301 0078 1340     		ands	r3, r3, r2
+ 1302 007a DA05     		lsls	r2, r3, #23
+ 1303 007c 05D5     		bpl	.L116
+ 526:usb.c         ****         _SetISTR((u16)CLR_ESOF);
+ 1304              		.loc 1 526 0
+ 1305 007e 4FF6FF63 		movw	r3, #65279
+ 1306 0082 2B60     		str	r3, [r5]
+ 527:usb.c         ****         /* resume handling timing is made with ESOFs */
+ 528:usb.c         ****         usbResume(RESUME_ESOF); /* request without change of the machine state */
+ 1307              		.loc 1 528 0
+ 1308 0084 0720     		movs	r0, #7
+ 1309 0086 FFF7FEFF 		bl	usbResume
+ 1310              	.LVL63:
+ 1311              	.L116:
+ 529:usb.c         ****     }
+ 530:usb.c         **** #endif
+ 531:usb.c         **** 
+ 532:usb.c         ****     /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+ 533:usb.c         **** #if (ISR_MSK & ISTR_CTR)
+ 534:usb.c         ****     if (wIstr & ISTR_CTR & wInterrupt_Mask) {
+ 1312              		.loc 1 534 0
+ 1313 008a 2288     		ldrh	r2, [r4]
+ 1314 008c 3388     		ldrh	r3, [r6]
+ 1315 008e 1340     		ands	r3, r3, r2
+ 1316 0090 1B04     		lsls	r3, r3, #16
+ 1317 0092 03D5     		bpl	.L110
+ 535:usb.c         ****         /* servicing of the endpoint correct transfer interrupt */
+ 536:usb.c         ****         /* clear of the CTR flag into the sub */
+ 537:usb.c         ****         CTR_LP(); /* low priority ISR defined in the usb core lib */
+ 538:usb.c         ****     }
+ 539:usb.c         **** #endif
+ 540:usb.c         **** 
+ 541:usb.c         **** }
+ 1318              		.loc 1 541 0
+ 1319 0094 BDE87040 		pop	{r4, r5, r6, lr}
+ 537:usb.c         ****         CTR_LP(); /* low priority ISR defined in the usb core lib */
+ 1320              		.loc 1 537 0
+ 1321 0098 FFF7FEBF 		b	CTR_LP
+ 1322              	.LVL64:
+ 1323              	.L110:
+ 1324 009c 70BD     		pop	{r4, r5, r6, pc}
+ 1325              	.L137:
+ 1326 009e 00BF     		.align	2
+ 1327              	.L136:
+ 1328 00a0 445C0040 		.word	1073765444
+ 1329 00a4 00000000 		.word	wIstr
+ 1330 00a8 00000000 		.word	wInterrupt_Mask
+ 1331 00ac 00000000 		.word	.LANCHOR1
+ 1332 00b0 00000000 		.word	.LANCHOR2
+ 1333              		.cfi_endproc
+ 1334              	.LFE31:
+ 1336              		.comm	ResumeS,2,1
+ 1337              		.global	pEpInt_OUT
+ 1338              		.global	pEpInt_IN
+ 1339              		.global	User_Standard_Requests
+ 1340              		.global	Device_Property
+ 1341              		.global	Device_Table
+ 1342              		.global	bIntPackSOF
+ 1343              		.comm	wIstr,2,2
+ 1344              		.global	bDeviceState
+ 1345              		.comm	wTransferSize,4,4
+ 1346              		.section	.data.Device_Property,"aw",%progbits
+ 1347              		.align	2
+ 1348              		.set	.LANCHOR1,. + 0
+ 1351              	Device_Property:
+ 1352 0000 00000000 		.word	usbInit
+ 1353 0004 00000000 		.word	usbReset
+ 1354 0008 00000000 		.word	usbStatusIn
+ 1355 000c 00000000 		.word	usbStatusOut
+ 1356 0010 00000000 		.word	usbDataSetup
+ 1357 0014 00000000 		.word	usbNoDataSetup
+ 1358 0018 00000000 		.word	usbGetInterfaceSetting
+ 1359 001c 00000000 		.word	usbGetDeviceDescriptor
+ 1360 0020 00000000 		.word	usbGetConfigDescriptor
+ 1361 0024 00000000 		.word	usbGetStringDescriptor
+ 1362 0028 00000000 		.word	usbGetFunctionalDescriptor
+ 1363 002c 00000000 		.word	0
+ 1364 0030 40       		.byte	64
+ 1365 0031 000000   		.space	3
+ 1366              		.section	.data.pEpInt_IN,"aw",%progbits
+ 1367              		.align	2
+ 1370              	pEpInt_IN:
+ 1371 0000 00000000 		.word	nothingProc
+ 1372 0004 00000000 		.word	nothingProc
+ 1373 0008 00000000 		.word	nothingProc
+ 1374 000c 00000000 		.word	nothingProc
+ 1375 0010 00000000 		.word	nothingProc
+ 1376 0014 00000000 		.word	nothingProc
+ 1377 0018 00000000 		.word	nothingProc
+ 1378              		.section	.bss.bIntPackSOF,"aw",%nobits
+ 1379              		.set	.LANCHOR2,. + 0
+ 1382              	bIntPackSOF:
+ 1383 0000 00       		.space	1
+ 1384              		.section	.data.pEpInt_OUT,"aw",%progbits
+ 1385              		.align	2
+ 1388              	pEpInt_OUT:
+ 1389 0000 00000000 		.word	nothingProc
+ 1390 0004 00000000 		.word	nothingProc
+ 1391 0008 00000000 		.word	nothingProc
+ 1392 000c 00000000 		.word	nothingProc
+ 1393 0010 00000000 		.word	nothingProc
+ 1394 0014 00000000 		.word	nothingProc
+ 1395 0018 00000000 		.word	nothingProc
+ 1396              		.section	.bss.bDeviceState,"aw",%nobits
+ 1397              		.align	2
+ 1398              		.set	.LANCHOR0,. + 0
+ 1401              	bDeviceState:
+ 1402 0000 00000000 		.space	4
+ 1403              		.section	.data.User_Standard_Requests,"aw",%progbits
+ 1404              		.align	2
+ 1407              	User_Standard_Requests:
+ 1408 0000 00000000 		.word	usbGetConfiguration
+ 1409 0004 00000000 		.word	usbSetConfiguration
+ 1410 0008 00000000 		.word	usbGetInterface
+ 1411 000c 00000000 		.word	usbSetInterface
+ 1412 0010 00000000 		.word	usbGetStatus
+ 1413 0014 00000000 		.word	usbClearFeature
+ 1414 0018 00000000 		.word	usbSetEndpointFeature
+ 1415 001c 00000000 		.word	usbSetDeviceFeature
+ 1416 0020 00000000 		.word	usbSetDeviceAddress
+ 1417              		.section	.data.Device_Table,"aw",%progbits
+ 1420              	Device_Table:
+ 1421 0000 01       		.byte	1
+ 1422 0001 01       		.byte	1
+ 1423              		.text
+ 1424              	.Letext0:
+ 1425              		.file 2 "./stm32_lib/stm32f10x_type.h"
+ 1426              		.file 3 "hardware.h"
+ 1427              		.file 4 "./usb_lib/usb_core.h"
+ 1428              		.file 5 "./usb_lib/usb_def.h"
+ 1429              		.file 6 "usb.h"
+ 1430              		.file 7 "./usb_lib/usb_init.h"
+ 1431              		.file 8 "usb_descriptor.h"
+ 1432              		.file 9 "dfu.h"
+ 1433              		.file 10 "./usb_lib/usb_regs.h"
+ 1434              		.file 11 "./usb_lib/usb_int.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 usb.c
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:19     .text.nothingProc:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:24     .text.nothingProc:00000000 nothingProc
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:37     .text.usbStatusIn:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:42     .text.usbStatusIn:00000000 usbStatusIn
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:54     .text.usbStatusOut:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:59     .text.usbStatusOut:00000000 usbStatusOut
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:71     .text.usbGetInterfaceSetting:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:76     .text.usbGetInterfaceSetting:00000000 usbGetInterfaceSetting
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:96     .text.usbGetConfiguration:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:101    .text.usbGetConfiguration:00000000 usbGetConfiguration
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:113    .text.usbSetConfiguration:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:118    .text.usbSetConfiguration:00000000 usbSetConfiguration
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:139    .text.usbSetConfiguration:00000010 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:145    .text.usbGetInterface:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:150    .text.usbGetInterface:00000000 usbGetInterface
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:162    .text.usbSetInterface:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:167    .text.usbSetInterface:00000000 usbSetInterface
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:179    .text.usbGetStatus:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:184    .text.usbGetStatus:00000000 usbGetStatus
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:196    .text.usbClearFeature:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:201    .text.usbClearFeature:00000000 usbClearFeature
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:213    .text.usbSetEndpointFeature:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:218    .text.usbSetEndpointFeature:00000000 usbSetEndpointFeature
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:230    .text.usbSetDeviceFeature:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:235    .text.usbSetDeviceFeature:00000000 usbSetDeviceFeature
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:247    .text.usbSetDeviceAddress:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:252    .text.usbSetDeviceAddress:00000000 usbSetDeviceAddress
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:267    .text.usbSetDeviceAddress:00000008 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:272    .text.usbReset:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:277    .text.usbReset:00000000 usbReset
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:378    .text.usbReset:0000008c $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:389    .text.usbDataSetup:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:394    .text.usbDataSetup:00000000 usbDataSetup
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:428    .text.usbDataSetup:00000024 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:481    .text.usbDataSetup:0000004c $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:490    .text.usbGetDeviceDescriptor:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:495    .text.usbGetDeviceDescriptor:00000000 usbGetDeviceDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:510    .text.usbGetDeviceDescriptor:00000008 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:515    .text.usbGetConfigDescriptor:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:520    .text.usbGetConfigDescriptor:00000000 usbGetConfigDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:535    .text.usbGetConfigDescriptor:00000008 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:540    .text.usbGetStringDescriptor:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:545    .text.usbGetStringDescriptor:00000000 usbGetStringDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:574    .text.usbGetStringDescriptor:00000018 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:580    .text.usbGetFunctionalDescriptor:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:585    .text.usbGetFunctionalDescriptor:00000000 usbGetFunctionalDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:600    .text.usbGetFunctionalDescriptor:00000008 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:605    .text.usbNoDataSetup:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:610    .text.usbNoDataSetup:00000000 usbNoDataSetup
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:652    .text.usbNoDataSetup:00000024 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:657    .text.setupUSB:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:662    .text.setupUSB:00000000 setupUSB
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:746    .text.setupUSB:00000064 $d
+                            *COM*:00000004 wTransferSize
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:755    .text.usbAppInit:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:760    .text.usbAppInit:00000000 usbAppInit
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:774    .text.usbSuspend:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:779    .text.usbSuspend:00000000 usbSuspend
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:803    .text.usbSuspend:00000014 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:809    .text.usbResumeInit:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:814    .text.usbResumeInit:00000000 usbResumeInit
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:838    .text.usbResumeInit:00000014 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:843    .text.usbResume:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:848    .text.usbResume:00000000 usbResume
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:871    .text.usbResume:00000014 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:877    .text.usbResume:0000001a $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:966    .text.usbResume:0000007c $d
+                            *COM*:00000002 ResumeS
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:972    .text.usbPowerOn:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:977    .text.usbPowerOn:00000000 usbPowerOn
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1009   .text.usbPowerOn:0000001c $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1016   .text.usbPowerOff:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1021   .text.usbPowerOff:00000000 usbPowerOff
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1044   .text.usbPowerOff:00000014 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1050   .text.usbDsbBus:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1055   .text.usbDsbBus:00000000 usbDsbBus
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1069   .text.usbEnbISR:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1074   .text.usbEnbISR:00000000 usbEnbISR
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1110   .text.usbInit:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1115   .text.usbInit:00000000 usbInit
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1158   .text.usbInit:0000002c $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1167   .text.usbDsbISR:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1172   .text.usbDsbISR:00000000 usbDsbISR
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1207   .text.USB_LP_CAN1_RX0_IRQHandler:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1212   .text.USB_LP_CAN1_RX0_IRQHandler:00000000 USB_LP_CAN1_RX0_IRQHandler
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1328   .text.USB_LP_CAN1_RX0_IRQHandler:000000a0 $d
+                            *COM*:00000002 wIstr
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1388   .data.pEpInt_OUT:00000000 pEpInt_OUT
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1370   .data.pEpInt_IN:00000000 pEpInt_IN
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1407   .data.User_Standard_Requests:00000000 User_Standard_Requests
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1351   .data.Device_Property:00000000 Device_Property
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1420   .data.Device_Table:00000000 Device_Table
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1382   .bss.bIntPackSOF:00000000 bIntPackSOF
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1401   .bss.bDeviceState:00000000 bDeviceState
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1347   .data.Device_Property:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1367   .data.pEpInt_IN:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1383   .bss.bIntPackSOF:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1385   .data.pEpInt_OUT:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1397   .bss.bDeviceState:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:1404   .data.User_Standard_Requests:00000000 $d
+                     .debug_frame:00000010 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:433    .text.usbDataSetup:00000029 $d
+C:\Users\rclark\AppData\Local\Temp\ccPdQ9Ld.s:433    .text.usbDataSetup:0000002a $t
+
+UNDEFINED SYMBOLS
+pInformation
+dfuUpdateByReset
+Clear_Status_Out
+SetEPRxCount
+SetEPRxValid
+SetDeviceAddress
+usbConfigDescriptorDFU
+pProperty
+dfuUpdateByRequest
+dfuCopyDNLOAD
+dfuCopyUPLOAD
+dfuCopyStatus
+dfuCopyState
+Standard_GetDescriptorData
+usbDeviceDescriptorDFU
+usbStringDescriptor
+usbFunctionalDescriptor
+crMask
+gpio_write_bit
+getFlashPageSize
+USB_Init
+u8_usbConfigDescriptorDFU
+u8_usbFunctionalDescriptor
+wInterrupt_Mask
+nvicInit
+dfuInit
+CTR_LP

@@ -1,0 +1,281 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"main.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.startup.main,"ax",%progbits
+  19              		.align	1
+  20              		.global	main
+  21              		.thumb
+  22              		.thumb_func
+  24              	main:
+  25              	.LFB0:
+  26              		.file 1 "main.c"
+   1:main.c        **** /* *****************************************************************************
+   2:main.c        ****  * The MIT License
+   3:main.c        ****  *
+   4:main.c        ****  * Copyright (c) 2010 LeafLabs LLC.
+   5:main.c        ****  *
+   6:main.c        ****  * Permission is hereby granted, free of charge, to any person obtaining a copy
+   7:main.c        ****  * of this software and associated documentation files (the "Software"), to deal
+   8:main.c        ****  * in the Software without restriction, including without limitation the rights
+   9:main.c        ****  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  10:main.c        ****  * copies of the Software, and to permit persons to whom the Software is
+  11:main.c        ****  * furnished to do so, subject to the following conditions:
+  12:main.c        ****  *
+  13:main.c        ****  * The above copyright notice and this permission notice shall be included in
+  14:main.c        ****  * all copies or substantial portions of the Software.
+  15:main.c        ****  *
+  16:main.c        ****  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  17:main.c        ****  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  18:main.c        ****  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  19:main.c        ****  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  20:main.c        ****  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  21:main.c        ****  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  22:main.c        ****  * THE SOFTWARE.
+  23:main.c        ****  * ****************************************************************************/
+  24:main.c        **** 
+  25:main.c        **** /**
+  26:main.c        ****  *  @file main.c
+  27:main.c        ****  *
+  28:main.c        ****  *  @brief main loop and calling any hardware init stuff. timing hacks for EEPROM
+  29:main.c        ****  *  writes not to block usb interrupts. logic to handle 2 second timeout then
+  30:main.c        ****  *  jump to user code.
+  31:main.c        ****  *
+  32:main.c        ****  */
+  33:main.c        **** 
+  34:main.c        **** #include "common.h"
+  35:main.c        **** #include "dfu.h"
+  36:main.c        **** extern volatile dfuUploadTypes_t userUploadType;
+  37:main.c        **** 
+  38:main.c        **** int main() 
+  39:main.c        **** {
+  27              		.loc 1 39 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+  32              		.cfi_def_cfa_offset 24
+  33              		.cfi_offset 0, -24
+  34              		.cfi_offset 1, -20
+  35              		.cfi_offset 2, -16
+  36              		.cfi_offset 4, -12
+  37              		.cfi_offset 5, -8
+  38              		.cfi_offset 14, -4
+  40:main.c        ****     systemReset(); // peripherals but not PC
+  39              		.loc 1 40 0
+  40 0002 FFF7FEFF 		bl	systemReset
+  41              	.LVL0:
+  41:main.c        ****     setupCLK();
+  42              		.loc 1 41 0
+  43 0006 FFF7FEFF 		bl	setupCLK
+  44              	.LVL1:
+  42:main.c        ****     setupLEDAndButton();
+  45              		.loc 1 42 0
+  46 000a FFF7FEFF 		bl	setupLEDAndButton
+  47              	.LVL2:
+  43:main.c        ****     setupUSB();
+  48              		.loc 1 43 0
+  49 000e FFF7FEFF 		bl	setupUSB
+  50              	.LVL3:
+  44:main.c        ****     setupFLASH();
+  51              		.loc 1 44 0
+  52 0012 FFF7FEFF 		bl	setupFLASH
+  53              	.LVL4:
+  45:main.c        **** 	
+  46:main.c        **** 
+  47:main.c        **** 	strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
+  54              		.loc 1 47 0
+  55 0016 0023     		movs	r3, #0
+  56 0018 0093     		str	r3, [sp]
+  57 001a 2448     		ldr	r0, .L17
+  58 001c 0D21     		movs	r1, #13
+  59 001e 0522     		movs	r2, #5
+  60 0020 4FF4A023 		mov	r3, #327680
+  61 0024 FFF7FEFF 		bl	strobePin
+  62              	.LVL5:
+  48:main.c        **** 
+  49:main.c        **** 
+  50:main.c        **** 	/* wait for host to upload program or halt bootloader */
+  51:main.c        **** 	bool no_user_jump = (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8
+  63              		.loc 1 51 0
+  64 0028 2148     		ldr	r0, .L17+4
+  65 002a FFF7FEFF 		bl	checkUserCode
+  66              	.LVL6:
+  67 002e 28B1     		cbz	r0, .L2
+  68              	.L4:
+  69 0030 FFF7FEFF 		bl	readButtonState
+  70              	.LVL7:
+  71 0034 0030     		adds	r0, r0, #0
+  72 0036 18BF     		it	ne
+  73 0038 0120     		movne	r0, #1
+  74 003a 05E0     		b	.L3
+  75              	.L2:
+  76              		.loc 1 51 0 is_stmt 0 discriminator 1
+  77 003c 1D48     		ldr	r0, .L17+8
+  78 003e FFF7FEFF 		bl	checkUserCode
+  79              	.LVL8:
+  80 0042 0028     		cmp	r0, #0
+  81 0044 F4D1     		bne	.L4
+  82              		.loc 1 51 0
+  83 0046 0120     		movs	r0, #1
+  84              	.L3:
+  85              		.loc 1 51 0 discriminator 4
+  86 0048 C5B2     		uxtb	r5, r0
+  87              	.LVL9:
+  52:main.c        **** 	
+  53:main.c        **** 	int delay_count = 0;
+  54:main.c        **** 
+  55:main.c        ****     while ((delay_count++ < BOOTLOADER_WAIT) || no_user_jump)
+  88              		.loc 1 55 0 is_stmt 1 discriminator 4
+  89 004a 0024     		movs	r4, #0
+  90              	.LVL10:
+  91              	.L5:
+  92              		.loc 1 55 0 is_stmt 0 discriminator 1
+  93 004c 052C     		cmp	r4, #5
+  94 004e 0FDC     		bgt	.L16
+  95              	.L7:
+  56:main.c        **** 	{
+  57:main.c        **** 
+  58:main.c        ****         strobePin(LED_BANK, LED_PIN, 1, BLINK_SLOW,LED_ON_STATE);
+  96              		.loc 1 58 0 is_stmt 1
+  97 0050 0023     		movs	r3, #0
+  98 0052 0093     		str	r3, [sp]
+  99 0054 1548     		ldr	r0, .L17
+ 100 0056 0D21     		movs	r1, #13
+ 101 0058 0122     		movs	r2, #1
+ 102 005a 4FF48013 		mov	r3, #1048576
+ 103 005e FFF7FEFF 		bl	strobePin
+ 104              	.LVL11:
+  59:main.c        **** 
+  60:main.c        ****         if (dfuUploadStarted()) 
+ 105              		.loc 1 60 0
+ 106 0062 FFF7FEFF 		bl	dfuUploadStarted
+ 107              	.LVL12:
+ 108 0066 08B1     		cbz	r0, .L6
+  61:main.c        **** 		{
+  62:main.c        ****             dfuFinishUpload(); // systemHardReset from DFU once done
+ 109              		.loc 1 62 0
+ 110 0068 FFF7FEFF 		bl	dfuFinishUpload
+ 111              	.LVL13:
+ 112              	.L6:
+ 113 006c 0134     		adds	r4, r4, #1
+ 114              	.LVL14:
+ 115 006e EDE7     		b	.L5
+ 116              	.LVL15:
+ 117              	.L16:
+  55:main.c        ****     while ((delay_count++ < BOOTLOADER_WAIT) || no_user_jump)
+ 118              		.loc 1 55 0 discriminator 2
+ 119 0070 002D     		cmp	r5, #0
+ 120 0072 EDD1     		bne	.L7
+  63:main.c        ****         }
+  64:main.c        ****     }
+  65:main.c        **** 
+  66:main.c        **** 
+  67:main.c        **** 	if (checkUserCode(USER_CODE_FLASH0X8002000)) 
+ 121              		.loc 1 67 0
+ 122 0074 0F48     		ldr	r0, .L17+8
+ 123 0076 FFF7FEFF 		bl	checkUserCode
+ 124              	.LVL16:
+ 125 007a 08B1     		cbz	r0, .L8
+  68:main.c        **** 	{
+  69:main.c        **** 		jumpToUser(USER_CODE_FLASH0X8002000);
+ 126              		.loc 1 69 0
+ 127 007c 0D48     		ldr	r0, .L17+8
+ 128 007e 04E0     		b	.L14
+ 129              	.L8:
+  70:main.c        **** 	} 
+  71:main.c        **** 	else 
+  72:main.c        **** 	{
+  73:main.c        **** 		if (checkUserCode(USER_CODE_FLASH0X8005000))
+ 130              		.loc 1 73 0
+ 131 0080 0B48     		ldr	r0, .L17+4
+ 132 0082 FFF7FEFF 		bl	checkUserCode
+ 133              	.LVL17:
+ 134 0086 18B1     		cbz	r0, .L10
+  74:main.c        **** 		{
+  75:main.c        **** 			jumpToUser(USER_CODE_FLASH0X8005000);
+ 135              		.loc 1 75 0
+ 136 0088 0948     		ldr	r0, .L17+4
+ 137              	.L14:
+ 138 008a FFF7FEFF 		bl	jumpToUser
+ 139              	.LVL18:
+ 140 008e 09E0     		b	.L9
+ 141              	.L10:
+  76:main.c        **** 		} 
+  77:main.c        **** 		else
+  78:main.c        **** 		{
+  79:main.c        **** 			// Nothing to execute in either Flash or RAM
+  80:main.c        **** 			strobePin(LED_BANK, LED_PIN, 5, BLINK_FAST,LED_ON_STATE);
+ 142              		.loc 1 80 0
+ 143 0090 0648     		ldr	r0, .L17
+ 144 0092 0D21     		movs	r1, #13
+ 145 0094 0522     		movs	r2, #5
+ 146 0096 4FF4A023 		mov	r3, #327680
+ 147 009a 0095     		str	r5, [sp]
+ 148 009c FFF7FEFF 		bl	strobePin
+ 149              	.LVL19:
+  81:main.c        **** 			systemHardReset();
+ 150              		.loc 1 81 0
+ 151 00a0 FFF7FEFF 		bl	systemHardReset
+ 152              	.LVL20:
+ 153              	.L9:
+  82:main.c        **** 		}
+  83:main.c        **** 	}
+  84:main.c        **** 
+  85:main.c        **** 	return 0;// Added to please the compiler
+  86:main.c        **** }...
+ 154              		.loc 1 86 0
+ 155 00a4 0020     		movs	r0, #0
+ 156 00a6 03B0     		add	sp, sp, #12
+ 157              		@ sp needed
+ 158 00a8 30BD     		pop	{r4, r5, pc}
+ 159              	.LVL21:
+ 160              	.L18:
+ 161 00aa 00BF     		.align	2
+ 162              	.L17:
+ 163 00ac 00100140 		.word	1073811456
+ 164 00b0 00500008 		.word	134238208
+ 165 00b4 00200008 		.word	134225920
+ 166              		.cfi_endproc
+ 167              	.LFE0:
+ 169              		.comm	wTransferSize,4,4
+ 170              		.text
+ 171              	.Letext0:
+ 172              		.file 2 "./stm32_lib/stm32f10x_type.h"
+ 173              		.file 3 "hardware.h"
+ 174              		.file 4 "usb.h"
+ 175              		.file 5 "dfu.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\rclark\AppData\Local\Temp\cc9c5wkj.s:19     .text.startup.main:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cc9c5wkj.s:24     .text.startup.main:00000000 main
+C:\Users\rclark\AppData\Local\Temp\cc9c5wkj.s:163    .text.startup.main:000000ac $d
+                            *COM*:00000004 wTransferSize
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+systemReset
+setupCLK
+setupLEDAndButton
+setupUSB
+setupFLASH
+strobePin
+checkUserCode
+readButtonState
+dfuUploadStarted
+dfuFinishUpload
+jumpToUser
+systemHardReset

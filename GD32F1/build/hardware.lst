@@ -1,0 +1,1475 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"hardware.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.gpio_write_bit,"ax",%progbits
+  19              		.align	1
+  20              		.global	gpio_write_bit
+  21              		.thumb
+  22              		.thumb_func
+  24              	gpio_write_bit:
+  25              	.LFB0:
+  26              		.file 1 "hardware.c"
+   1:hardware.c    **** /* *****************************************************************************
+   2:hardware.c    ****  * The MIT License
+   3:hardware.c    ****  *
+   4:hardware.c    ****  * Copyright (c) 2010 LeafLabs LLC.
+   5:hardware.c    ****  *
+   6:hardware.c    ****  * Permission is hereby granted, free of charge, to any person obtaining a copy
+   7:hardware.c    ****  * of this software and associated documentation files (the "Software"), to deal
+   8:hardware.c    ****  * in the Software without restriction, including without limitation the rights
+   9:hardware.c    ****  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  10:hardware.c    ****  * copies of the Software, and to permit persons to whom the Software is
+  11:hardware.c    ****  * furnished to do so, subject to the following conditions:
+  12:hardware.c    ****  *
+  13:hardware.c    ****  * The above copyright notice and this permission notice shall be included in
+  14:hardware.c    ****  * all copies or substantial portions of the Software.
+  15:hardware.c    ****  *
+  16:hardware.c    ****  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  17:hardware.c    ****  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  18:hardware.c    ****  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  19:hardware.c    ****  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  20:hardware.c    ****  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  21:hardware.c    ****  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  22:hardware.c    ****  * THE SOFTWARE.
+  23:hardware.c    ****  * ****************************************************************************/
+  24:hardware.c    **** 
+  25:hardware.c    **** /**
+  26:hardware.c    ****  *  @file hardware.c
+  27:hardware.c    ****  *
+  28:hardware.c    ****  *  @brief init routines to setup clocks, interrupts, also destructor functions.
+  29:hardware.c    ****  *  does not include USB stuff. EEPROM read/write functions.
+  30:hardware.c    ****  *
+  31:hardware.c    ****  */
+  32:hardware.c    **** 
+  33:hardware.c    **** #include "hardware.h"
+  34:hardware.c    **** /*
+  35:hardware.c    **** void setPin(u32 bank, u8 pin) {
+  36:hardware.c    ****     u32 pinMask = 0x1 << (pin);
+  37:hardware.c    ****     SET_REG(GPIO_BSRR(bank), pinMask);
+  38:hardware.c    **** }
+  39:hardware.c    **** 
+  40:hardware.c    **** void resetPin(u32 bank, u8 pin) {
+  41:hardware.c    ****     u32 pinMask = 0x1 << (16 + pin);
+  42:hardware.c    ****     SET_REG(GPIO_BSRR(bank), pinMask);
+  43:hardware.c    **** }
+  44:hardware.c    **** */
+  45:hardware.c    **** void gpio_write_bit(u32 bank, u8 pin, u8 val) {
+  27              		.loc 1 45 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+  46:hardware.c    ****     val = !val;          // "set" bits are lower than "reset" bits  
+  47:hardware.c    ****     SET_REG(GPIO_BSRR(bank), (1U << pin) << (16 * val));
+  33              		.loc 1 47 0
+  34 0000 0123     		movs	r3, #1
+  35 0002 03FA01F1 		lsl	r1, r3, r1
+  36              	.LVL1:
+  46:hardware.c    ****     val = !val;          // "set" bits are lower than "reset" bits  
+  37              		.loc 1 46 0
+  38 0006 D2F10102 		rsbs	r2, r2, #1
+  39              	.LVL2:
+  40 000a 38BF     		it	cc
+  41 000c 0022     		movcc	r2, #0
+  42              		.loc 1 47 0
+  43 000e 1301     		lsls	r3, r2, #4
+  44 0010 9940     		lsls	r1, r1, r3
+  45 0012 0161     		str	r1, [r0, #16]
+  46 0014 7047     		bx	lr
+  47              		.cfi_endproc
+  48              	.LFE0:
+  50              		.section	.text.readPin,"ax",%progbits
+  51              		.align	1
+  52              		.global	readPin
+  53              		.thumb
+  54              		.thumb_func
+  56              	readPin:
+  57              	.LFB1:
+  48:hardware.c    **** }
+  49:hardware.c    **** 
+  50:hardware.c    **** bool readPin(u32 bank, u8 pin) {
+  58              		.loc 1 50 0
+  59              		.cfi_startproc
+  60              		@ args = 0, pretend = 0, frame = 0
+  61              		@ frame_needed = 0, uses_anonymous_args = 0
+  62              		@ link register save eliminated.
+  63              	.LVL3:
+  51:hardware.c    ****     // todo, implement read
+  52:hardware.c    ****     if (GET_REG(GPIO_IDR(bank)) & (0x01 << pin)) {
+  64              		.loc 1 52 0
+  65 0000 0122     		movs	r2, #1
+  66 0002 02FA01F1 		lsl	r1, r2, r1
+  67              	.LVL4:
+  68 0006 8368     		ldr	r3, [r0, #8]
+  69 0008 0B42     		tst	r3, r1
+  53:hardware.c    ****         return TRUE;
+  54:hardware.c    ****     } else {
+  55:hardware.c    ****         return FALSE;
+  56:hardware.c    ****     }
+  57:hardware.c    **** }
+  70              		.loc 1 57 0
+  71 000a 0CBF     		ite	eq
+  72 000c 0020     		moveq	r0, #0
+  73 000e 0120     		movne	r0, #1
+  74              	.LVL5:
+  75 0010 7047     		bx	lr
+  76              		.cfi_endproc
+  77              	.LFE1:
+  79              		.section	.text.readButtonState,"ax",%progbits
+  80              		.align	1
+  81              		.global	readButtonState
+  82              		.thumb
+  83              		.thumb_func
+  85              	readButtonState:
+  86              	.LFB2:
+  58:hardware.c    **** 
+  59:hardware.c    **** bool readButtonState() {
+  87              		.loc 1 59 0
+  88              		.cfi_startproc
+  89              		@ args = 0, pretend = 0, frame = 0
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+  91              		@ link register save eliminated.
+  92              	.LVL6:
+  60:hardware.c    ****     // todo, implement read
+  61:hardware.c    **** 	bool state=FALSE;
+  62:hardware.c    ****  #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)	
+  63:hardware.c    ****     if (GET_REG(GPIO_IDR(BUTTON_BANK)) & (0x01 << BUTTON_PIN)) 
+  93              		.loc 1 63 0
+  94 0000 024B     		ldr	r3, .L4
+  95 0002 1868     		ldr	r0, [r3]
+  96              	.LVL7:
+  64:hardware.c    **** 	{
+  65:hardware.c    ****         state = TRUE;
+  66:hardware.c    ****     } 
+  67:hardware.c    **** 	
+  68:hardware.c    **** 	if (BUTTON_PRESSED_STATE==0)
+  69:hardware.c    **** 	{
+  70:hardware.c    **** 		state=!state;
+  71:hardware.c    **** 	}
+  72:hardware.c    **** #endif
+  73:hardware.c    **** 	return state;
+  74:hardware.c    **** }
+  97              		.loc 1 74 0
+  98 0004 C0F38030 		ubfx	r0, r0, #14, #1
+  99              	.LVL8:
+ 100 0008 7047     		bx	lr
+ 101              	.L5:
+ 102 000a 00BF     		.align	2
+ 103              	.L4:
+ 104 000c 08100140 		.word	1073811464
+ 105              		.cfi_endproc
+ 106              	.LFE2:
+ 108              		.section	.text.strobePin,"ax",%progbits
+ 109              		.align	1
+ 110              		.global	strobePin
+ 111              		.thumb
+ 112              		.thumb_func
+ 114              	strobePin:
+ 115              	.LFB3:
+  75:hardware.c    **** 
+  76:hardware.c    **** void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState) 
+  77:hardware.c    **** {
+ 116              		.loc 1 77 0
+ 117              		.cfi_startproc
+ 118              		@ args = 4, pretend = 0, frame = 0
+ 119              		@ frame_needed = 0, uses_anonymous_args = 0
+ 120              	.LVL9:
+ 121 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 122              		.cfi_def_cfa_offset 32
+ 123              		.cfi_offset 4, -32
+ 124              		.cfi_offset 5, -28
+ 125              		.cfi_offset 6, -24
+ 126              		.cfi_offset 7, -20
+ 127              		.cfi_offset 8, -16
+ 128              		.cfi_offset 9, -12
+ 129              		.cfi_offset 10, -8
+ 130              		.cfi_offset 14, -4
+ 131              		.loc 1 77 0
+ 132 0004 9DF820A0 		ldrb	r10, [sp, #32]	@ zero_extendqisi2
+ 133 0008 1446     		mov	r4, r2
+  78:hardware.c    ****     gpio_write_bit( bank,pin,1-onState);
+ 134              		.loc 1 78 0
+ 135 000a CAF10107 		rsb	r7, r10, #1
+ 136 000e FFB2     		uxtb	r7, r7
+ 137 0010 3A46     		mov	r2, r7
+ 138              	.LVL10:
+  77:hardware.c    **** {
+ 139              		.loc 1 77 0
+ 140 0012 8046     		mov	r8, r0
+ 141 0014 8946     		mov	r9, r1
+ 142 0016 1E46     		mov	r6, r3
+ 143              		.loc 1 78 0
+ 144 0018 FFF7FEFF 		bl	gpio_write_bit
+ 145              	.LVL11:
+ 146              	.L7:
+  79:hardware.c    **** 
+  80:hardware.c    ****     u32 c;
+  81:hardware.c    ****     while (count-- > 0) 
+ 147              		.loc 1 81 0 discriminator 1
+ 148 001c B4B1     		cbz	r4, .L6
+ 149              		.loc 1 81 0 is_stmt 0
+ 150 001e 3546     		mov	r5, r6
+ 151              	.L12:
+ 152              	.LVL12:
+  82:hardware.c    **** 	{
+  83:hardware.c    ****         for (c = rate; c > 0; c--)
+ 153              		.loc 1 83 0 is_stmt 1 discriminator 1
+ 154 0020 15B1     		cbz	r5, .L14
+  84:hardware.c    **** 		{
+  85:hardware.c    ****             asm volatile("nop");
+ 155              		.loc 1 85 0 discriminator 2
+ 156              	@ 85 "hardware.c" 1
+ 157 0022 00BF     		nop
+ 158              	@ 0 "" 2
+  83:hardware.c    ****         for (c = rate; c > 0; c--)
+ 159              		.loc 1 83 0 discriminator 2
+ 160              		.thumb
+ 161 0024 013D     		subs	r5, r5, #1
+ 162              	.LVL13:
+ 163 0026 FBE7     		b	.L12
+ 164              	.L14:
+  86:hardware.c    ****         }
+  87:hardware.c    **** 		
+  88:hardware.c    ****         gpio_write_bit( bank,pin,onState);
+ 165              		.loc 1 88 0
+ 166 0028 4046     		mov	r0, r8
+ 167 002a 4946     		mov	r1, r9
+ 168 002c 5246     		mov	r2, r10
+ 169 002e FFF7FEFF 		bl	gpio_write_bit
+ 170              	.LVL14:
+  89:hardware.c    **** 		
+  90:hardware.c    ****         for (c = rate; c > 0; c--)
+ 171              		.loc 1 90 0
+ 172 0032 3546     		mov	r5, r6
+ 173              	.LVL15:
+ 174              	.L9:
+ 175              		.loc 1 90 0 is_stmt 0 discriminator 1
+ 176 0034 15B1     		cbz	r5, .L15
+  91:hardware.c    **** 		{
+  92:hardware.c    ****             asm volatile("nop");
+ 177              		.loc 1 92 0 is_stmt 1 discriminator 2
+ 178              	@ 92 "hardware.c" 1
+ 179 0036 00BF     		nop
+ 180              	@ 0 "" 2
+  90:hardware.c    ****         for (c = rate; c > 0; c--)
+ 181              		.loc 1 90 0 discriminator 2
+ 182              		.thumb
+ 183 0038 013D     		subs	r5, r5, #1
+ 184              	.LVL16:
+ 185 003a FBE7     		b	.L9
+ 186              	.L15:
+  93:hardware.c    ****         }
+  94:hardware.c    ****         gpio_write_bit( bank,pin,1-onState);
+ 187              		.loc 1 94 0
+ 188 003c 4046     		mov	r0, r8
+ 189 003e 4946     		mov	r1, r9
+ 190 0040 3A46     		mov	r2, r7
+ 191 0042 013C     		subs	r4, r4, #1
+ 192              	.LVL17:
+ 193 0044 FFF7FEFF 		bl	gpio_write_bit
+ 194              	.LVL18:
+ 195 0048 E4B2     		uxtb	r4, r4
+ 196              	.LVL19:
+ 197 004a E7E7     		b	.L7
+ 198              	.LVL20:
+ 199              	.L6:
+ 200 004c BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 201              		.cfi_endproc
+ 202              	.LFE3:
+ 204              		.section	.text.systemReset,"ax",%progbits
+ 205              		.align	1
+ 206              		.global	systemReset
+ 207              		.thumb
+ 208              		.thumb_func
+ 210              	systemReset:
+ 211              	.LFB4:
+  95:hardware.c    ****     }
+  96:hardware.c    **** }
+  97:hardware.c    **** 
+  98:hardware.c    **** void systemReset(void) {
+ 212              		.loc 1 98 0
+ 213              		.cfi_startproc
+ 214              		@ args = 0, pretend = 0, frame = 0
+ 215              		@ frame_needed = 0, uses_anonymous_args = 0
+ 216              		@ link register save eliminated.
+  99:hardware.c    ****     SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x00000001);
+ 217              		.loc 1 99 0
+ 218 0000 0D4B     		ldr	r3, .L17
+ 100:hardware.c    ****     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) & 0xF8FF0000);
+ 219              		.loc 1 100 0
+ 220 0002 0E49     		ldr	r1, .L17+4
+  99:hardware.c    ****     SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x00000001);
+ 221              		.loc 1 99 0
+ 222 0004 1A68     		ldr	r2, [r3]
+ 223 0006 42F00102 		orr	r2, r2, #1
+ 224 000a 1A60     		str	r2, [r3]
+ 225              		.loc 1 100 0
+ 226 000c 0C4A     		ldr	r2, .L17+8
+ 227 000e 1068     		ldr	r0, [r2]
+ 228 0010 0140     		ands	r1, r1, r0
+ 229 0012 1160     		str	r1, [r2]
+ 101:hardware.c    ****     SET_REG(RCC_CR, GET_REG(RCC_CR)     & 0xFEF6FFFF);
+ 230              		.loc 1 101 0
+ 231 0014 1968     		ldr	r1, [r3]
+ 232 0016 21F08471 		bic	r1, r1, #17301504
+ 233 001a 21F48031 		bic	r1, r1, #65536
+ 234 001e 1960     		str	r1, [r3]
+ 102:hardware.c    ****     SET_REG(RCC_CR, GET_REG(RCC_CR)     & 0xFFFBFFFF);
+ 235              		.loc 1 102 0
+ 236 0020 1968     		ldr	r1, [r3]
+ 237 0022 21F48021 		bic	r1, r1, #262144
+ 238 0026 1960     		str	r1, [r3]
+ 103:hardware.c    ****     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) & 0xFF80FFFF);
+ 239              		.loc 1 103 0
+ 240 0028 1368     		ldr	r3, [r2]
+ 241 002a 23F4FE03 		bic	r3, r3, #8323072
+ 242 002e 1360     		str	r3, [r2]
+ 104:hardware.c    **** 
+ 105:hardware.c    ****     SET_REG(RCC_CIR, 0x00000000);  /* disable all RCC interrupts */
+ 243              		.loc 1 105 0
+ 244 0030 044B     		ldr	r3, .L17+12
+ 245 0032 0022     		movs	r2, #0
+ 246 0034 1A60     		str	r2, [r3]
+ 247 0036 7047     		bx	lr
+ 248              	.L18:
+ 249              		.align	2
+ 250              	.L17:
+ 251 0038 00100240 		.word	1073876992
+ 252 003c 0000FFF8 		.word	-117506048
+ 253 0040 04100240 		.word	1073876996
+ 254 0044 08100240 		.word	1073877000
+ 255              		.cfi_endproc
+ 256              	.LFE4:
+ 258              		.section	.text.setupCLK,"ax",%progbits
+ 259              		.align	1
+ 260              		.global	setupCLK
+ 261              		.thumb
+ 262              		.thumb_func
+ 264              	setupCLK:
+ 265              	.LFB5:
+ 106:hardware.c    **** }
+ 107:hardware.c    **** 
+ 108:hardware.c    **** void setupCLK(void) {
+ 266              		.loc 1 108 0
+ 267              		.cfi_startproc
+ 268              		@ args = 0, pretend = 0, frame = 0
+ 269              		@ frame_needed = 0, uses_anonymous_args = 0
+ 270              		@ link register save eliminated.
+ 109:hardware.c    ****     /* enable HSE */
+ 110:hardware.c    ****     SET_REG(RCC_CR, GET_REG(RCC_CR) | 0x00010001);
+ 271              		.loc 1 110 0
+ 272 0000 154B     		ldr	r3, .L26
+ 273 0002 1A68     		ldr	r2, [r3]
+ 274 0004 42F00112 		orr	r2, r2, #65537
+ 275 0008 1A60     		str	r2, [r3]
+ 276              	.L21:
+ 111:hardware.c    ****     while ((GET_REG(RCC_CR) & 0x00020000) == 0); /* for it to come on */
+ 277              		.loc 1 111 0 discriminator 1
+ 278 000a 1A68     		ldr	r2, [r3]
+ 279 000c 1248     		ldr	r0, .L26
+ 280 000e 9203     		lsls	r2, r2, #14
+ 281 0010 FBD5     		bpl	.L21
+ 112:hardware.c    **** 
+ 113:hardware.c    ****     /* enable flash prefetch buffer */
+ 114:hardware.c    ****     SET_REG(FLASH_ACR, 0x00000012);
+ 282              		.loc 1 114 0
+ 283 0012 124A     		ldr	r2, .L26+4
+ 284 0014 1221     		movs	r1, #18
+ 285 0016 1160     		str	r1, [r2]
+ 115:hardware.c    **** 
+ 116:hardware.c    ****     /* Configure PLL */
+ 117:hardware.c    **** 
+ 118:hardware.c    ****     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0B100111010000010000000000);// 0x001D0400); /* pll=108Mhz
+ 286              		.loc 1 118 0
+ 287 0018 A2F6FC72 		subw	r2, r2, #4092
+ 288 001c 1168     		ldr	r1, [r2]
+ 289 001e 41F41D01 		orr	r1, r1, #10289152
+ 290 0022 41F48061 		orr	r1, r1, #1024
+ 291 0026 1160     		str	r1, [r2]
+ 119:hardware.c    ****     SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x01000000); /* enable the pll */
+ 292              		.loc 1 119 0
+ 293 0028 0168     		ldr	r1, [r0]
+ 294 002a 41F08071 		orr	r1, r1, #16777216
+ 295 002e 0160     		str	r1, [r0]
+ 296              	.L23:
+ 120:hardware.c    ****     while ((GET_REG(RCC_CR) & 0x03000000) == 0);         /* wait for it to come on */
+ 297              		.loc 1 120 0 discriminator 1
+ 298 0030 1968     		ldr	r1, [r3]
+ 299 0032 11F0407F 		tst	r1, #50331648
+ 300 0036 FBD0     		beq	.L23
+ 121:hardware.c    **** 
+ 122:hardware.c    ****     /* Set SYSCLK as PLL */
+ 123:hardware.c    ****     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00000002);
+ 301              		.loc 1 123 0
+ 302 0038 1168     		ldr	r1, [r2]
+ 303 003a 41F00201 		orr	r1, r1, #2
+ 304 003e 1160     		str	r1, [r2]
+ 305              	.L25:
+ 124:hardware.c    ****     while ((GET_REG(RCC_CFGR) & 0x00000008) == 0); /* wait for it to come on */
+ 306              		.loc 1 124 0 discriminator 1
+ 307 0040 1168     		ldr	r1, [r2]
+ 308 0042 0907     		lsls	r1, r1, #28
+ 309 0044 FCD5     		bpl	.L25
+ 125:hardware.c    **** 	
+ 126:hardware.c    ****     pRCC->APB2ENR |= 0B111111100;// Enable All GPIO channels (A to G)
+ 310              		.loc 1 126 0
+ 311 0046 9A69     		ldr	r2, [r3, #24]
+ 312 0048 42F4FE72 		orr	r2, r2, #508
+ 313 004c 9A61     		str	r2, [r3, #24]
+ 127:hardware.c    **** 	pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
+ 314              		.loc 1 127 0
+ 315 004e DA69     		ldr	r2, [r3, #28]
+ 316 0050 42F40002 		orr	r2, r2, #8388608
+ 317 0054 DA61     		str	r2, [r3, #28]
+ 318 0056 7047     		bx	lr
+ 319              	.L27:
+ 320              		.align	2
+ 321              	.L26:
+ 322 0058 00100240 		.word	1073876992
+ 323 005c 00200240 		.word	1073881088
+ 324              		.cfi_endproc
+ 325              	.LFE5:
+ 327              		.section	.text.setupLEDAndButton,"ax",%progbits
+ 328              		.align	1
+ 329              		.global	setupLEDAndButton
+ 330              		.thumb
+ 331              		.thumb_func
+ 333              	setupLEDAndButton:
+ 334              	.LFB6:
+ 128:hardware.c    **** }
+ 129:hardware.c    **** 
+ 130:hardware.c    **** 
+ 131:hardware.c    **** void setupLEDAndButton (void) {
+ 335              		.loc 1 131 0
+ 336              		.cfi_startproc
+ 337              		@ args = 0, pretend = 0, frame = 0
+ 338              		@ frame_needed = 0, uses_anonymous_args = 0
+ 339              		@ link register save eliminated.
+ 340              	.LVL21:
+ 132:hardware.c    ****  // SET_REG(AFIO_MAPR,(GET_REG(AFIO_MAPR) & ~AFIO_MAPR_SWJ_CFG) | AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW);
+ 133:hardware.c    ****  
+ 134:hardware.c    ****  #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)
+ 135:hardware.c    ****   SET_REG(GPIO_CR(BUTTON_BANK,BUTTON_PIN),(GPIO_CR(BUTTON_BANK,BUTTON_PIN) & crMask(BUTTON_PIN)) | 
+ 341              		.loc 1 135 0
+ 342 0000 074B     		ldr	r3, .L29
+ 343 0002 084A     		ldr	r2, .L29+4
+ 344              	.LBB10:
+ 345              	.LBB11:
+  47:hardware.c    ****     SET_REG(GPIO_BSRR(bank), (1U << pin) << (16 * val));
+ 346              		.loc 1 47 0
+ 347 0004 4FF08041 		mov	r1, #1073741824
+ 348              	.LBE11:
+ 349              	.LBE10:
+ 350              		.loc 1 135 0
+ 351 0008 1A60     		str	r2, [r3]
+ 352              	.LVL22:
+ 353              	.LBB13:
+ 354              	.LBB12:
+  47:hardware.c    ****     SET_REG(GPIO_BSRR(bank), (1U << pin) << (16 * val));
+ 355              		.loc 1 47 0
+ 356 000a 02F17842 		add	r2, r2, #-134217728
+ 357 000e 0C32     		adds	r2, r2, #12
+ 358 0010 1160     		str	r1, [r2]
+ 359              	.LBE12:
+ 360              	.LBE13:
+ 136:hardware.c    ****   
+ 137:hardware.c    ****   gpio_write_bit(BUTTON_BANK, BUTTON_PIN,1-BUTTON_PRESSED_STATE);// set pulldown resistor in case t
+ 138:hardware.c    ****  #endif
+ 139:hardware.c    ****   SET_REG(GPIO_CR(LED_BANK,LED_PIN),(GET_REG(GPIO_CR(LED_BANK,LED_PIN)) & crMask(LED_PIN)) | CR_OUT
+ 361              		.loc 1 139 0
+ 362 0012 1A68     		ldr	r2, [r3]
+ 363              	.LVL23:
+ 364 0014 22F47002 		bic	r2, r2, #15728640
+ 365 0018 42F48012 		orr	r2, r2, #1048576
+ 366 001c 1A60     		str	r2, [r3]
+ 367 001e 7047     		bx	lr
+ 368              	.L30:
+ 369              		.align	2
+ 370              	.L29:
+ 371 0020 04100140 		.word	1073811460
+ 372 0024 04100148 		.word	1208029188
+ 373              		.cfi_endproc
+ 374              	.LFE6:
+ 376              		.section	.text.setupFLASH,"ax",%progbits
+ 377              		.align	1
+ 378              		.global	setupFLASH
+ 379              		.thumb
+ 380              		.thumb_func
+ 382              	setupFLASH:
+ 383              	.LFB7:
+ 140:hardware.c    **** }
+ 141:hardware.c    **** 
+ 142:hardware.c    **** void setupFLASH() {
+ 384              		.loc 1 142 0
+ 385              		.cfi_startproc
+ 386              		@ args = 0, pretend = 0, frame = 0
+ 387              		@ frame_needed = 0, uses_anonymous_args = 0
+ 388              		@ link register save eliminated.
+ 143:hardware.c    ****     /* configure the HSI oscillator */
+ 144:hardware.c    ****     if ((pRCC->CR & 0x01) == 0x00) {
+ 389              		.loc 1 144 0
+ 390 0000 054B     		ldr	r3, .L35
+ 391 0002 1A68     		ldr	r2, [r3]
+ 392 0004 D107     		lsls	r1, r2, #31
+ 393 0006 03D4     		bmi	.L34
+ 394              	.LBB14:
+ 145:hardware.c    ****         u32 rwmVal = pRCC->CR;
+ 395              		.loc 1 145 0
+ 396 0008 1A68     		ldr	r2, [r3]
+ 397              	.LVL24:
+ 146:hardware.c    ****         rwmVal |= 0x01;
+ 398              		.loc 1 146 0
+ 399 000a 42F00102 		orr	r2, r2, #1
+ 400              	.LVL25:
+ 147:hardware.c    ****         pRCC->CR = rwmVal;
+ 401              		.loc 1 147 0
+ 402 000e 1A60     		str	r2, [r3]
+ 403              	.LVL26:
+ 404              	.L34:
+ 405              	.LBE14:
+ 148:hardware.c    ****     }
+ 149:hardware.c    **** 
+ 150:hardware.c    ****     /* wait for it to come on */
+ 151:hardware.c    ****     while ((pRCC->CR & 0x02) == 0x00) {}
+ 406              		.loc 1 151 0 discriminator 1
+ 407 0010 1A68     		ldr	r2, [r3]
+ 408 0012 9207     		lsls	r2, r2, #30
+ 409 0014 FCD5     		bpl	.L34
+ 152:hardware.c    **** }
+ 410              		.loc 1 152 0
+ 411 0016 7047     		bx	lr
+ 412              	.L36:
+ 413              		.align	2
+ 414              	.L35:
+ 415 0018 00100240 		.word	1073876992
+ 416              		.cfi_endproc
+ 417              	.LFE7:
+ 419              		.section	.text.checkUserCode,"ax",%progbits
+ 420              		.align	1
+ 421              		.global	checkUserCode
+ 422              		.thumb
+ 423              		.thumb_func
+ 425              	checkUserCode:
+ 426              	.LFB8:
+ 153:hardware.c    **** 
+ 154:hardware.c    **** bool checkUserCode(u32 usrAddr) {
+ 427              		.loc 1 154 0
+ 428              		.cfi_startproc
+ 429              		@ args = 0, pretend = 0, frame = 0
+ 430              		@ frame_needed = 0, uses_anonymous_args = 0
+ 431              		@ link register save eliminated.
+ 432              	.LVL27:
+ 155:hardware.c    ****     u32 sp = *(vu32 *) usrAddr;
+ 433              		.loc 1 155 0
+ 434 0000 0368     		ldr	r3, [r0]
+ 435              	.LVL28:
+ 156:hardware.c    **** 
+ 157:hardware.c    ****     if ((sp & 0x2FFE0000) == 0x20000000) {
+ 436              		.loc 1 157 0
+ 437 0002 0348     		ldr	r0, .L38
+ 438              	.LVL29:
+ 439 0004 1840     		ands	r0, r0, r3
+ 158:hardware.c    ****         return (TRUE);
+ 159:hardware.c    ****     } else {
+ 160:hardware.c    ****         return (FALSE);
+ 161:hardware.c    ****     }
+ 162:hardware.c    **** }
+ 440              		.loc 1 162 0
+ 441 0006 B0F10053 		subs	r3, r0, #536870912
+ 442              	.LVL30:
+ 443 000a 5842     		rsbs	r0, r3, #0
+ 444 000c 5841     		adcs	r0, r0, r3
+ 445 000e 7047     		bx	lr
+ 446              	.L39:
+ 447              		.align	2
+ 448              	.L38:
+ 449 0010 0000FE2F 		.word	805175296
+ 450              		.cfi_endproc
+ 451              	.LFE8:
+ 453              		.section	.text.nvicInit,"ax",%progbits
+ 454              		.align	1
+ 455              		.global	nvicInit
+ 456              		.thumb
+ 457              		.thumb_func
+ 459              	nvicInit:
+ 460              	.LFB10:
+ 163:hardware.c    **** 
+ 164:hardware.c    **** void jumpToUser(u32 usrAddr) {
+ 165:hardware.c    ****     typedef void (*funcPtr)(void);
+ 166:hardware.c    **** 
+ 167:hardware.c    ****     u32 jumpAddr = *(vu32 *)(usrAddr + 0x04); /* reset ptr in vector table */
+ 168:hardware.c    ****     funcPtr usrMain = (funcPtr) jumpAddr;
+ 169:hardware.c    **** 
+ 170:hardware.c    ****     /* tear down all the dfu related setup */
+ 171:hardware.c    ****     // disable usb interrupts, clear them, turn off usb, set the disc pin
+ 172:hardware.c    ****     // todo pick exactly what we want to do here, now its just a conservative
+ 173:hardware.c    ****     flashLock();
+ 174:hardware.c    ****     usbDsbISR();
+ 175:hardware.c    ****     nvicDisableInterrupts();
+ 176:hardware.c    **** 	
+ 177:hardware.c    **** #ifndef HAS_MAPLE_HARDWARE	
+ 178:hardware.c    **** 	usbDsbBus();
+ 179:hardware.c    **** #endif
+ 180:hardware.c    **** 	
+ 181:hardware.c    **** // Does nothing, as PC12 is not connected on teh Maple mini according to the schemmatic     setPin(
+ 182:hardware.c    ****     systemReset(); // resets clocks and periphs, not core regs
+ 183:hardware.c    **** 
+ 184:hardware.c    **** 
+ 185:hardware.c    ****     __MSR_MSP(*(vu32 *) usrAddr);             /* set the users stack ptr */
+ 186:hardware.c    **** 
+ 187:hardware.c    ****     usrMain();                                /* go! */
+ 188:hardware.c    **** }
+ 189:hardware.c    **** 
+ 190:hardware.c    **** void nvicInit(NVIC_InitTypeDef *NVIC_InitStruct) {
+ 461              		.loc 1 190 0
+ 462              		.cfi_startproc
+ 463              		@ args = 0, pretend = 0, frame = 0
+ 464              		@ frame_needed = 0, uses_anonymous_args = 0
+ 465              	.LVL31:
+ 191:hardware.c    ****     u32 tmppriority = 0x00;
+ 192:hardware.c    ****     u32 tmpreg      = 0x00;
+ 193:hardware.c    ****     u32 tmpmask     = 0x00;
+ 194:hardware.c    ****     u32 tmppre      = 0;
+ 195:hardware.c    ****     u32 tmpsub      = 0x0F;
+ 196:hardware.c    **** 
+ 197:hardware.c    ****     SCB_TypeDef *rSCB = (SCB_TypeDef *) SCB_BASE;
+ 198:hardware.c    ****     NVIC_TypeDef *rNVIC = (NVIC_TypeDef *) NVIC_BASE;
+ 199:hardware.c    **** 
+ 200:hardware.c    **** 
+ 201:hardware.c    ****     /* Compute the Corresponding IRQ Priority --------------------------------*/
+ 202:hardware.c    ****     tmppriority = (0x700 - (rSCB->AIRCR & (u32)0x700)) >> 0x08;
+ 466              		.loc 1 202 0
+ 467 0000 184B     		ldr	r3, .L41
+ 190:hardware.c    **** void nvicInit(NVIC_InitTypeDef *NVIC_InitStruct) {
+ 468              		.loc 1 190 0
+ 469 0002 30B5     		push	{r4, r5, lr}
+ 470              		.cfi_def_cfa_offset 12
+ 471              		.cfi_offset 4, -12
+ 472              		.cfi_offset 5, -8
+ 473              		.cfi_offset 14, -4
+ 474              		.loc 1 202 0
+ 475 0004 DB68     		ldr	r3, [r3, #12]
+ 203:hardware.c    ****     tmppre = (0x4 - tmppriority);
+ 204:hardware.c    ****     tmpsub = tmpsub >> tmppriority;
+ 205:hardware.c    **** 
+ 206:hardware.c    ****     tmppriority = (u32)NVIC_InitStruct->NVIC_IRQChannelPreemptionPriority << tmppre;
+ 476              		.loc 1 206 0
+ 477 0006 4478     		ldrb	r4, [r0, #1]	@ zero_extendqisi2
+ 202:hardware.c    ****     tmppriority = (0x700 - (rSCB->AIRCR & (u32)0x700)) >> 0x08;
+ 478              		.loc 1 202 0
+ 479 0008 DB43     		mvns	r3, r3
+ 480 000a C3F30223 		ubfx	r3, r3, #8, #3
+ 481              	.LVL32:
+ 203:hardware.c    ****     tmppre = (0x4 - tmppriority);
+ 482              		.loc 1 203 0
+ 483 000e C3F10402 		rsb	r2, r3, #4
+ 484              	.LVL33:
+ 485              		.loc 1 206 0
+ 486 0012 04FA02F2 		lsl	r2, r4, r2
+ 487              	.LVL34:
+ 204:hardware.c    ****     tmpsub = tmpsub >> tmppriority;
+ 488              		.loc 1 204 0
+ 489 0016 0F24     		movs	r4, #15
+ 490 0018 DC40     		lsrs	r4, r4, r3
+ 491              	.LVL35:
+ 207:hardware.c    ****     tmppriority |=  NVIC_InitStruct->NVIC_IRQChannelSubPriority & tmpsub;
+ 492              		.loc 1 207 0
+ 493 001a 8178     		ldrb	r1, [r0, #2]	@ zero_extendqisi2
+ 208:hardware.c    **** 
+ 209:hardware.c    ****     tmppriority = tmppriority << 0x04;
+ 210:hardware.c    ****     tmppriority = ((u32)tmppriority) << ((NVIC_InitStruct->NVIC_IRQChannel & (u8)0x03) * 0x08);
+ 494              		.loc 1 210 0
+ 495 001c 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 496              	.LVL36:
+ 207:hardware.c    ****     tmppriority |=  NVIC_InitStruct->NVIC_IRQChannelSubPriority & tmpsub;
+ 497              		.loc 1 207 0
+ 498 001e 0C40     		ands	r4, r4, r1
+ 499              	.LVL37:
+ 500 0020 1443     		orrs	r4, r4, r2
+ 501              	.LVL38:
+ 502              		.loc 1 210 0
+ 503 0022 03F00301 		and	r1, r3, #3
+ 504 0026 C900     		lsls	r1, r1, #3
+ 209:hardware.c    ****     tmppriority = tmppriority << 0x04;
+ 505              		.loc 1 209 0
+ 506 0028 2401     		lsls	r4, r4, #4
+ 507              	.LVL39:
+ 211:hardware.c    **** 
+ 212:hardware.c    ****     tmpreg = rNVIC->IPR[(NVIC_InitStruct->NVIC_IRQChannel >> 0x02)];
+ 213:hardware.c    ****     tmpmask = (u32)0xFF << ((NVIC_InitStruct->NVIC_IRQChannel & (u8)0x03) * 0x08);
+ 508              		.loc 1 213 0
+ 509 002a FF22     		movs	r2, #255
+ 210:hardware.c    ****     tmppriority = ((u32)tmppriority) << ((NVIC_InitStruct->NVIC_IRQChannel & (u8)0x03) * 0x08);
+ 510              		.loc 1 210 0
+ 511 002c 8C40     		lsls	r4, r4, r1
+ 512              	.LVL40:
+ 513              		.loc 1 213 0
+ 514 002e 8A40     		lsls	r2, r2, r1
+ 515 0030 03F0FC03 		and	r3, r3, #252
+ 516 0034 03F16043 		add	r3, r3, #-536870912
+ 517 0038 03F56143 		add	r3, r3, #57600
+ 212:hardware.c    ****     tmpreg = rNVIC->IPR[(NVIC_InitStruct->NVIC_IRQChannel >> 0x02)];
+ 518              		.loc 1 212 0
+ 519 003c D3F80053 		ldr	r5, [r3, #768]
+ 520              	.LVL41:
+ 214:hardware.c    ****     tmpreg &= ~tmpmask;
+ 521              		.loc 1 214 0
+ 522 0040 25EA0201 		bic	r1, r5, r2
+ 523              	.LVL42:
+ 215:hardware.c    ****     tmppriority &= tmpmask;
+ 524              		.loc 1 215 0
+ 525 0044 2240     		ands	r2, r2, r4
+ 526              	.LVL43:
+ 216:hardware.c    ****     tmpreg |= tmppriority;
+ 527              		.loc 1 216 0
+ 528 0046 0A43     		orrs	r2, r2, r1
+ 529              	.LVL44:
+ 217:hardware.c    **** 
+ 218:hardware.c    ****     rNVIC->IPR[(NVIC_InitStruct->NVIC_IRQChannel >> 0x02)] = tmpreg;
+ 530              		.loc 1 218 0
+ 531 0048 C3F80023 		str	r2, [r3, #768]
+ 532              	.LVL45:
+ 219:hardware.c    **** 
+ 220:hardware.c    ****     /* Enable the Selected IRQ Channels --------------------------------------*/
+ 221:hardware.c    ****     rNVIC->ISER[(NVIC_InitStruct->NVIC_IRQChannel >> 0x05)] =
+ 533              		.loc 1 221 0
+ 534 004c 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 222:hardware.c    ****         (u32)0x01 << (NVIC_InitStruct->NVIC_IRQChannel & (u8)0x1F);
+ 535              		.loc 1 222 0
+ 536 004e 0122     		movs	r2, #1
+ 537              	.LVL46:
+ 221:hardware.c    ****     rNVIC->ISER[(NVIC_InitStruct->NVIC_IRQChannel >> 0x05)] =
+ 538              		.loc 1 221 0
+ 539 0050 5909     		lsrs	r1, r3, #5
+ 540              		.loc 1 222 0
+ 541 0052 03F01F03 		and	r3, r3, #31
+ 542 0056 02FA03F3 		lsl	r3, r2, r3
+ 221:hardware.c    ****     rNVIC->ISER[(NVIC_InitStruct->NVIC_IRQChannel >> 0x05)] =
+ 543              		.loc 1 221 0
+ 544 005a 034A     		ldr	r2, .L41+4
+ 545 005c 42F82130 		str	r3, [r2, r1, lsl #2]
+ 546 0060 30BD     		pop	{r4, r5, pc}
+ 547              	.L42:
+ 548 0062 00BF     		.align	2
+ 549              	.L41:
+ 550 0064 00ED00E0 		.word	-536810240
+ 551 0068 00E100E0 		.word	-536813312
+ 552              		.cfi_endproc
+ 553              	.LFE10:
+ 555              		.section	.text.nvicDisableInterrupts,"ax",%progbits
+ 556              		.align	1
+ 557              		.global	nvicDisableInterrupts
+ 558              		.thumb
+ 559              		.thumb_func
+ 561              	nvicDisableInterrupts:
+ 562              	.LFB11:
+ 223:hardware.c    **** }
+ 224:hardware.c    **** 
+ 225:hardware.c    **** void nvicDisableInterrupts() {
+ 563              		.loc 1 225 0
+ 564              		.cfi_startproc
+ 565              		@ args = 0, pretend = 0, frame = 0
+ 566              		@ frame_needed = 0, uses_anonymous_args = 0
+ 567              		@ link register save eliminated.
+ 568              	.LVL47:
+ 226:hardware.c    ****     NVIC_TypeDef *rNVIC = (NVIC_TypeDef *) NVIC_BASE;
+ 227:hardware.c    ****     rNVIC->ICER[0] = 0xFFFFFFFF;
+ 569              		.loc 1 227 0
+ 570 0000 074B     		ldr	r3, .L44
+ 571 0002 4FF0FF32 		mov	r2, #-1
+ 572 0006 C3F88020 		str	r2, [r3, #128]
+ 228:hardware.c    ****     rNVIC->ICER[1] = 0xFFFFFFFF;
+ 573              		.loc 1 228 0
+ 574 000a C3F88420 		str	r2, [r3, #132]
+ 229:hardware.c    ****     rNVIC->ICPR[0] = 0xFFFFFFFF;
+ 575              		.loc 1 229 0
+ 576 000e C3F88021 		str	r2, [r3, #384]
+ 230:hardware.c    ****     rNVIC->ICPR[1] = 0xFFFFFFFF;
+ 577              		.loc 1 230 0
+ 578 0012 C3F88421 		str	r2, [r3, #388]
+ 231:hardware.c    **** 
+ 232:hardware.c    ****     SET_REG(STK_CTRL, 0x04); /* disable the systick, which operates separately from nvic */
+ 579              		.loc 1 232 0
+ 580 0016 0422     		movs	r2, #4
+ 581 0018 43F8F02C 		str	r2, [r3, #-240]
+ 582 001c 7047     		bx	lr
+ 583              	.L45:
+ 584 001e 00BF     		.align	2
+ 585              	.L44:
+ 586 0020 00E100E0 		.word	-536813312
+ 587              		.cfi_endproc
+ 588              	.LFE11:
+ 590              		.section	.text.jumpToUser,"ax",%progbits
+ 591              		.align	1
+ 592              		.global	jumpToUser
+ 593              		.thumb
+ 594              		.thumb_func
+ 596              	jumpToUser:
+ 597              	.LFB9:
+ 164:hardware.c    **** void jumpToUser(u32 usrAddr) {
+ 598              		.loc 1 164 0
+ 599              		.cfi_startproc
+ 600              		@ args = 0, pretend = 0, frame = 0
+ 601              		@ frame_needed = 0, uses_anonymous_args = 0
+ 602              	.LVL48:
+ 603 0000 38B5     		push	{r3, r4, r5, lr}
+ 604              		.cfi_def_cfa_offset 16
+ 605              		.cfi_offset 3, -16
+ 606              		.cfi_offset 4, -12
+ 607              		.cfi_offset 5, -8
+ 608              		.cfi_offset 14, -4
+ 609              	.LBB15:
+ 610              	.LBB16:
+ 233:hardware.c    **** }
+ 234:hardware.c    **** 
+ 235:hardware.c    **** void systemHardReset(void) {
+ 236:hardware.c    ****     SCB_TypeDef *rSCB = (SCB_TypeDef *) SCB_BASE;
+ 237:hardware.c    **** 
+ 238:hardware.c    ****     /* Reset  */
+ 239:hardware.c    ****     rSCB->AIRCR = (u32)AIRCR_RESET_REQ;
+ 240:hardware.c    **** 
+ 241:hardware.c    ****     /*  should never get here */
+ 242:hardware.c    ****     while (1) {
+ 243:hardware.c    ****         asm volatile("nop");
+ 244:hardware.c    ****     }
+ 245:hardware.c    **** }
+ 246:hardware.c    **** 
+ 247:hardware.c    **** bool flashErasePage(u32 pageAddr) {
+ 248:hardware.c    ****     u32 rwmVal = GET_REG(FLASH_CR);
+ 249:hardware.c    ****     rwmVal = FLASH_CR_PER;
+ 250:hardware.c    ****     SET_REG(FLASH_CR, rwmVal);
+ 251:hardware.c    **** 
+ 252:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 253:hardware.c    ****     SET_REG(FLASH_AR, pageAddr);
+ 254:hardware.c    ****     SET_REG(FLASH_CR, FLASH_CR_START | FLASH_CR_PER);
+ 255:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 256:hardware.c    **** 
+ 257:hardware.c    ****     /* todo: verify the page was erased */
+ 258:hardware.c    **** 
+ 259:hardware.c    ****     rwmVal = 0x00;
+ 260:hardware.c    ****     SET_REG(FLASH_CR, rwmVal);
+ 261:hardware.c    **** 
+ 262:hardware.c    ****     return TRUE;
+ 263:hardware.c    **** }
+ 264:hardware.c    **** bool flashErasePages(u32 pageAddr, u16 n) {
+ 265:hardware.c    ****     while (n-- > 0) {
+ 266:hardware.c    ****         if (!flashErasePage(pageAddr + wTransferSize * n)) {
+ 267:hardware.c    ****             return FALSE;
+ 268:hardware.c    ****         }
+ 269:hardware.c    ****     }
+ 270:hardware.c    **** 
+ 271:hardware.c    ****     return TRUE;
+ 272:hardware.c    **** }
+ 273:hardware.c    **** 
+ 274:hardware.c    **** bool flashWriteWord(u32 addr, u32 word) {
+ 275:hardware.c    ****     vu16 *flashAddr = (vu16 *)addr;
+ 276:hardware.c    ****     vu32 lhWord = (vu32)word & 0x0000FFFF;
+ 277:hardware.c    ****     vu32 hhWord = ((vu32)word & 0xFFFF0000) >> 16;
+ 278:hardware.c    **** 
+ 279:hardware.c    ****     u32 rwmVal = GET_REG(FLASH_CR);
+ 280:hardware.c    ****     SET_REG(FLASH_CR, FLASH_CR_PG);
+ 281:hardware.c    **** 
+ 282:hardware.c    ****     /* apparently we need not write to FLASH_AR and can
+ 283:hardware.c    ****        simply do a native write of a half word */
+ 284:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 285:hardware.c    ****     *(flashAddr + 0x01) = (vu16)hhWord;
+ 286:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 287:hardware.c    ****     *(flashAddr) = (vu16)lhWord;
+ 288:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 289:hardware.c    **** 
+ 290:hardware.c    ****     rwmVal &= 0xFFFFFFFE;
+ 291:hardware.c    ****     SET_REG(FLASH_CR, rwmVal);
+ 292:hardware.c    **** 
+ 293:hardware.c    ****     /* verify the write */
+ 294:hardware.c    ****     if (*(vu32 *)addr != word) {
+ 295:hardware.c    ****         return FALSE;
+ 296:hardware.c    ****     }
+ 297:hardware.c    **** 
+ 298:hardware.c    ****     return TRUE;
+ 299:hardware.c    **** }
+ 300:hardware.c    **** 
+ 301:hardware.c    **** void flashLock() {
+ 302:hardware.c    ****     /* take down the HSI oscillator? it may be in use elsewhere */
+ 303:hardware.c    **** 
+ 304:hardware.c    ****     /* ensure all FPEC functions disabled and lock the FPEC */
+ 305:hardware.c    ****     SET_REG(FLASH_CR, 0x00000080);
+ 611              		.loc 1 305 0
+ 612 0002 094B     		ldr	r3, .L47
+ 613 0004 8022     		movs	r2, #128
+ 614              	.LBE16:
+ 615              	.LBE15:
+ 167:hardware.c    ****     u32 jumpAddr = *(vu32 *)(usrAddr + 0x04); /* reset ptr in vector table */
+ 616              		.loc 1 167 0
+ 617 0006 4568     		ldr	r5, [r0, #4]
+ 618              	.LVL49:
+ 164:hardware.c    **** void jumpToUser(u32 usrAddr) {
+ 619              		.loc 1 164 0
+ 620 0008 0446     		mov	r4, r0
+ 621              	.LBB18:
+ 622              	.LBB17:
+ 623              		.loc 1 305 0
+ 624 000a 1A60     		str	r2, [r3]
+ 625              	.LBE17:
+ 626              	.LBE18:
+ 174:hardware.c    ****     usbDsbISR();
+ 627              		.loc 1 174 0
+ 628 000c FFF7FEFF 		bl	usbDsbISR
+ 629              	.LVL50:
+ 175:hardware.c    ****     nvicDisableInterrupts();
+ 630              		.loc 1 175 0
+ 631 0010 FFF7FEFF 		bl	nvicDisableInterrupts
+ 632              	.LVL51:
+ 178:hardware.c    **** 	usbDsbBus();
+ 633              		.loc 1 178 0
+ 634 0014 FFF7FEFF 		bl	usbDsbBus
+ 635              	.LVL52:
+ 182:hardware.c    ****     systemReset(); // resets clocks and periphs, not core regs
+ 636              		.loc 1 182 0
+ 637 0018 FFF7FEFF 		bl	systemReset
+ 638              	.LVL53:
+ 185:hardware.c    ****     __MSR_MSP(*(vu32 *) usrAddr);             /* set the users stack ptr */
+ 639              		.loc 1 185 0
+ 640 001c 2068     		ldr	r0, [r4]
+ 641 001e FFF7FEFF 		bl	__MSR_MSP
+ 642              	.LVL54:
+ 187:hardware.c    ****     usrMain();                                /* go! */
+ 643              		.loc 1 187 0
+ 644 0022 A847     		blx	r5
+ 645              	.LVL55:
+ 646 0024 38BD     		pop	{r3, r4, r5, pc}
+ 647              	.LVL56:
+ 648              	.L48:
+ 649 0026 00BF     		.align	2
+ 650              	.L47:
+ 651 0028 10200240 		.word	1073881104
+ 652              		.cfi_endproc
+ 653              	.LFE9:
+ 655              		.section	.text.systemHardReset,"ax",%progbits
+ 656              		.align	1
+ 657              		.global	systemHardReset
+ 658              		.thumb
+ 659              		.thumb_func
+ 661              	systemHardReset:
+ 662              	.LFB12:
+ 235:hardware.c    **** void systemHardReset(void) {
+ 663              		.loc 1 235 0
+ 664              		.cfi_startproc
+ 665              		@ args = 0, pretend = 0, frame = 0
+ 666              		@ frame_needed = 0, uses_anonymous_args = 0
+ 667              		@ link register save eliminated.
+ 668              	.LVL57:
+ 239:hardware.c    ****     rSCB->AIRCR = (u32)AIRCR_RESET_REQ;
+ 669              		.loc 1 239 0
+ 670 0000 024A     		ldr	r2, .L51
+ 671 0002 034B     		ldr	r3, .L51+4
+ 672 0004 DA60     		str	r2, [r3, #12]
+ 673              	.L50:
+ 243:hardware.c    ****         asm volatile("nop");
+ 674              		.loc 1 243 0 discriminator 1
+ 675              	@ 243 "hardware.c" 1
+ 676 0006 00BF     		nop
+ 677              	@ 0 "" 2
+ 678              		.thumb
+ 679 0008 FDE7     		b	.L50
+ 680              	.L52:
+ 681 000a 00BF     		.align	2
+ 682              	.L51:
+ 683 000c 0400FA05 		.word	100270084
+ 684 0010 00ED00E0 		.word	-536810240
+ 685              		.cfi_endproc
+ 686              	.LFE12:
+ 688              		.section	.text.flashErasePage,"ax",%progbits
+ 689              		.align	1
+ 690              		.global	flashErasePage
+ 691              		.thumb
+ 692              		.thumb_func
+ 694              	flashErasePage:
+ 695              	.LFB13:
+ 247:hardware.c    **** bool flashErasePage(u32 pageAddr) {
+ 696              		.loc 1 247 0
+ 697              		.cfi_startproc
+ 698              		@ args = 0, pretend = 0, frame = 0
+ 699              		@ frame_needed = 0, uses_anonymous_args = 0
+ 700              	.LVL58:
+ 248:hardware.c    ****     u32 rwmVal = GET_REG(FLASH_CR);
+ 701              		.loc 1 248 0
+ 702 0000 0A4B     		ldr	r3, .L58
+ 247:hardware.c    **** bool flashErasePage(u32 pageAddr) {
+ 703              		.loc 1 247 0
+ 704 0002 10B5     		push	{r4, lr}
+ 705              		.cfi_def_cfa_offset 8
+ 706              		.cfi_offset 4, -8
+ 707              		.cfi_offset 14, -4
+ 248:hardware.c    ****     u32 rwmVal = GET_REG(FLASH_CR);
+ 708              		.loc 1 248 0
+ 709 0004 1A68     		ldr	r2, [r3]
+ 710              	.LVL59:
+ 250:hardware.c    ****     SET_REG(FLASH_CR, rwmVal);
+ 711              		.loc 1 250 0
+ 712 0006 0222     		movs	r2, #2
+ 713 0008 1A60     		str	r2, [r3]
+ 714              	.L55:
+ 252:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 715              		.loc 1 252 0 discriminator 1
+ 716 000a 094A     		ldr	r2, .L58+4
+ 717 000c 1168     		ldr	r1, [r2]
+ 718 000e 1446     		mov	r4, r2
+ 719 0010 11F0010F 		tst	r1, #1
+ 720 0014 F9D1     		bne	.L55
+ 253:hardware.c    ****     SET_REG(FLASH_AR, pageAddr);
+ 721              		.loc 1 253 0
+ 722 0016 9060     		str	r0, [r2, #8]
+ 254:hardware.c    ****     SET_REG(FLASH_CR, FLASH_CR_START | FLASH_CR_PER);
+ 723              		.loc 1 254 0
+ 724 0018 4222     		movs	r2, #66
+ 725 001a 1A60     		str	r2, [r3]
+ 726              	.L57:
+ 255:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 727              		.loc 1 255 0 discriminator 1
+ 728 001c 2268     		ldr	r2, [r4]
+ 729 001e 12F00101 		ands	r1, r2, #1
+ 730 0022 FBD1     		bne	.L57
+ 731              	.LVL60:
+ 260:hardware.c    ****     SET_REG(FLASH_CR, rwmVal);
+ 732              		.loc 1 260 0
+ 733 0024 1960     		str	r1, [r3]
+ 263:hardware.c    **** }
+ 734              		.loc 1 263 0
+ 735 0026 0120     		movs	r0, #1
+ 736              	.LVL61:
+ 737 0028 10BD     		pop	{r4, pc}
+ 738              	.L59:
+ 739 002a 00BF     		.align	2
+ 740              	.L58:
+ 741 002c 10200240 		.word	1073881104
+ 742 0030 0C200240 		.word	1073881100
+ 743              		.cfi_endproc
+ 744              	.LFE13:
+ 746              		.section	.text.flashErasePages,"ax",%progbits
+ 747              		.align	1
+ 748              		.global	flashErasePages
+ 749              		.thumb
+ 750              		.thumb_func
+ 752              	flashErasePages:
+ 753              	.LFB14:
+ 264:hardware.c    **** bool flashErasePages(u32 pageAddr, u16 n) {
+ 754              		.loc 1 264 0
+ 755              		.cfi_startproc
+ 756              		@ args = 0, pretend = 0, frame = 0
+ 757              		@ frame_needed = 0, uses_anonymous_args = 0
+ 758              	.LVL62:
+ 759 0000 0139     		subs	r1, r1, #1
+ 760              	.LVL63:
+ 761 0002 38B5     		push	{r3, r4, r5, lr}
+ 762              		.cfi_def_cfa_offset 16
+ 763              		.cfi_offset 3, -16
+ 764              		.cfi_offset 4, -12
+ 765              		.cfi_offset 5, -8
+ 766              		.cfi_offset 14, -4
+ 264:hardware.c    **** bool flashErasePages(u32 pageAddr, u16 n) {
+ 767              		.loc 1 264 0
+ 768 0004 0546     		mov	r5, r0
+ 769 0006 8CB2     		uxth	r4, r1
+ 770              	.LVL64:
+ 771              	.L61:
+ 265:hardware.c    ****     while (n-- > 0) {
+ 772              		.loc 1 265 0 discriminator 1
+ 773 0008 4FF6FF73 		movw	r3, #65535
+ 774 000c 9C42     		cmp	r4, r3
+ 775 000e 0AD0     		beq	.L67
+ 266:hardware.c    ****         if (!flashErasePage(pageAddr + wTransferSize * n)) {
+ 776              		.loc 1 266 0
+ 777 0010 064B     		ldr	r3, .L68
+ 778 0012 1868     		ldr	r0, [r3]
+ 779 0014 00FB0450 		mla	r0, r0, r4, r5
+ 780 0018 FFF7FEFF 		bl	flashErasePage
+ 781              	.LVL65:
+ 782 001c 013C     		subs	r4, r4, #1
+ 783              	.LVL66:
+ 784 001e A4B2     		uxth	r4, r4
+ 785              	.LVL67:
+ 786 0020 0028     		cmp	r0, #0
+ 787 0022 F1D1     		bne	.L61
+ 788 0024 00E0     		b	.L62
+ 789              	.LVL68:
+ 790              	.L67:
+ 271:hardware.c    ****     return TRUE;
+ 791              		.loc 1 271 0
+ 792 0026 0120     		movs	r0, #1
+ 793              	.LVL69:
+ 794              	.L62:
+ 272:hardware.c    **** }
+ 795              		.loc 1 272 0
+ 796 0028 38BD     		pop	{r3, r4, r5, pc}
+ 797              	.LVL70:
+ 798              	.L69:
+ 799 002a 00BF     		.align	2
+ 800              	.L68:
+ 801 002c 00000000 		.word	wTransferSize
+ 802              		.cfi_endproc
+ 803              	.LFE14:
+ 805              		.section	.text.flashWriteWord,"ax",%progbits
+ 806              		.align	1
+ 807              		.global	flashWriteWord
+ 808              		.thumb
+ 809              		.thumb_func
+ 811              	flashWriteWord:
+ 812              	.LFB15:
+ 274:hardware.c    **** bool flashWriteWord(u32 addr, u32 word) {
+ 813              		.loc 1 274 0
+ 814              		.cfi_startproc
+ 815              		@ args = 0, pretend = 0, frame = 8
+ 816              		@ frame_needed = 0, uses_anonymous_args = 0
+ 817              	.LVL71:
+ 818 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+ 819              		.cfi_def_cfa_offset 24
+ 820              		.cfi_offset 0, -24
+ 821              		.cfi_offset 1, -20
+ 822              		.cfi_offset 2, -16
+ 823              		.cfi_offset 4, -12
+ 824              		.cfi_offset 5, -8
+ 825              		.cfi_offset 14, -4
+ 276:hardware.c    ****     vu32 lhWord = (vu32)word & 0x0000FFFF;
+ 826              		.loc 1 276 0
+ 827 0002 8BB2     		uxth	r3, r1
+ 828 0004 0093     		str	r3, [sp]
+ 277:hardware.c    ****     vu32 hhWord = ((vu32)word & 0xFFFF0000) >> 16;
+ 829              		.loc 1 277 0
+ 830 0006 0B0C     		lsrs	r3, r1, #16
+ 831 0008 0193     		str	r3, [sp, #4]
+ 279:hardware.c    ****     u32 rwmVal = GET_REG(FLASH_CR);
+ 832              		.loc 1 279 0
+ 833 000a 0E4B     		ldr	r3, .L77
+ 280:hardware.c    ****     SET_REG(FLASH_CR, FLASH_CR_PG);
+ 834              		.loc 1 280 0
+ 835 000c 0122     		movs	r2, #1
+ 279:hardware.c    ****     u32 rwmVal = GET_REG(FLASH_CR);
+ 836              		.loc 1 279 0
+ 837 000e 1C68     		ldr	r4, [r3]
+ 838              	.LVL72:
+ 280:hardware.c    ****     SET_REG(FLASH_CR, FLASH_CR_PG);
+ 839              		.loc 1 280 0
+ 840 0010 1A60     		str	r2, [r3]
+ 841              	.L72:
+ 284:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 842              		.loc 1 284 0 discriminator 1
+ 843 0012 0D4A     		ldr	r2, .L77+4
+ 844 0014 1568     		ldr	r5, [r2]
+ 845 0016 ED07     		lsls	r5, r5, #31
+ 846 0018 FBD4     		bmi	.L72
+ 285:hardware.c    ****     *(flashAddr + 0x01) = (vu16)hhWord;
+ 847              		.loc 1 285 0
+ 848 001a 019D     		ldr	r5, [sp, #4]
+ 849 001c ADB2     		uxth	r5, r5
+ 850 001e 4580     		strh	r5, [r0, #2]	@ movhi
+ 851              	.L74:
+ 286:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 852              		.loc 1 286 0 discriminator 1
+ 853 0020 1568     		ldr	r5, [r2]
+ 854 0022 ED07     		lsls	r5, r5, #31
+ 855 0024 FCD4     		bmi	.L74
+ 287:hardware.c    ****     *(flashAddr) = (vu16)lhWord;
+ 856              		.loc 1 287 0
+ 857 0026 009D     		ldr	r5, [sp]
+ 858 0028 ADB2     		uxth	r5, r5
+ 859 002a 0580     		strh	r5, [r0]	@ movhi
+ 860              	.L76:
+ 288:hardware.c    ****     while (GET_REG(FLASH_SR) & FLASH_SR_BSY) {}
+ 861              		.loc 1 288 0 discriminator 1
+ 862 002c 1568     		ldr	r5, [r2]
+ 863 002e ED07     		lsls	r5, r5, #31
+ 864 0030 FCD4     		bmi	.L76
+ 290:hardware.c    ****     rwmVal &= 0xFFFFFFFE;
+ 865              		.loc 1 290 0
+ 866 0032 24F00102 		bic	r2, r4, #1
+ 867              	.LVL73:
+ 291:hardware.c    ****     SET_REG(FLASH_CR, rwmVal);
+ 868              		.loc 1 291 0
+ 869 0036 1A60     		str	r2, [r3]
+ 294:hardware.c    ****     if (*(vu32 *)addr != word) {
+ 870              		.loc 1 294 0
+ 871 0038 0068     		ldr	r0, [r0]
+ 872              	.LVL74:
+ 299:hardware.c    **** }
+ 873              		.loc 1 299 0
+ 874 003a 431A     		subs	r3, r0, r1
+ 875 003c 5842     		rsbs	r0, r3, #0
+ 876 003e 5841     		adcs	r0, r0, r3
+ 877 0040 03B0     		add	sp, sp, #12
+ 878              		@ sp needed
+ 879 0042 30BD     		pop	{r4, r5, pc}
+ 880              	.L78:
+ 881              		.align	2
+ 882              	.L77:
+ 883 0044 10200240 		.word	1073881104
+ 884 0048 0C200240 		.word	1073881100
+ 885              		.cfi_endproc
+ 886              	.LFE15:
+ 888              		.section	.text.flashLock,"ax",%progbits
+ 889              		.align	1
+ 890              		.global	flashLock
+ 891              		.thumb
+ 892              		.thumb_func
+ 894              	flashLock:
+ 895              	.LFB16:
+ 301:hardware.c    **** void flashLock() {
+ 896              		.loc 1 301 0
+ 897              		.cfi_startproc
+ 898              		@ args = 0, pretend = 0, frame = 0
+ 899              		@ frame_needed = 0, uses_anonymous_args = 0
+ 900              		@ link register save eliminated.
+ 901              		.loc 1 305 0
+ 902 0000 014B     		ldr	r3, .L80
+ 903 0002 8022     		movs	r2, #128
+ 904 0004 1A60     		str	r2, [r3]
+ 905 0006 7047     		bx	lr
+ 906              	.L81:
+ 907              		.align	2
+ 908              	.L80:
+ 909 0008 10200240 		.word	1073881104
+ 910              		.cfi_endproc
+ 911              	.LFE16:
+ 913              		.section	.text.flashUnlock,"ax",%progbits
+ 914              		.align	1
+ 915              		.global	flashUnlock
+ 916              		.thumb
+ 917              		.thumb_func
+ 919              	flashUnlock:
+ 920              	.LFB17:
+ 306:hardware.c    **** }
+ 307:hardware.c    **** 
+ 308:hardware.c    **** void flashUnlock() {
+ 921              		.loc 1 308 0
+ 922              		.cfi_startproc
+ 923              		@ args = 0, pretend = 0, frame = 0
+ 924              		@ frame_needed = 0, uses_anonymous_args = 0
+ 925              		@ link register save eliminated.
+ 309:hardware.c    ****     /* unlock the flash */
+ 310:hardware.c    ****     SET_REG(FLASH_KEYR, FLASH_KEY1);
+ 926              		.loc 1 310 0
+ 927 0000 034B     		ldr	r3, .L83
+ 928 0002 044A     		ldr	r2, .L83+4
+ 929 0004 1A60     		str	r2, [r3]
+ 311:hardware.c    ****     SET_REG(FLASH_KEYR, FLASH_KEY2);
+ 930              		.loc 1 311 0
+ 931 0006 02F18832 		add	r2, r2, #-2004318072
+ 932 000a 1A60     		str	r2, [r3]
+ 933 000c 7047     		bx	lr
+ 934              	.L84:
+ 935 000e 00BF     		.align	2
+ 936              	.L83:
+ 937 0010 04200240 		.word	1073881092
+ 938 0014 23016745 		.word	1164378403
+ 939              		.cfi_endproc
+ 940              	.LFE17:
+ 942              		.section	.text.crMask,"ax",%progbits
+ 943              		.align	1
+ 944              		.global	crMask
+ 945              		.thumb
+ 946              		.thumb_func
+ 948              	crMask:
+ 949              	.LFB18:
+ 312:hardware.c    **** }
+ 313:hardware.c    **** 
+ 314:hardware.c    **** 
+ 315:hardware.c    **** // Used to create the control register masking pattern, when setting control register mode.
+ 316:hardware.c    **** unsigned int crMask(int pin)
+ 317:hardware.c    **** {
+ 950              		.loc 1 317 0
+ 951              		.cfi_startproc
+ 952              		@ args = 0, pretend = 0, frame = 0
+ 953              		@ frame_needed = 0, uses_anonymous_args = 0
+ 954              		@ link register save eliminated.
+ 955              	.LVL75:
+ 318:hardware.c    **** 	unsigned int mask;
+ 319:hardware.c    **** 	if (pin>=8)
+ 956              		.loc 1 319 0
+ 957 0000 0728     		cmp	r0, #7
+ 320:hardware.c    **** 	{
+ 321:hardware.c    **** 		pin-=8;
+ 958              		.loc 1 321 0
+ 959 0002 C8BF     		it	gt
+ 960 0004 0838     		subgt	r0, r0, #8
+ 961              	.LVL76:
+ 322:hardware.c    **** 	}
+ 323:hardware.c    **** 	mask = 0x0F << (pin<<2);
+ 962              		.loc 1 323 0
+ 963 0006 0F23     		movs	r3, #15
+ 964 0008 8000     		lsls	r0, r0, #2
+ 965              	.LVL77:
+ 966 000a 03FA00F0 		lsl	r0, r3, r0
+ 967              	.LVL78:
+ 324:hardware.c    **** 	return ~mask;
+ 325:hardware.c    **** }	
+ 968              		.loc 1 325 0
+ 969 000e C043     		mvns	r0, r0
+ 970              	.LVL79:
+ 971 0010 7047     		bx	lr
+ 972              		.cfi_endproc
+ 973              	.LFE18:
+ 975              		.section	.text.getFlashEnd,"ax",%progbits
+ 976              		.align	1
+ 977              		.global	getFlashEnd
+ 978              		.thumb
+ 979              		.thumb_func
+ 981              	getFlashEnd:
+ 982              	.LFB19:
+ 326:hardware.c    **** 
+ 327:hardware.c    **** #define FLASH_SIZE_REG 0x1FFFF7E0
+ 328:hardware.c    **** int getFlashEnd(void)
+ 329:hardware.c    **** {
+ 983              		.loc 1 329 0
+ 984              		.cfi_startproc
+ 985              		@ args = 0, pretend = 0, frame = 0
+ 986              		@ frame_needed = 0, uses_anonymous_args = 0
+ 987              		@ link register save eliminated.
+ 988              	.LVL80:
+ 330:hardware.c    **** 	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register 
+ 331:hardware.c    **** 	return ((int)(*flashSize & 0xffff) * 1024) + 0x08000000;
+ 989              		.loc 1 331 0
+ 990 0000 024B     		ldr	r3, .L88
+ 991 0002 1888     		ldrh	r0, [r3]
+ 992 0004 00F50030 		add	r0, r0, #131072
+ 332:hardware.c    **** }
+ 993              		.loc 1 332 0
+ 994 0008 8002     		lsls	r0, r0, #10
+ 995 000a 7047     		bx	lr
+ 996              	.L89:
+ 997              		.align	2
+ 998              	.L88:
+ 999 000c E0F7FF1F 		.word	536868832
+ 1000              		.cfi_endproc
+ 1001              	.LFE19:
+ 1003              		.section	.text.getFlashPageSize,"ax",%progbits
+ 1004              		.align	1
+ 1005              		.global	getFlashPageSize
+ 1006              		.thumb
+ 1007              		.thumb_func
+ 1009              	getFlashPageSize:
+ 1010              	.LFB20:
+ 333:hardware.c    **** 
+ 334:hardware.c    **** int getFlashPageSize(void)
+ 335:hardware.c    **** {
+ 1011              		.loc 1 335 0
+ 1012              		.cfi_startproc
+ 1013              		@ args = 0, pretend = 0, frame = 0
+ 1014              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1015              		@ link register save eliminated.
+ 1016              	.LVL81:
+ 336:hardware.c    **** 
+ 337:hardware.c    **** 	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register 
+ 338:hardware.c    **** 	if ((*flashSize & 0xffff) > 128)
+ 1017              		.loc 1 338 0
+ 1018 0000 044B     		ldr	r3, .L93
+ 1019 0002 1B88     		ldrh	r3, [r3]
+ 339:hardware.c    **** 	{
+ 340:hardware.c    **** 		return 0x800;
+ 1020              		.loc 1 340 0
+ 1021 0004 812B     		cmp	r3, #129
+ 341:hardware.c    **** 	}
+ 342:hardware.c    **** 	else
+ 343:hardware.c    **** 	{
+ 344:hardware.c    **** 		return 0x400;
+ 345:hardware.c    **** 	}
+ 346:hardware.c    **** }
+ 1022              		.loc 1 346 0
+ 1023 0006 34BF     		ite	cc
+ 1024 0008 4FF48060 		movcc	r0, #1024
+ 1025 000c 4FF40060 		movcs	r0, #2048
+ 1026 0010 7047     		bx	lr
+ 1027              	.L94:
+ 1028 0012 00BF     		.align	2
+ 1029              	.L93:
+ 1030 0014 E0F7FF1F 		.word	536868832
+ 1031              		.cfi_endproc
+ 1032              	.LFE20:
+ 1034              		.comm	wTransferSize,4,4
+ 1035              		.text
+ 1036              	.Letext0:
+ 1037              		.file 2 "./stm32_lib/stm32f10x_type.h"
+ 1038              		.file 3 "hardware.h"
+ 1039              		.file 4 "usb.h"
+ 1040              		.file 5 "./stm32_lib/cortexm3_macro.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 hardware.c
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:19     .text.gpio_write_bit:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:24     .text.gpio_write_bit:00000000 gpio_write_bit
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:51     .text.readPin:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:56     .text.readPin:00000000 readPin
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:80     .text.readButtonState:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:85     .text.readButtonState:00000000 readButtonState
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:104    .text.readButtonState:0000000c $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:109    .text.strobePin:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:114    .text.strobePin:00000000 strobePin
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:205    .text.systemReset:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:210    .text.systemReset:00000000 systemReset
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:251    .text.systemReset:00000038 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:259    .text.setupCLK:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:264    .text.setupCLK:00000000 setupCLK
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:322    .text.setupCLK:00000058 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:328    .text.setupLEDAndButton:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:333    .text.setupLEDAndButton:00000000 setupLEDAndButton
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:371    .text.setupLEDAndButton:00000020 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:377    .text.setupFLASH:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:382    .text.setupFLASH:00000000 setupFLASH
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:415    .text.setupFLASH:00000018 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:420    .text.checkUserCode:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:425    .text.checkUserCode:00000000 checkUserCode
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:449    .text.checkUserCode:00000010 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:454    .text.nvicInit:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:459    .text.nvicInit:00000000 nvicInit
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:550    .text.nvicInit:00000064 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:556    .text.nvicDisableInterrupts:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:561    .text.nvicDisableInterrupts:00000000 nvicDisableInterrupts
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:586    .text.nvicDisableInterrupts:00000020 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:591    .text.jumpToUser:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:596    .text.jumpToUser:00000000 jumpToUser
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:651    .text.jumpToUser:00000028 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:656    .text.systemHardReset:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:661    .text.systemHardReset:00000000 systemHardReset
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:683    .text.systemHardReset:0000000c $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:689    .text.flashErasePage:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:694    .text.flashErasePage:00000000 flashErasePage
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:741    .text.flashErasePage:0000002c $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:747    .text.flashErasePages:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:752    .text.flashErasePages:00000000 flashErasePages
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:801    .text.flashErasePages:0000002c $d
+                            *COM*:00000004 wTransferSize
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:806    .text.flashWriteWord:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:811    .text.flashWriteWord:00000000 flashWriteWord
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:883    .text.flashWriteWord:00000044 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:889    .text.flashLock:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:894    .text.flashLock:00000000 flashLock
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:909    .text.flashLock:00000008 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:914    .text.flashUnlock:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:919    .text.flashUnlock:00000000 flashUnlock
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:937    .text.flashUnlock:00000010 $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:943    .text.crMask:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:948    .text.crMask:00000000 crMask
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:976    .text.getFlashEnd:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:981    .text.getFlashEnd:00000000 getFlashEnd
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:999    .text.getFlashEnd:0000000c $d
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:1004   .text.getFlashPageSize:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:1009   .text.getFlashPageSize:00000000 getFlashPageSize
+C:\Users\rclark\AppData\Local\Temp\cchpd8kv.s:1030   .text.getFlashPageSize:00000014 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+usbDsbISR
+usbDsbBus
+__MSR_MSP

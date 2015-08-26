@@ -1,0 +1,603 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"usb_descriptor.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	usbStringDescriptor
+  19              		.global	u8_usbStringInterface
+  20              		.global	u8_usbStringAlt2
+  21              		.global	u8_usbStringAlt1
+  22              		.global	u8_usbStringAlt0
+  23              		.global	u8_usbStringSerial
+  24              		.global	u8_usbStringProduct
+  25              		.global	u8_usbStringVendor
+  26              		.global	u8_usbStringLangId
+  27              		.global	usbConfigDescriptorDFU
+  28              		.global	u8_usbConfigDescriptorDFU
+  29              		.global	usbFunctionalDescriptor
+  30              		.global	u8_usbFunctionalDescriptor
+  31              		.global	usbDeviceDescriptorDFU
+  32              		.global	u8_usbDeviceDescriptorDFU
+  33              		.comm	wTransferSize,4,4
+  34              		.section	.data.usbStringDescriptor,"aw",%progbits
+  35              		.align	2
+  38              	usbStringDescriptor:
+  39 0000 00000000 		.word	u8_usbStringLangId
+  40 0004 0400     		.short	4
+  41 0006 0000     		.space	2
+  42 0008 00000000 		.word	u8_usbStringVendor
+  43 000c 1200     		.short	18
+  44 000e 0000     		.space	2
+  45 0010 00000000 		.word	u8_usbStringProduct
+  46 0014 1400     		.short	20
+  47 0016 0000     		.space	2
+  48 0018 00000000 		.word	u8_usbStringSerial
+  49 001c 1000     		.short	16
+  50 001e 0000     		.space	2
+  51 0020 00000000 		.word	u8_usbStringAlt0
+  52 0024 8000     		.short	128
+  53 0026 0000     		.space	2
+  54 0028 00000000 		.word	u8_usbStringAlt1
+  55 002c 6C00     		.short	108
+  56 002e 0000     		.space	2
+  57 0030 00000000 		.word	u8_usbStringAlt2
+  58 0034 6C00     		.short	108
+  59 0036 0000     		.space	2
+  60              		.section	.data.u8_usbDeviceDescriptorDFU,"aw",%progbits
+  63              	u8_usbDeviceDescriptorDFU:
+  64 0000 12       		.byte	18
+  65 0001 01       		.byte	1
+  66 0002 00       		.byte	0
+  67 0003 01       		.byte	1
+  68 0004 00       		.byte	0
+  69 0005 00       		.byte	0
+  70 0006 00       		.byte	0
+  71 0007 40       		.byte	64
+  72 0008 AF       		.byte	-81
+  73 0009 1E       		.byte	30
+  74 000a 03       		.byte	3
+  75 000b 00       		.byte	0
+  76 000c 01       		.byte	1
+  77 000d 02       		.byte	2
+  78 000e 01       		.byte	1
+  79 000f 02       		.byte	2
+  80 0010 03       		.byte	3
+  81 0011 01       		.byte	1
+  82              		.section	.data.usbFunctionalDescriptor,"aw",%progbits
+  83              		.align	2
+  86              	usbFunctionalDescriptor:
+  87 0000 00000000 		.word	u8_usbFunctionalDescriptor
+  88 0004 0900     		.short	9
+  89 0006 0000     		.space	2
+  90              		.section	.data.u8_usbStringLangId,"aw",%progbits
+  93              	u8_usbStringLangId:
+  94 0000 04       		.byte	4
+  95 0001 03       		.byte	3
+  96 0002 09       		.byte	9
+  97 0003 04       		.byte	4
+  98              		.section	.data.u8_usbConfigDescriptorDFU,"aw",%progbits
+ 101              	u8_usbConfigDescriptorDFU:
+ 102 0000 09       		.byte	9
+ 103 0001 02       		.byte	2
+ 104 0002 2D       		.byte	45
+ 105 0003 00       		.byte	0
+ 106 0004 01       		.byte	1
+ 107 0005 01       		.byte	1
+ 108 0006 00       		.byte	0
+ 109 0007 80       		.byte	-128
+ 110 0008 32       		.byte	50
+ 111 0009 09       		.byte	9
+ 112 000a 04       		.byte	4
+ 113 000b 00       		.byte	0
+ 114 000c 00       		.byte	0
+ 115 000d 00       		.byte	0
+ 116 000e FE       		.byte	-2
+ 117 000f 01       		.byte	1
+ 118 0010 02       		.byte	2
+ 119 0011 04       		.byte	4
+ 120 0012 09       		.byte	9
+ 121 0013 04       		.byte	4
+ 122 0014 00       		.byte	0
+ 123 0015 01       		.byte	1
+ 124 0016 00       		.byte	0
+ 125 0017 FE       		.byte	-2
+ 126 0018 01       		.byte	1
+ 127 0019 02       		.byte	2
+ 128 001a 05       		.byte	5
+ 129 001b 09       		.byte	9
+ 130 001c 04       		.byte	4
+ 131 001d 00       		.byte	0
+ 132 001e 02       		.byte	2
+ 133 001f 00       		.byte	0
+ 134 0020 FE       		.byte	-2
+ 135 0021 01       		.byte	1
+ 136 0022 02       		.byte	2
+ 137 0023 06       		.byte	6
+ 138 0024 09       		.byte	9
+ 139 0025 21       		.byte	33
+ 140 0026 03       		.byte	3
+ 141 0027 FF       		.byte	-1
+ 142 0028 00       		.byte	0
+ 143 0029 00       		.byte	0
+ 144 002a 08       		.byte	8
+ 145 002b 10       		.byte	16
+ 146 002c 01       		.byte	1
+ 147              		.section	.data.u8_usbStringSerial,"aw",%progbits
+ 150              	u8_usbStringSerial:
+ 151 0000 10       		.byte	16
+ 152 0001 03       		.byte	3
+ 153 0002 4C       		.byte	76
+ 154 0003 00       		.byte	0
+ 155 0004 4C       		.byte	76
+ 156 0005 00       		.byte	0
+ 157 0006 4D       		.byte	77
+ 158 0007 00       		.byte	0
+ 159 0008 20       		.byte	32
+ 160 0009 00       		.byte	0
+ 161 000a 30       		.byte	48
+ 162 000b 00       		.byte	0
+ 163 000c 30       		.byte	48
+ 164 000d 00       		.byte	0
+ 165 000e 33       		.byte	51
+ 166 000f 00       		.byte	0
+ 167              		.section	.bss.u8_usbStringInterface,"aw",%nobits
+ 170              	u8_usbStringInterface:
+ 171 0000 00       		.space	1
+ 172              		.section	.data.u8_usbFunctionalDescriptor,"aw",%progbits
+ 175              	u8_usbFunctionalDescriptor:
+ 176 0000 09       		.byte	9
+ 177 0001 21       		.byte	33
+ 178 0002 03       		.byte	3
+ 179 0003 FF       		.byte	-1
+ 180 0004 00       		.byte	0
+ 181 0005 00       		.byte	0
+ 182 0006 08       		.byte	8
+ 183 0007 10       		.byte	16
+ 184 0008 01       		.byte	1
+ 185              		.section	.data.u8_usbStringVendor,"aw",%progbits
+ 188              	u8_usbStringVendor:
+ 189 0000 12       		.byte	18
+ 190 0001 03       		.byte	3
+ 191 0002 4C       		.byte	76
+ 192 0003 00       		.byte	0
+ 193 0004 65       		.byte	101
+ 194 0005 00       		.byte	0
+ 195 0006 61       		.byte	97
+ 196 0007 00       		.byte	0
+ 197 0008 66       		.byte	102
+ 198 0009 00       		.byte	0
+ 199 000a 4C       		.byte	76
+ 200 000b 00       		.byte	0
+ 201 000c 61       		.byte	97
+ 202 000d 00       		.byte	0
+ 203 000e 62       		.byte	98
+ 204 000f 00       		.byte	0
+ 205 0010 73       		.byte	115
+ 206 0011 00       		.byte	0
+ 207              		.section	.data.usbDeviceDescriptorDFU,"aw",%progbits
+ 208              		.align	2
+ 211              	usbDeviceDescriptorDFU:
+ 212 0000 00000000 		.word	u8_usbDeviceDescriptorDFU
+ 213 0004 1200     		.short	18
+ 214 0006 0000     		.space	2
+ 215              		.section	.data.u8_usbStringProduct,"aw",%progbits
+ 218              	u8_usbStringProduct:
+ 219 0000 14       		.byte	20
+ 220 0001 03       		.byte	3
+ 221 0002 4D       		.byte	77
+ 222 0003 00       		.byte	0
+ 223 0004 61       		.byte	97
+ 224 0005 00       		.byte	0
+ 225 0006 70       		.byte	112
+ 226 0007 00       		.byte	0
+ 227 0008 6C       		.byte	108
+ 228 0009 00       		.byte	0
+ 229 000a 65       		.byte	101
+ 230 000b 00       		.byte	0
+ 231 000c 20       		.byte	32
+ 232 000d 00       		.byte	0
+ 233 000e 30       		.byte	48
+ 234 000f 00       		.byte	0
+ 235 0010 30       		.byte	48
+ 236 0011 00       		.byte	0
+ 237 0012 33       		.byte	51
+ 238 0013 00       		.byte	0
+ 239              		.section	.data.u8_usbStringAlt0,"aw",%progbits
+ 242              	u8_usbStringAlt0:
+ 243 0000 80       		.byte	-128
+ 244 0001 03       		.byte	3
+ 245 0002 53       		.byte	83
+ 246 0003 00       		.byte	0
+ 247 0004 54       		.byte	84
+ 248 0005 00       		.byte	0
+ 249 0006 4D       		.byte	77
+ 250 0007 00       		.byte	0
+ 251 0008 33       		.byte	51
+ 252 0009 00       		.byte	0
+ 253 000a 32       		.byte	50
+ 254 000b 00       		.byte	0
+ 255 000c 64       		.byte	100
+ 256 000d 00       		.byte	0
+ 257 000e 75       		.byte	117
+ 258 000f 00       		.byte	0
+ 259 0010 69       		.byte	105
+ 260 0011 00       		.byte	0
+ 261 0012 6E       		.byte	110
+ 262 0013 00       		.byte	0
+ 263 0014 6F       		.byte	111
+ 264 0015 00       		.byte	0
+ 265 0016 20       		.byte	32
+ 266 0017 00       		.byte	0
+ 267 0018 62       		.byte	98
+ 268 0019 00       		.byte	0
+ 269 001a 6F       		.byte	111
+ 270 001b 00       		.byte	0
+ 271 001c 6F       		.byte	111
+ 272 001d 00       		.byte	0
+ 273 001e 74       		.byte	116
+ 274 001f 00       		.byte	0
+ 275 0020 6C       		.byte	108
+ 276 0021 00       		.byte	0
+ 277 0022 6F       		.byte	111
+ 278 0023 00       		.byte	0
+ 279 0024 61       		.byte	97
+ 280 0025 00       		.byte	0
+ 281 0026 64       		.byte	100
+ 282 0027 00       		.byte	0
+ 283 0028 65       		.byte	101
+ 284 0029 00       		.byte	0
+ 285 002a 72       		.byte	114
+ 286 002b 00       		.byte	0
+ 287 002c 20       		.byte	32
+ 288 002d 00       		.byte	0
+ 289 002e 76       		.byte	118
+ 290 002f 00       		.byte	0
+ 291 0030 31       		.byte	49
+ 292 0031 00       		.byte	0
+ 293 0032 2E       		.byte	46
+ 294 0033 00       		.byte	0
+ 295 0034 30       		.byte	48
+ 296 0035 00       		.byte	0
+ 297 0036 20       		.byte	32
+ 298 0037 00       		.byte	0
+ 299 0038 20       		.byte	32
+ 300 0039 00       		.byte	0
+ 301 003a 45       		.byte	69
+ 302 003b 00       		.byte	0
+ 303 003c 52       		.byte	82
+ 304 003d 00       		.byte	0
+ 305 003e 52       		.byte	82
+ 306 003f 00       		.byte	0
+ 307 0040 4F       		.byte	79
+ 308 0041 00       		.byte	0
+ 309 0042 52       		.byte	82
+ 310 0043 00       		.byte	0
+ 311 0044 2E       		.byte	46
+ 312 0045 00       		.byte	0
+ 313 0046 20       		.byte	32
+ 314 0047 00       		.byte	0
+ 315 0048 55       		.byte	85
+ 316 0049 00       		.byte	0
+ 317 004a 70       		.byte	112
+ 318 004b 00       		.byte	0
+ 319 004c 6C       		.byte	108
+ 320 004d 00       		.byte	0
+ 321 004e 6F       		.byte	111
+ 322 004f 00       		.byte	0
+ 323 0050 61       		.byte	97
+ 324 0051 00       		.byte	0
+ 325 0052 64       		.byte	100
+ 326 0053 00       		.byte	0
+ 327 0054 20       		.byte	32
+ 328 0055 00       		.byte	0
+ 329 0056 74       		.byte	116
+ 330 0057 00       		.byte	0
+ 331 0058 6F       		.byte	111
+ 332 0059 00       		.byte	0
+ 333 005a 20       		.byte	32
+ 334 005b 00       		.byte	0
+ 335 005c 52       		.byte	82
+ 336 005d 00       		.byte	0
+ 337 005e 41       		.byte	65
+ 338 005f 00       		.byte	0
+ 339 0060 4D       		.byte	77
+ 340 0061 00       		.byte	0
+ 341 0062 20       		.byte	32
+ 342 0063 00       		.byte	0
+ 343 0064 6E       		.byte	110
+ 344 0065 00       		.byte	0
+ 345 0066 6F       		.byte	111
+ 346 0067 00       		.byte	0
+ 347 0068 74       		.byte	116
+ 348 0069 00       		.byte	0
+ 349 006a 20       		.byte	32
+ 350 006b 00       		.byte	0
+ 351 006c 73       		.byte	115
+ 352 006d 00       		.byte	0
+ 353 006e 75       		.byte	117
+ 354 006f 00       		.byte	0
+ 355 0070 70       		.byte	112
+ 356 0071 00       		.byte	0
+ 357 0072 70       		.byte	112
+ 358 0073 00       		.byte	0
+ 359 0074 6F       		.byte	111
+ 360 0075 00       		.byte	0
+ 361 0076 72       		.byte	114
+ 362 0077 00       		.byte	0
+ 363 0078 74       		.byte	116
+ 364 0079 00       		.byte	0
+ 365 007a 65       		.byte	101
+ 366 007b 00       		.byte	0
+ 367 007c 64       		.byte	100
+ 368 007d 00       		.byte	0
+ 369 007e 2E       		.byte	46
+ 370 007f 00       		.byte	0
+ 371              		.section	.data.u8_usbStringAlt1,"aw",%progbits
+ 374              	u8_usbStringAlt1:
+ 375 0000 6C       		.byte	108
+ 376 0001 03       		.byte	3
+ 377 0002 53       		.byte	83
+ 378 0003 00       		.byte	0
+ 379 0004 54       		.byte	84
+ 380 0005 00       		.byte	0
+ 381 0006 4D       		.byte	77
+ 382 0007 00       		.byte	0
+ 383 0008 33       		.byte	51
+ 384 0009 00       		.byte	0
+ 385 000a 32       		.byte	50
+ 386 000b 00       		.byte	0
+ 387 000c 64       		.byte	100
+ 388 000d 00       		.byte	0
+ 389 000e 75       		.byte	117
+ 390 000f 00       		.byte	0
+ 391 0010 69       		.byte	105
+ 392 0011 00       		.byte	0
+ 393 0012 6E       		.byte	110
+ 394 0013 00       		.byte	0
+ 395 0014 6F       		.byte	111
+ 396 0015 00       		.byte	0
+ 397 0016 20       		.byte	32
+ 398 0017 00       		.byte	0
+ 399 0018 62       		.byte	98
+ 400 0019 00       		.byte	0
+ 401 001a 6F       		.byte	111
+ 402 001b 00       		.byte	0
+ 403 001c 6F       		.byte	111
+ 404 001d 00       		.byte	0
+ 405 001e 74       		.byte	116
+ 406 001f 00       		.byte	0
+ 407 0020 6C       		.byte	108
+ 408 0021 00       		.byte	0
+ 409 0022 6F       		.byte	111
+ 410 0023 00       		.byte	0
+ 411 0024 61       		.byte	97
+ 412 0025 00       		.byte	0
+ 413 0026 64       		.byte	100
+ 414 0027 00       		.byte	0
+ 415 0028 65       		.byte	101
+ 416 0029 00       		.byte	0
+ 417 002a 72       		.byte	114
+ 418 002b 00       		.byte	0
+ 419 002c 20       		.byte	32
+ 420 002d 00       		.byte	0
+ 421 002e 76       		.byte	118
+ 422 002f 00       		.byte	0
+ 423 0030 31       		.byte	49
+ 424 0031 00       		.byte	0
+ 425 0032 2E       		.byte	46
+ 426 0033 00       		.byte	0
+ 427 0034 30       		.byte	48
+ 428 0035 00       		.byte	0
+ 429 0036 20       		.byte	32
+ 430 0037 00       		.byte	0
+ 431 0038 20       		.byte	32
+ 432 0039 00       		.byte	0
+ 433 003a 55       		.byte	85
+ 434 003b 00       		.byte	0
+ 435 003c 70       		.byte	112
+ 436 003d 00       		.byte	0
+ 437 003e 6C       		.byte	108
+ 438 003f 00       		.byte	0
+ 439 0040 6F       		.byte	111
+ 440 0041 00       		.byte	0
+ 441 0042 61       		.byte	97
+ 442 0043 00       		.byte	0
+ 443 0044 64       		.byte	100
+ 444 0045 00       		.byte	0
+ 445 0046 20       		.byte	32
+ 446 0047 00       		.byte	0
+ 447 0048 74       		.byte	116
+ 448 0049 00       		.byte	0
+ 449 004a 6F       		.byte	111
+ 450 004b 00       		.byte	0
+ 451 004c 20       		.byte	32
+ 452 004d 00       		.byte	0
+ 453 004e 46       		.byte	70
+ 454 004f 00       		.byte	0
+ 455 0050 6C       		.byte	108
+ 456 0051 00       		.byte	0
+ 457 0052 61       		.byte	97
+ 458 0053 00       		.byte	0
+ 459 0054 73       		.byte	115
+ 460 0055 00       		.byte	0
+ 461 0056 68       		.byte	104
+ 462 0057 00       		.byte	0
+ 463 0058 20       		.byte	32
+ 464 0059 00       		.byte	0
+ 465 005a 30       		.byte	48
+ 466 005b 00       		.byte	0
+ 467 005c 78       		.byte	120
+ 468 005d 00       		.byte	0
+ 469 005e 38       		.byte	56
+ 470 005f 00       		.byte	0
+ 471 0060 30       		.byte	48
+ 472 0061 00       		.byte	0
+ 473 0062 30       		.byte	48
+ 474 0063 00       		.byte	0
+ 475 0064 35       		.byte	53
+ 476 0065 00       		.byte	0
+ 477 0066 30       		.byte	48
+ 478 0067 00       		.byte	0
+ 479 0068 30       		.byte	48
+ 480 0069 00       		.byte	0
+ 481 006a 30       		.byte	48
+ 482 006b 00       		.byte	0
+ 483              		.section	.data.u8_usbStringAlt2,"aw",%progbits
+ 486              	u8_usbStringAlt2:
+ 487 0000 6C       		.byte	108
+ 488 0001 03       		.byte	3
+ 489 0002 53       		.byte	83
+ 490 0003 00       		.byte	0
+ 491 0004 54       		.byte	84
+ 492 0005 00       		.byte	0
+ 493 0006 4D       		.byte	77
+ 494 0007 00       		.byte	0
+ 495 0008 33       		.byte	51
+ 496 0009 00       		.byte	0
+ 497 000a 32       		.byte	50
+ 498 000b 00       		.byte	0
+ 499 000c 64       		.byte	100
+ 500 000d 00       		.byte	0
+ 501 000e 75       		.byte	117
+ 502 000f 00       		.byte	0
+ 503 0010 69       		.byte	105
+ 504 0011 00       		.byte	0
+ 505 0012 6E       		.byte	110
+ 506 0013 00       		.byte	0
+ 507 0014 6F       		.byte	111
+ 508 0015 00       		.byte	0
+ 509 0016 20       		.byte	32
+ 510 0017 00       		.byte	0
+ 511 0018 62       		.byte	98
+ 512 0019 00       		.byte	0
+ 513 001a 6F       		.byte	111
+ 514 001b 00       		.byte	0
+ 515 001c 6F       		.byte	111
+ 516 001d 00       		.byte	0
+ 517 001e 74       		.byte	116
+ 518 001f 00       		.byte	0
+ 519 0020 6C       		.byte	108
+ 520 0021 00       		.byte	0
+ 521 0022 6F       		.byte	111
+ 522 0023 00       		.byte	0
+ 523 0024 61       		.byte	97
+ 524 0025 00       		.byte	0
+ 525 0026 64       		.byte	100
+ 526 0027 00       		.byte	0
+ 527 0028 65       		.byte	101
+ 528 0029 00       		.byte	0
+ 529 002a 72       		.byte	114
+ 530 002b 00       		.byte	0
+ 531 002c 20       		.byte	32
+ 532 002d 00       		.byte	0
+ 533 002e 76       		.byte	118
+ 534 002f 00       		.byte	0
+ 535 0030 31       		.byte	49
+ 536 0031 00       		.byte	0
+ 537 0032 2E       		.byte	46
+ 538 0033 00       		.byte	0
+ 539 0034 30       		.byte	48
+ 540 0035 00       		.byte	0
+ 541 0036 20       		.byte	32
+ 542 0037 00       		.byte	0
+ 543 0038 20       		.byte	32
+ 544 0039 00       		.byte	0
+ 545 003a 55       		.byte	85
+ 546 003b 00       		.byte	0
+ 547 003c 70       		.byte	112
+ 548 003d 00       		.byte	0
+ 549 003e 6C       		.byte	108
+ 550 003f 00       		.byte	0
+ 551 0040 6F       		.byte	111
+ 552 0041 00       		.byte	0
+ 553 0042 61       		.byte	97
+ 554 0043 00       		.byte	0
+ 555 0044 64       		.byte	100
+ 556 0045 00       		.byte	0
+ 557 0046 20       		.byte	32
+ 558 0047 00       		.byte	0
+ 559 0048 74       		.byte	116
+ 560 0049 00       		.byte	0
+ 561 004a 6F       		.byte	111
+ 562 004b 00       		.byte	0
+ 563 004c 20       		.byte	32
+ 564 004d 00       		.byte	0
+ 565 004e 46       		.byte	70
+ 566 004f 00       		.byte	0
+ 567 0050 6C       		.byte	108
+ 568 0051 00       		.byte	0
+ 569 0052 61       		.byte	97
+ 570 0053 00       		.byte	0
+ 571 0054 73       		.byte	115
+ 572 0055 00       		.byte	0
+ 573 0056 68       		.byte	104
+ 574 0057 00       		.byte	0
+ 575 0058 20       		.byte	32
+ 576 0059 00       		.byte	0
+ 577 005a 30       		.byte	48
+ 578 005b 00       		.byte	0
+ 579 005c 78       		.byte	120
+ 580 005d 00       		.byte	0
+ 581 005e 38       		.byte	56
+ 582 005f 00       		.byte	0
+ 583 0060 30       		.byte	48
+ 584 0061 00       		.byte	0
+ 585 0062 30       		.byte	48
+ 586 0063 00       		.byte	0
+ 587 0064 32       		.byte	50
+ 588 0065 00       		.byte	0
+ 589 0066 30       		.byte	48
+ 590 0067 00       		.byte	0
+ 591 0068 30       		.byte	48
+ 592 0069 00       		.byte	0
+ 593 006a 30       		.byte	48
+ 594 006b 00       		.byte	0
+ 595              		.section	.data.usbConfigDescriptorDFU,"aw",%progbits
+ 596              		.align	2
+ 599              	usbConfigDescriptorDFU:
+ 600 0000 00000000 		.word	u8_usbConfigDescriptorDFU
+ 601 0004 2D00     		.short	45
+ 602 0006 0000     		.space	2
+ 603              		.text
+ 604              	.Letext0:
+ 605              		.file 1 "./stm32_lib/stm32f10x_type.h"
+ 606              		.file 2 "./usb_lib/usb_core.h"
+ 607              		.file 3 "usb.h"
+ 608              		.file 4 "usb_descriptor.c"
+DEFINED SYMBOLS
+                            *ABS*:00000000 usb_descriptor.c
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:38     .data.usbStringDescriptor:00000000 usbStringDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:170    .bss.u8_usbStringInterface:00000000 u8_usbStringInterface
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:486    .data.u8_usbStringAlt2:00000000 u8_usbStringAlt2
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:374    .data.u8_usbStringAlt1:00000000 u8_usbStringAlt1
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:242    .data.u8_usbStringAlt0:00000000 u8_usbStringAlt0
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:150    .data.u8_usbStringSerial:00000000 u8_usbStringSerial
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:218    .data.u8_usbStringProduct:00000000 u8_usbStringProduct
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:188    .data.u8_usbStringVendor:00000000 u8_usbStringVendor
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:93     .data.u8_usbStringLangId:00000000 u8_usbStringLangId
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:599    .data.usbConfigDescriptorDFU:00000000 usbConfigDescriptorDFU
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:101    .data.u8_usbConfigDescriptorDFU:00000000 u8_usbConfigDescriptorDFU
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:86     .data.usbFunctionalDescriptor:00000000 usbFunctionalDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:175    .data.u8_usbFunctionalDescriptor:00000000 u8_usbFunctionalDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:211    .data.usbDeviceDescriptorDFU:00000000 usbDeviceDescriptorDFU
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:63     .data.u8_usbDeviceDescriptorDFU:00000000 u8_usbDeviceDescriptorDFU
+                            *COM*:00000004 wTransferSize
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:35     .data.usbStringDescriptor:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:83     .data.usbFunctionalDescriptor:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:171    .bss.u8_usbStringInterface:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:208    .data.usbDeviceDescriptorDFU:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:596    .data.usbConfigDescriptorDFU:00000000 $d
+
+NO UNDEFINED SYMBOLS

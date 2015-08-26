@@ -1,0 +1,218 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"usb_mem.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.UserToPMABufferCopy,"ax",%progbits
+  19              		.align	1
+  20              		.global	UserToPMABufferCopy
+  21              		.thumb
+  22              		.thumb_func
+  24              	UserToPMABufferCopy:
+  25              	.LFB0:
+  26              		.file 1 "usb_lib/usb_mem.c"
+   1:usb_lib/usb_mem.c **** /******************** (C) COPYRIGHT 2008 STMicroelectronics ********************
+   2:usb_lib/usb_mem.c **** * File Name          : usb_mem.c
+   3:usb_lib/usb_mem.c **** * Author             : MCD Application Team
+   4:usb_lib/usb_mem.c **** * Version            : V2.2.1
+   5:usb_lib/usb_mem.c **** * Date               : 09/22/2008
+   6:usb_lib/usb_mem.c **** * Description        : Utility functions for memory transfers to/from PMA
+   7:usb_lib/usb_mem.c **** ********************************************************************************
+   8:usb_lib/usb_mem.c **** * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+   9:usb_lib/usb_mem.c **** * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE TIME.
+  10:usb_lib/usb_mem.c **** * AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY DIRECT,
+  11:usb_lib/usb_mem.c **** * INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING FROM THE
+  12:usb_lib/usb_mem.c **** * CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE CODING
+  13:usb_lib/usb_mem.c **** * INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  14:usb_lib/usb_mem.c **** *******************************************************************************/
+  15:usb_lib/usb_mem.c **** 
+  16:usb_lib/usb_mem.c **** /* Includes ------------------------------------------------------------------*/
+  17:usb_lib/usb_mem.c **** #include "usb_lib.h"
+  18:usb_lib/usb_mem.c **** 
+  19:usb_lib/usb_mem.c **** /* Private typedef -----------------------------------------------------------*/
+  20:usb_lib/usb_mem.c **** /* Private define ------------------------------------------------------------*/
+  21:usb_lib/usb_mem.c **** /* Private macro -------------------------------------------------------------*/
+  22:usb_lib/usb_mem.c **** /* Private variables ---------------------------------------------------------*/
+  23:usb_lib/usb_mem.c **** /* Extern variables ----------------------------------------------------------*/
+  24:usb_lib/usb_mem.c **** /* Private function prototypes -----------------------------------------------*/
+  25:usb_lib/usb_mem.c **** /* Private functions ---------------------------------------------------------*/
+  26:usb_lib/usb_mem.c **** /*******************************************************************************
+  27:usb_lib/usb_mem.c **** * Function Name  : UserToPMABufferCopy
+  28:usb_lib/usb_mem.c **** * Description    : Copy a buffer from user memory area to packet memory area (PMA)
+  29:usb_lib/usb_mem.c **** * Input          : - pbUsrBuf: pointer to user memory area.
+  30:usb_lib/usb_mem.c **** *                  - wPMABufAddr: address into PMA.
+  31:usb_lib/usb_mem.c **** *                  - wNBytes: no. of bytes to be copied.
+  32:usb_lib/usb_mem.c **** * Output         : None.
+  33:usb_lib/usb_mem.c **** * Return         : None	.
+  34:usb_lib/usb_mem.c **** *******************************************************************************/
+  35:usb_lib/usb_mem.c **** void UserToPMABufferCopy(u8 *pbUsrBuf, u16 wPMABufAddr, u16 wNBytes)
+  36:usb_lib/usb_mem.c **** {
+  27              		.loc 1 36 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LVL0:
+  32 0000 30B5     		push	{r4, r5, lr}
+  33              		.cfi_def_cfa_offset 12
+  34              		.cfi_offset 4, -12
+  35              		.cfi_offset 5, -8
+  36              		.cfi_offset 14, -4
+  37:usb_lib/usb_mem.c ****   u32 n = (wNBytes + 1) >> 1;   /* n = (wNBytes + 1) / 2 */
+  38:usb_lib/usb_mem.c ****   u32 i, temp1, temp2;
+  39:usb_lib/usb_mem.c ****   u16 *pdwVal;
+  40:usb_lib/usb_mem.c ****   pdwVal = (u16 *)(wPMABufAddr * 2 + PMAAddr);
+  37              		.loc 1 40 0
+  38 0002 01F10051 		add	r1, r1, #536870912
+  39              	.LVL1:
+  37:usb_lib/usb_mem.c ****   u32 n = (wNBytes + 1) >> 1;   /* n = (wNBytes + 1) / 2 */
+  40              		.loc 1 37 0
+  41 0006 0132     		adds	r2, r2, #1
+  42              	.LVL2:
+  43              		.loc 1 40 0
+  44 0008 01F54051 		add	r1, r1, #12288
+  37:usb_lib/usb_mem.c ****   u32 n = (wNBytes + 1) >> 1;   /* n = (wNBytes + 1) / 2 */
+  45              		.loc 1 37 0
+  46 000c 5210     		asrs	r2, r2, #1
+  47              	.LVL3:
+  48              		.loc 1 40 0
+  49 000e 4900     		lsls	r1, r1, #1
+  50              	.LVL4:
+  41:usb_lib/usb_mem.c ****   for (i = n; i != 0; i--)
+  51              		.loc 1 41 0
+  52 0010 0023     		movs	r3, #0
+  53              	.LVL5:
+  54              	.L2:
+  55              		.loc 1 41 0 is_stmt 0 discriminator 1
+  56 0012 9342     		cmp	r3, r2
+  57 0014 00F10200 		add	r0, r0, #2
+  58              	.LVL6:
+  59 0018 09D0     		beq	.L5
+  60              	.LVL7:
+  42:usb_lib/usb_mem.c ****   {
+  43:usb_lib/usb_mem.c ****     temp1 = (u16) * pbUsrBuf;
+  44:usb_lib/usb_mem.c ****     pbUsrBuf++;
+  45:usb_lib/usb_mem.c ****     temp2 = temp1 | (u16) * pbUsrBuf << 8;
+  61              		.loc 1 45 0 is_stmt 1 discriminator 2
+  62 001a 10F8015C 		ldrb	r5, [r0, #-1]	@ zero_extendqisi2
+  43:usb_lib/usb_mem.c ****     temp1 = (u16) * pbUsrBuf;
+  63              		.loc 1 43 0 discriminator 2
+  64 001e 10F8024C 		ldrb	r4, [r0, #-2]	@ zero_extendqisi2
+  65              	.LVL8:
+  66              		.loc 1 45 0 discriminator 2
+  67 0022 44EA0524 		orr	r4, r4, r5, lsl #8
+  68              	.LVL9:
+  46:usb_lib/usb_mem.c ****     *pdwVal++ = temp2;
+  69              		.loc 1 46 0 discriminator 2
+  70 0026 21F82340 		strh	r4, [r1, r3, lsl #2]	@ movhi
+  71              	.LVL10:
+  72 002a 0133     		adds	r3, r3, #1
+  73              	.LVL11:
+  74 002c F1E7     		b	.L2
+  75              	.LVL12:
+  76              	.L5:
+  47:usb_lib/usb_mem.c ****     pdwVal++;
+  48:usb_lib/usb_mem.c ****     pbUsrBuf++;
+  49:usb_lib/usb_mem.c ****   }
+  50:usb_lib/usb_mem.c **** }
+  77              		.loc 1 50 0
+  78 002e 30BD     		pop	{r4, r5, pc}
+  79              		.cfi_endproc
+  80              	.LFE0:
+  82              		.section	.text.PMAToUserBufferCopy,"ax",%progbits
+  83              		.align	1
+  84              		.global	PMAToUserBufferCopy
+  85              		.thumb
+  86              		.thumb_func
+  88              	PMAToUserBufferCopy:
+  89              	.LFB1:
+  51:usb_lib/usb_mem.c **** /*******************************************************************************
+  52:usb_lib/usb_mem.c **** * Function Name  : PMAToUserBufferCopy
+  53:usb_lib/usb_mem.c **** * Description    : Copy a buffer from user memory area to packet memory area (PMA)
+  54:usb_lib/usb_mem.c **** * Input          : - pbUsrBuf    = pointer to user memory area.
+  55:usb_lib/usb_mem.c **** *                  - wPMABufAddr = address into PMA.
+  56:usb_lib/usb_mem.c **** *                  - wNBytes     = no. of bytes to be copied.
+  57:usb_lib/usb_mem.c **** * Output         : None.
+  58:usb_lib/usb_mem.c **** * Return         : None.
+  59:usb_lib/usb_mem.c **** *******************************************************************************/
+  60:usb_lib/usb_mem.c **** void PMAToUserBufferCopy(u8 *pbUsrBuf, u16 wPMABufAddr, u16 wNBytes)
+  61:usb_lib/usb_mem.c **** {
+  90              		.loc 1 61 0
+  91              		.cfi_startproc
+  92              		@ args = 0, pretend = 0, frame = 0
+  93              		@ frame_needed = 0, uses_anonymous_args = 0
+  94              	.LVL13:
+  95 0000 10B5     		push	{r4, lr}
+  96              		.cfi_def_cfa_offset 8
+  97              		.cfi_offset 4, -8
+  98              		.cfi_offset 14, -4
+  62:usb_lib/usb_mem.c ****   u32 n = (wNBytes + 1) >> 1;/* /2*/
+  63:usb_lib/usb_mem.c ****   u32 i;
+  64:usb_lib/usb_mem.c ****   u32 *pdwVal;
+  65:usb_lib/usb_mem.c ****   pdwVal = (u32 *)(wPMABufAddr * 2 + PMAAddr);
+  99              		.loc 1 65 0
+ 100 0002 01F10051 		add	r1, r1, #536870912
+ 101              	.LVL14:
+  62:usb_lib/usb_mem.c ****   u32 n = (wNBytes + 1) >> 1;/* /2*/
+ 102              		.loc 1 62 0
+ 103 0006 0132     		adds	r2, r2, #1
+ 104              	.LVL15:
+ 105              		.loc 1 65 0
+ 106 0008 01F54051 		add	r1, r1, #12288
+  62:usb_lib/usb_mem.c ****   u32 n = (wNBytes + 1) >> 1;/* /2*/
+ 107              		.loc 1 62 0
+ 108 000c 5210     		asrs	r2, r2, #1
+ 109              	.LVL16:
+ 110              		.loc 1 65 0
+ 111 000e 4900     		lsls	r1, r1, #1
+ 112              	.LVL17:
+  66:usb_lib/usb_mem.c ****   for (i = n; i != 0; i--)
+ 113              		.loc 1 66 0
+ 114 0010 0023     		movs	r3, #0
+ 115              	.LVL18:
+ 116              	.L7:
+ 117              		.loc 1 66 0 is_stmt 0 discriminator 1
+ 118 0012 9342     		cmp	r3, r2
+ 119 0014 05D0     		beq	.L9
+ 120              	.LVL19:
+  67:usb_lib/usb_mem.c ****   {
+  68:usb_lib/usb_mem.c ****     *(u16*)pbUsrBuf++ = *pdwVal++;
+ 121              		.loc 1 68 0 is_stmt 1 discriminator 2
+ 122 0016 51F82340 		ldr	r4, [r1, r3, lsl #2]
+ 123 001a 20F81340 		strh	r4, [r0, r3, lsl #1]	@ movhi
+ 124              	.LVL20:
+ 125 001e 0133     		adds	r3, r3, #1
+ 126              	.LVL21:
+ 127 0020 F7E7     		b	.L7
+ 128              	.LVL22:
+ 129              	.L9:
+  69:usb_lib/usb_mem.c ****     pbUsrBuf++;
+  70:usb_lib/usb_mem.c ****   }
+  71:usb_lib/usb_mem.c **** }
+ 130              		.loc 1 71 0
+ 131 0022 10BD     		pop	{r4, pc}
+ 132              		.cfi_endproc
+ 133              	.LFE1:
+ 135              		.text
+ 136              	.Letext0:
+ 137              		.file 2 "usb_lib/usb_type.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 usb_mem.c
+C:\Users\rclark\AppData\Local\Temp\ccRQMwc6.s:19     .text.UserToPMABufferCopy:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccRQMwc6.s:24     .text.UserToPMABufferCopy:00000000 UserToPMABufferCopy
+C:\Users\rclark\AppData\Local\Temp\ccRQMwc6.s:83     .text.PMAToUserBufferCopy:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccRQMwc6.s:88     .text.PMAToUserBufferCopy:00000000 PMAToUserBufferCopy
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS
