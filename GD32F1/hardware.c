@@ -114,9 +114,22 @@ void setupCLK(void) {
     SET_REG(FLASH_ACR, 0x00000012);
 
     /* Configure PLL */
+//                                        0B100111010000010000000000 
+//                                        0B101000010000010000000000
+#define APB1PS 0B100
+#define APB1PS_SHIFT 8
+#define PLLSEL 0B1
+#define PLLSEL_SHIFT 16
 
-    SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0B100111010000010000000000);// 0x001D0400); /* pll=108Mhz,APB1=36Mhz,AHB=72Mhz */
-    SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x01000000); /* enable the pll */
+#define PLLMF 10 
+#define PLLMF_SHIFT 18
+#define USBPS 0B10
+#define USBPS_SHIFT 22
+
+    SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | (USBPS<< USBPS_SHIFT) | (PLLMF-2)<<PLLMF_SHIFT |  (PLLSEL<<PLLSEL_SHIFT) |  (APB1PS<<APB1PS_SHIFT) );// 0x001D0400); /* pll=108Mhz,APB1=36Mhz,AHB=72Mhz */
+ //   SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0B100111010000010000000000);
+//									    987654321098765432109876543210							
+   SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x01000000); /* enable the pll */
     while ((GET_REG(RCC_CR) & 0x03000000) == 0);         /* wait for it to come on */
 
     /* Set SYSCLK as PLL */

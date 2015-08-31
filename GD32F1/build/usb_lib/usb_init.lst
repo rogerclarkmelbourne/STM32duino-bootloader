@@ -144,9 +144,9 @@
   81              		.file 3 "usb_lib/usb_core.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 usb_init.c
-C:\Users\rclark\AppData\Local\Temp\ccW7eVx9.s:19     .text.USB_Init:00000000 $t
-C:\Users\rclark\AppData\Local\Temp\ccW7eVx9.s:24     .text.USB_Init:00000000 USB_Init
-C:\Users\rclark\AppData\Local\Temp\ccW7eVx9.s:62     .text.USB_Init:00000020 $d
+C:\Users\rclark\AppData\Local\Temp\ccV7xqxe.s:19     .text.USB_Init:00000000 $t
+C:\Users\rclark\AppData\Local\Temp\ccV7xqxe.s:24     .text.USB_Init:00000000 USB_Init
+C:\Users\rclark\AppData\Local\Temp\ccV7xqxe.s:62     .text.USB_Init:00000020 $d
                             *COM*:00000004 pInformation
                             *COM*:0000001c Device_Info
                             *COM*:00000004 pProperty

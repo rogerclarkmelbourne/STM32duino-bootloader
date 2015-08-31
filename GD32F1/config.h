@@ -150,9 +150,9 @@
 
 	// Button (if you have one)
 	
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
+//	#define BUTTON_BANK GPIOC
+//	#define BUTTON_PIN 14
+//	#define BUTTON_PRESSED_STATE 1
 	
 	
 #elif defined TARGET_GENERIC_F103_PG15

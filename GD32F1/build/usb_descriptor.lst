@@ -578,26 +578,26 @@
  608              		.file 4 "usb_descriptor.c"
 DEFINED SYMBOLS
                             *ABS*:00000000 usb_descriptor.c
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:38     .data.usbStringDescriptor:00000000 usbStringDescriptor
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:170    .bss.u8_usbStringInterface:00000000 u8_usbStringInterface
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:486    .data.u8_usbStringAlt2:00000000 u8_usbStringAlt2
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:374    .data.u8_usbStringAlt1:00000000 u8_usbStringAlt1
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:242    .data.u8_usbStringAlt0:00000000 u8_usbStringAlt0
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:150    .data.u8_usbStringSerial:00000000 u8_usbStringSerial
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:218    .data.u8_usbStringProduct:00000000 u8_usbStringProduct
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:188    .data.u8_usbStringVendor:00000000 u8_usbStringVendor
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:93     .data.u8_usbStringLangId:00000000 u8_usbStringLangId
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:599    .data.usbConfigDescriptorDFU:00000000 usbConfigDescriptorDFU
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:101    .data.u8_usbConfigDescriptorDFU:00000000 u8_usbConfigDescriptorDFU
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:86     .data.usbFunctionalDescriptor:00000000 usbFunctionalDescriptor
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:175    .data.u8_usbFunctionalDescriptor:00000000 u8_usbFunctionalDescriptor
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:211    .data.usbDeviceDescriptorDFU:00000000 usbDeviceDescriptorDFU
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:63     .data.u8_usbDeviceDescriptorDFU:00000000 u8_usbDeviceDescriptorDFU
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:38     .data.usbStringDescriptor:00000000 usbStringDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:170    .bss.u8_usbStringInterface:00000000 u8_usbStringInterface
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:486    .data.u8_usbStringAlt2:00000000 u8_usbStringAlt2
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:374    .data.u8_usbStringAlt1:00000000 u8_usbStringAlt1
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:242    .data.u8_usbStringAlt0:00000000 u8_usbStringAlt0
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:150    .data.u8_usbStringSerial:00000000 u8_usbStringSerial
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:218    .data.u8_usbStringProduct:00000000 u8_usbStringProduct
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:188    .data.u8_usbStringVendor:00000000 u8_usbStringVendor
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:93     .data.u8_usbStringLangId:00000000 u8_usbStringLangId
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:599    .data.usbConfigDescriptorDFU:00000000 usbConfigDescriptorDFU
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:101    .data.u8_usbConfigDescriptorDFU:00000000 u8_usbConfigDescriptorDFU
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:86     .data.usbFunctionalDescriptor:00000000 usbFunctionalDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:175    .data.u8_usbFunctionalDescriptor:00000000 u8_usbFunctionalDescriptor
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:211    .data.usbDeviceDescriptorDFU:00000000 usbDeviceDescriptorDFU
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:63     .data.u8_usbDeviceDescriptorDFU:00000000 u8_usbDeviceDescriptorDFU
                             *COM*:00000004 wTransferSize
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:35     .data.usbStringDescriptor:00000000 $d
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:83     .data.usbFunctionalDescriptor:00000000 $d
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:171    .bss.u8_usbStringInterface:00000000 $d
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:208    .data.usbDeviceDescriptorDFU:00000000 $d
-C:\Users\rclark\AppData\Local\Temp\ccQx6C8h.s:596    .data.usbConfigDescriptorDFU:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:35     .data.usbStringDescriptor:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:83     .data.usbFunctionalDescriptor:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:171    .bss.u8_usbStringInterface:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:208    .data.usbDeviceDescriptorDFU:00000000 $d
+C:\Users\rclark\AppData\Local\Temp\ccyfonov.s:596    .data.usbConfigDescriptorDFU:00000000 $d
 
 NO UNDEFINED SYMBOLS

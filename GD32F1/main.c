@@ -43,7 +43,8 @@ int main()
     setupUSB();
     setupFLASH();
 	
-
+//	strobePin(LED_BANK, LED_PIN, 9999, BLINK_SLOW,LED_ON_STATE);
+	
 	strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
 
 
