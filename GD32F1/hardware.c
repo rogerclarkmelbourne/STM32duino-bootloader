@@ -123,7 +123,7 @@ volatile int waitLoop;
 #define USBPS_SHIFT 22
 
 // set the speed option to 72Mhz as this is safe (as is 96Mhz)
-#define SPEED_72MHZ 1
+#define SPEED_120MHZ 1
 
 #if defined(SPEED_72MHZ)
 	#define PLLMF 6 
