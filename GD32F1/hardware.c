@@ -106,6 +106,7 @@ void systemReset(void) {
 }
 
 void setupCLK(void) {
+volatile int waitLoop;
     /* enable HSE */
     SET_REG(RCC_CR, GET_REG(RCC_CR) | 0x00010001);
     while ((GET_REG(RCC_CR) & 0x00020000) == 0); /* for it to come on */
@@ -113,25 +114,38 @@ void setupCLK(void) {
     /* enable flash prefetch buffer */
     SET_REG(FLASH_ACR, 0x00000012);
 
-    /* Configure PLL */
-//                                        0B100111010000010000000000 
-//                                        0B101000010000010000000000
+
 #define APB1PS 0B100
 #define APB1PS_SHIFT 8
 #define PLLSEL 0B1
 #define PLLSEL_SHIFT 16
-
-#define PLLMF 10 
 #define PLLMF_SHIFT 18
-#define USBPS 0B10
 #define USBPS_SHIFT 22
 
+// set the speed option to 72Mhz as this is safe (as is 96Mhz)
+#define SPEED_72MHZ 1
+
+#if defined(SPEED_72MHZ)
+	#define PLLMF 6 
+	#define USBPS 0x00
+#elif defined(SPEED_96MHZ)
+	#define PLLMF 8 
+	#define USBPS 0x03
+#elif defined(SPEED_120MHZ)
+	#define PLLMF 10 
+	#define USBPS 0x02
+#endif
+
+
+
+
+
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | (USBPS<< USBPS_SHIFT) | (PLLMF-2)<<PLLMF_SHIFT |  (PLLSEL<<PLLSEL_SHIFT) |  (APB1PS<<APB1PS_SHIFT) );// 0x001D0400); /* pll=108Mhz,APB1=36Mhz,AHB=72Mhz */
- //   SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0B100111010000010000000000);
-//									    987654321098765432109876543210							
-   SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x01000000); /* enable the pll */
+				
+    SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x01000000); /* enable the pll */
     while ((GET_REG(RCC_CR) & 0x03000000) == 0);         /* wait for it to come on */
 
+	
     /* Set SYSCLK as PLL */
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00000002);
     while ((GET_REG(RCC_CFGR) & 0x00000008) == 0); /* wait for it to come on */
