@@ -83,6 +83,7 @@ void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState)
         for (c = rate; c > 0; c--)
 		{
             asm volatile("nop");
+			asm volatile("nop");				
         }
 		
         gpio_write_bit( bank,pin,onState);
@@ -90,6 +91,7 @@ void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState)
         for (c = rate; c > 0; c--)
 		{
             asm volatile("nop");
+			asm volatile("nop");	
         }
         gpio_write_bit( bank,pin,1-onState);
     }
