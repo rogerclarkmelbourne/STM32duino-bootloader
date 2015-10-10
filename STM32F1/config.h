@@ -232,6 +232,16 @@
 	#define BUTTON_PIN 2
 	#define BUTTON_PRESSED_STATE 1
 	
+#elif defined TARGET_GENERIC_F103_PE5_BUTTON_PA0
+	
+	#define LED_BANK			GPIOE 
+	#define LED_PIN 			5
+	#define LED_ON_STATE		1	
+	
+	#define BUTTON_BANK GPIOA
+	#define BUTTON_PIN 0
+	#define BUTTON_PRESSED_STATE 1	
+
 #else
 	#error "No config for this target"
 #endif
