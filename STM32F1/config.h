@@ -242,6 +242,12 @@
 	#define BUTTON_PIN 0
 	#define BUTTON_PRESSED_STATE 1	
 
+#elif defined TARGET_GENERIC_F103_PB7
+	
+	#define LED_BANK			GPIOB 
+	#define LED_PIN 			7
+	#define LED_ON_STATE		1	
+
 #else
 	#error "No config for this target"
 #endif
