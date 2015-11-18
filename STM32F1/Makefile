@@ -126,7 +126,8 @@ generic-pa9: begin gccversion build_generic-pa9 sizeafter finished  copy_generic
 generic-pe5: begin gccversion build_generic-pe5 sizeafter finished  copy_generic-pe5 end
 generic-pe5-button-pa0: begin gccversion build_generic-pe5-button-pa0 sizeafter finished  copy_generic-pe5-button-pa0 end
 generic-pb7: begin gccversion build_generic-pb7 sizeafter finished  copy_generic-pb7 end
-
+generic-pb0: begin gccversion build_generic-pb0 sizeafter finished  copy_generic-pe5 end
+stbee :  begin gccversion build_stbee sizeafter finished  copy_stbee end
 build: elf bin lss sym
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
@@ -291,6 +292,28 @@ copy_generic-pb7:
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pb7.bin
+	@echo		
+build_generic-pb0: TARGETFLAGS= -DTARGET_GENERIC_F103_PB0
+# Set the linker script
+build_generic-pb0: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-pb0: elf bin lss sym
+copy_generic-pb0: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/generic_boot20_pb0.bin
+	@echo		
+	
+	
+build_stbee: TARGETFLAGS= -DTARGET_STBEE
+# Set the linker script
+build_stbee: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_stbee: elf bin lss sym
+copy_stbee: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/stbee_boot20.bin
 	@echo		
 	
 bin: $(TARGET).bin
