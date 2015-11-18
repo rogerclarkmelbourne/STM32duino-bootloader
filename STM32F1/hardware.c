@@ -29,7 +29,7 @@
  *  does not include USB stuff. EEPROM read/write functions.
  *
  */
-
+#include "common.h"
 #include "hardware.h"
 /*
 void setPin(u32 bank, u8 pin) {
@@ -114,7 +114,11 @@ void setupCLK(void) {
     SET_REG(FLASH_ACR, 0x00000012);
 
     /* Configure PLL */
-    SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x001D0400); /* pll=72Mhz,APB1=36Mhz,AHB=72Mhz */
+#ifdef XTAL12M
+    SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00110400); /* pll=72Mhz(x6),APB1=36Mhz,AHB=72Mhz */
+#else
+    SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x001D0400); /* pll=72Mhz(x9),APB1=36Mhz,AHB=72Mhz */
+#endif
     SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x01000000); /* enable the pll */
     while ((GET_REG(RCC_CR) & 0x03000000) == 0);         /* wait for it to come on */
 
