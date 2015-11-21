@@ -104,7 +104,7 @@
 	
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK       GPIOB
-	#define USB_DISC            9
+	#define USB_DISC_PIN            9
 	
 #elif defined TARGET_MAPLE_REV3
 
@@ -123,7 +123,7 @@
 
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK         GPIOB
-	#define USB_DISC              9
+	#define USB_DISC_PIN              9
 	
 #elif defined TARGET_MAPLE_REV5
 
@@ -140,7 +140,7 @@
 
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK         GPIOB
-	#define USB_DISC              9
+	#define USB_DISC_PIN              9
 	
 #elif defined TARGET_GENERIC_F103_PC13
 	
