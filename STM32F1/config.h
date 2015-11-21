@@ -248,12 +248,45 @@
 	#define LED_PIN 			7
 	#define LED_ON_STATE		1	
 
+#elif defined TARGET_GENERIC_F103_PB0
+	
+	#define LED_BANK			GPIOB 
+	#define LED_PIN 		0
+	#define LED_ON_STATE		1	
+	#define BOOTLOADER_WAIT 30
+
+#elif defined TARGET_STBEE
+	
+	#define HAS_MAPLE_HARDWARE 	1
+
+	#define LED_BANK		GPIOD 
+	#define LED_PIN 		4
+	#define LED_ON_STATE		0	
+
+	/* BUTTON is PA0 (pull down) */
+	#define BUTTON_BANK		GPIOA
+	#define BUTTON_PIN 		0
+	#define BUTTON_PRESSED_STATE	1
+
+	/* USB Disc Pin Setup.   USB DISC is PD3 */
+	#define USB_DISC_BANK           GPIOD
+	#define USB_DISC_PIN                3
+
+	/* CRISTAL 12MHz */
+	#define XTAL12M		1
+
 #else
 	#error "No config for this target"
 #endif
 
 #define STARTUP_BLINKS 5
-#define BOOTLOADER_WAIT 6
+#ifndef BOOTLOADER_WAIT
+#ifdef BUTTON_BANK
+	#define BOOTLOADER_WAIT 6
+#else
+	#define BOOTLOADER_WAIT 30
+#endif
+#endif
 
 // defines for USB (DONT CHANGE)
 #define VEND_ID0 0xAF
