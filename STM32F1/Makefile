@@ -128,6 +128,7 @@ generic-pe5-button-pa0: begin gccversion build_generic-pe5-button-pa0 sizeafter 
 generic-pb7: begin gccversion build_generic-pb7 sizeafter finished  copy_generic-pb7 end
 generic-pb0: begin gccversion build_generic-pb0 sizeafter finished  copy_generic-pb0 end
 stbee :  begin gccversion build_stbee sizeafter finished  copy_stbee end
+naze32: begin gccversion build_naze32 sizeafter finished  copy_naze32 end
 build: elf bin lss sym
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
@@ -314,7 +315,19 @@ copy_stbee:
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/stbee_boot20.bin
-	@echo		
+	@echo	
+
+build_naze32: TARGETFLAGS= -DTARGET_NAZE32
+# Set the linker script
+build_naze32: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_naze32: elf bin lss sym
+copy_naze32: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/naze32_boot20.bin
+	@echo	
+	
 	
 bin: $(TARGET).bin
 elf: $(TARGET).elf

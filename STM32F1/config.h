@@ -274,7 +274,13 @@
 
 	/* CRISTAL 12MHz */
 	#define XTAL12M		1
-
+	
+#elif defined TARGET_NAZE32
+	
+	#define LED_BANK			GPIOB 
+	#define LED_PIN 			3
+	#define LED_ON_STATE		0
+	
 #else
 	#error "No config for this target"
 #endif
