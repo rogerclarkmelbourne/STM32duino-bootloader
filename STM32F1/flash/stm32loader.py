@@ -72,8 +72,8 @@ class CommandInterface:
                     # NACK
                     raise CmdException("NACK "+info)
                 else:
-                    # Unknow responce
-                    raise CmdException("Unknow response. "+info+": "+hex(ask))
+                    # Unknown response
+                    raise CmdException("Unknown response. "+info+": "+hex(ask))
 
 
     def reset(self):
