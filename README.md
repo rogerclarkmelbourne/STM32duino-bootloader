@@ -34,7 +34,7 @@ In addition to the LED, the difference in the build targets is
 (a) whether the device has maple USB reset hardware.
 (b) Which pin the "button" is attached to.
 
-Note. Most "generic" STM32F103 boards only have a reset button, and not a user / test button. So the bootloader code always configures the Button input pin as PullDown,  hence if a button is not present on the Button pin (Default is PC12), the pin should remain in a LOW state, and the bootloader will assume that the Button is not being pressed.
+Note. Most "generic" STM32F103 boards only have a reset button, and not a user / test button. So the bootloader code always configures the Button input pin as PullDown,  hence if a button is not present on the Button pin (Default is PC14), the pin should remain in a LOW state, and the bootloader will assume that the Button is not being pressed.
 
 IMPORTANT.
 If you have a board where you have external hardware attached to pin PC12 which will pull this pin HIGH, you will need to make a new build target for you board which uses a different pin for the Button, or completely modify the code so that the Button is ignored.
