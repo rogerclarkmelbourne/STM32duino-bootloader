@@ -1,4 +1,8 @@
 # STM32duino-bootloader
+
+Please Note. This code does not work with all STM32 Boards
+
+
 Bootloader for STM32F103 boards, for use with the Arduino_STM32 repo and the Arduino IDE
 
 This repo is a derivation of  https://github.com/jonatanolofsson/maple-bootloader (mini-boot branch) which is in turn a derivation of the maple-bootloader created by Leaflabs http://github.com/leaflabs/maple-bootloader
