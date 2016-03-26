@@ -1,6 +1,6 @@
 # STM32duino-bootloader
 
-Please Note. This code does not work with all STM32 Boards
+Please Note. This code does not work with all STM32F103 Boards
 
 
 Bootloader for STM32F103 boards, for use with the Arduino_STM32 repo and the Arduino IDE
