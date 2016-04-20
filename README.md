@@ -2,6 +2,8 @@
 
 Please Note. This code does not work with all STM32F103 Boards
 
+Also Note. Use GCC 4.8 (not 4.9 or newer, as these versions have more aggressive optimisation which causes hardware registers not be read correctly and consequently the bootloader does not work)
+
 
 Bootloader for STM32F103 boards, for use with the Arduino_STM32 repo and the Arduino IDE
 
