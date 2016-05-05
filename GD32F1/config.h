@@ -89,59 +89,26 @@
 	#define BUTTON_PRESSED_STATE 1	
 */
 
-#if defined TARGET_MAPLE_MINI
+#if defined TARGET_FRANKENMAPLE
 
 	#define HAS_MAPLE_HARDWARE 1
 
-	#define LED_BANK         GPIOB
-	#define LED_PIN          1
+	#define LED_BANK         GPIOC
+	#define LED_PIN          13
 	#define LED_ON_STATE	 1	
 
-	/* On the Mini, BUT is PB8 */
+
+	/*
 	#define BUTTON_BANK      GPIOB
 	#define BUTTON_PIN           8
 	#define BUTTON_PRESSED_STATE 1
+	*/
 	
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK       GPIOB
 	#define USB_DISC            9
 	
-#elif defined TARGET_MAPLE_REV3
 
-	#warning "Target MAPLE_REV3"
-
-// Flag that this type of board has the custom maple disconnect hardware
-	#define HAS_MAPLE_HARDWARE 1
-	
-	#define LED_BANK         GPIOB
-	#define LED_PIN              1
-	#define LED_ON_STATE	 1
-
-	#define BUTTON_BANK      GPIOB
-	#define BUTTON_PIN           8
-	#define BUTTON_PRESSED_STATE 1	
-
-	/* USB Disc Pin Setup.   USB DISC is PB9 */
-	#define USB_DISC_BANK         GPIOB
-	#define USB_DISC              9
-	
-#elif defined TARGET_MAPLE_REV5
-
-// Flag that this type of board has the custom maple disconnect hardware
-	#define HAS_MAPLE_HARDWARE 1
-
-	#define LED_BANK         GPIOA
-	#define LED_PIN              5
-	#define LED_ON_STATE	 0
-
-	/* On the Mini, BUT is PB8 */
-	#define BUTTON_BANK      GPIOC
-	#define BUTTON_PIN           9
-
-	/* USB Disc Pin Setup.   USB DISC is PB9 */
-	#define USB_DISC_BANK         GPIOB
-	#define USB_DISC              9
-	
 #elif defined TARGET_GENERIC_F103_PC13
 	
 	#define LED_BANK			GPIOC 
@@ -153,69 +120,7 @@
 //	#define BUTTON_BANK GPIOC
 //	#define BUTTON_PIN 14
 //	#define BUTTON_PRESSED_STATE 1
-	
-	
-#elif defined TARGET_GENERIC_F103_PG15
-	
-	#define LED_BANK			GPIOG 
-	#define LED_PIN 			15
-	#define LED_ON_STATE		1
-
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
-	
-#elif defined TARGET_GENERIC_F103_PD2
-	
-	#define LED_BANK			GPIOD 
-	#define LED_PIN 			2
-	#define LED_ON_STATE		1
-
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
-	
-#elif defined TARGET_GENERIC_F103_PD1
-	
-	#define LED_BANK			GPIOD 
-	#define LED_PIN 			1
-	#define LED_ON_STATE		1
-
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
-
-#elif defined TARGET_GENERIC_F103_PA1
-	
-	#define LED_BANK			GPIOA 
-	#define LED_PIN 			1
-	#define LED_ON_STATE		1
-
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
-
-#elif defined TARGET_GENERIC_F103_PB9
-	
-	#define LED_BANK			GPIOB 
-	#define LED_PIN 			9
-	#define LED_ON_STATE		1
-
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
-
-#elif defined TARGET_GENERIC_F103_PE2
-	
-	#define LED_BANK			GPIOE 
-	#define LED_PIN 			2
-	#define LED_ON_STATE		1
-	
+		
 #else
 	#error "No config for this target"
 #endif

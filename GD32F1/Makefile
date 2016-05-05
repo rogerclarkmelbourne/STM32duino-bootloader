@@ -114,7 +114,7 @@ ELFSIZE = $(SIZE) -A $(TARGET).elf
 all: begin gccversion build sizeafter finished end
 
 generic-pc13: begin gccversion build_generic-pc13 sizeafter finished  copy_generic-pc13 end
-
+frankenmaple: begin gccversion build_frankenmaple sizeafter finished  copy_frankenmaple end
 
 build: elf bin lss sym
 
@@ -131,6 +131,16 @@ copy_generic-pc13:
 	cp $(TARGET).bin binaries/generic_boot20_pc13.bin
 	@echo	
 	
+build_frankenmaple: TARGETFLAGS= -DTARGET_FRANKENMAPLE
+# Set the linker script
+build_frankenmaple: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_frankenmaple: elf bin lss sym
+copy_frankenmaple: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/frankenmaple.bin
+	@echo		
 	
 	
 bin: $(TARGET).bin
