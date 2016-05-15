@@ -21,3 +21,13 @@ make clean
 make generic-pa9
 make clean
 make generic-pe5
+make clean
+make generic-pe5-button-pa0
+make clean
+make generic-pb7
+make clean
+make generic-pb0
+make clean
+make stbee
+make clean
+make naze32
