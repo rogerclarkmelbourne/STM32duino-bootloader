@@ -1,3 +1,4 @@
+make clean
 make maple-mini
 make clean
 make maple-rev3
