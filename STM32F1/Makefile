@@ -112,23 +112,23 @@ ELFSIZE = $(SIZE) -A $(TARGET).elf
 
 # go!
 all: begin gccversion build sizeafter finished end
-maple-mini: begin gccversion build_maple-mini sizeafter finished  copy_maple_mini end
-maple-rev3: begin gccversion build_maple-rev3 sizeafter finished  copy_maple-rev3 end
-maple-rev5: begin gccversion build_maple-rev5 sizeafter finished  copy_maple-rev5 end
-generic-pc13: begin gccversion build_generic-pc13 sizeafter finished  copy_generic-pc13 end
-generic-pg15: begin gccversion build_generic-pg15 sizeafter finished  copy_generic-pg15 end
-generic-pd2: begin gccversion build_generic-pd2 sizeafter finished  copy_generic-pd2 end
-generic-pd1: begin gccversion build_generic-pd1 sizeafter finished  copy_generic-pd1 end
-generic-pa1: begin gccversion build_generic-pa1 sizeafter finished  copy_generic-pa1 end
-generic-pb9: begin gccversion build_generic-pb9 sizeafter finished  copy_generic-pb9 end
-generic-pe2: begin gccversion build_generic-pe2 sizeafter finished  copy_generic-pe2 end
-generic-pa9: begin gccversion build_generic-pa9 sizeafter finished  copy_generic-pa9 end
-generic-pe5: begin gccversion build_generic-pe5 sizeafter finished  copy_generic-pe5 end
-generic-pe5-button-pa0: begin gccversion build_generic-pe5-button-pa0 sizeafter finished  copy_generic-pe5-button-pa0 end
-generic-pb7: begin gccversion build_generic-pb7 sizeafter finished  copy_generic-pb7 end
-generic-pb0: begin gccversion build_generic-pb0 sizeafter finished  copy_generic-pb0 end
-stbee :  begin gccversion build_stbee sizeafter finished  copy_stbee end
-naze32: begin gccversion build_naze32 sizeafter finished  copy_naze32 end
+maple-mini: begin clean gccversion build_maple-mini sizeafter finished  copy_maple_mini end
+maple-rev3: begin clean gccversion build_maple-rev3 sizeafter finished  copy_maple-rev3 end
+maple-rev5: begin clean gccversion build_maple-rev5 sizeafter finished  copy_maple-rev5 end
+generic-pc13: begin clean gccversion build_generic-pc13 sizeafter finished  copy_generic-pc13 end
+generic-pg15: begin clean gccversion build_generic-pg15 sizeafter finished  copy_generic-pg15 end
+generic-pd2: begin clean gccversion build_generic-pd2 sizeafter finished  copy_generic-pd2 end
+generic-pd1: begin clean gccversion build_generic-pd1 sizeafter finished  copy_generic-pd1 end
+generic-pa1: begin clean gccversion build_generic-pa1 sizeafter finished  copy_generic-pa1 end
+generic-pb9: begin clean gccversion build_generic-pb9 sizeafter finished  copy_generic-pb9 end
+generic-pe2: begin clean gccversion build_generic-pe2 sizeafter finished  copy_generic-pe2 end
+generic-pa9: begin clean gccversion build_generic-pa9 sizeafter finished  copy_generic-pa9 end
+generic-pe5: begin clean gccversion build_generic-pe5 sizeafter finished  copy_generic-pe5 end
+generic-pe5-button-pa0: begin clean gccversion build_generic-pe5-button-pa0 sizeafter finished  copy_generic-pe5-button-pa0 end
+generic-pb7: begin clean gccversion build_generic-pb7 sizeafter finished  copy_generic-pb7 end
+generic-pb0: begin clean gccversion build_generic-pb0 sizeafter finished  copy_generic-pb0 end
+stbee :  begin clean gccversion build_stbee sizeafter finished  copy_stbee end
+naze32: begin clean gccversion build_naze32 sizeafter finished  copy_naze32 end
 build: elf bin lss sym
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI

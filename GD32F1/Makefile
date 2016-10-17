@@ -113,8 +113,8 @@ ELFSIZE = $(SIZE) -A $(TARGET).elf
 # go!
 all: begin gccversion build sizeafter finished end
 
-generic-pc13: begin gccversion build_generic-pc13 sizeafter finished  copy_generic-pc13 end
-frankenmaple: begin gccversion build_frankenmaple sizeafter finished  copy_frankenmaple end
+generic-pc13: begin clean gccversion build_generic-pc13 sizeafter finished  copy_generic-pc13 end
+frankenmaple: begin clean gccversion build_frankenmaple sizeafter finished  copy_frankenmaple end
 
 build: elf bin lss sym
 
