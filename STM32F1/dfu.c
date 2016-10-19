@@ -478,6 +478,7 @@ void dfuFinishUpload() {
 */		
 		
         /* otherwise do nothing, dfu state machine resets itself */
+		systemHardReset();
     }
 }
 
