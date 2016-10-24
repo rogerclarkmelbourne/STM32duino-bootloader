@@ -281,6 +281,14 @@
 	#define LED_PIN 			3
 	#define LED_ON_STATE		0
 	
+#elif defined TARGET_GENERIC_F103_PB12
+	
+	#define LED_BANK			GPIOB 
+	#define LED_PIN 			12
+	#define LED_ON_STATE		1	
+	#define BOOTLOADER_WAIT 30	
+	
+	
 #else
 	#error "No config for this target"
 #endif
