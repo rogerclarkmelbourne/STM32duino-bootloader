@@ -288,6 +288,20 @@
 	#define LED_ON_STATE		1	
 	#define BOOTLOADER_WAIT 30	
 	
+#elif defined TARGET_HYTINY_STM32F103T
+
+	#define HAS_MAPLE_HARDWARE 1
+
+	
+	#define LED_BANK			GPIOA 
+	#define LED_PIN 			1
+	#define LED_ON_STATE		0	
+	#define BOOTLOADER_WAIT 30	
+	
+	/* USB Disc Pin Setup.   USB DISC is PA0 */
+	#define USB_DISC_BANK       GPIOA
+	#define USB_DISC_PIN            0
+
 	
 #else
 	#error "No config for this target"

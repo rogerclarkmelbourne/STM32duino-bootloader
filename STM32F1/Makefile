@@ -130,6 +130,7 @@ generic-pb0: begin clean gccversion build_generic-pb0 sizeafter finished  copy_g
 stbee :  begin clean gccversion build_stbee sizeafter finished  copy_stbee end
 naze32: begin clean gccversion build_naze32 sizeafter finished  copy_naze32 end
 generic-pb12: begin clean gccversion build_generic-pb12 sizeafter finished  copy_generic-pb12 end
+hytiny-stm32f103t: begin clean gccversion build_hytiny-stm32f103t sizeafter finished  copy_hytiny-stm32f103t end
 build: elf bin lss sym
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
@@ -339,6 +340,19 @@ copy_generic-pb12:
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pb12.bin
 	@echo		
+	
+build_hytiny-stm32f103t: TARGETFLAGS= -DTARGET_HYTINY_STM32F103T
+# Set the linker script
+build_hytiny-stm32f103t: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_hytiny-stm32f103t: elf bin lss sym
+copy_hytiny-stm32f103t: 
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/generic_boot20_hytiny.bin
+	@echo		
+	
+	
 	
 bin: $(TARGET).bin
 elf: $(TARGET).elf
