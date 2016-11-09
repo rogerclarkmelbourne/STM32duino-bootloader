@@ -190,6 +190,8 @@ void setMspAndJump(u32 usrAddr) {
 
   funcPtr usrMain = (funcPtr) jumpAddr;
 
+  SET_REG(SCB_VTOR, (vu32) (usrAddr));
+
   asm volatile("msr msp, %0"::"g"
                (*(volatile u32 *)usrAddr));
 
