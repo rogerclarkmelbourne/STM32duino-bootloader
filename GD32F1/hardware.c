@@ -190,11 +190,25 @@ bool checkUserCode(u32 usrAddr) {
     }
 }
 
-void jumpToUser(u32 usrAddr) {
-    typedef void (*funcPtr)(void);
+void setMspAndJump(u32 usrAddr) {
+  // Dedicated function with no call to any function (appart the last call)
+  // This way, there is no manipulation of the stack here, ensuring that GGC
+  // didn't insert any pop from the SP after having set the MSP.
+  typedef void (*funcPtr)(void);
+  u32 jumpAddr = *(vu32 *)(usrAddr + 0x04); /* reset ptr in vector table */
 
-    u32 jumpAddr = *(vu32 *)(usrAddr + 0x04); /* reset ptr in vector table */
-    funcPtr usrMain = (funcPtr) jumpAddr;
+  funcPtr usrMain = (funcPtr) jumpAddr;
+
+  SET_REG(SCB_VTOR, (vu32) (usrAddr));
+
+  asm volatile("msr msp, %0"::"g"
+               (*(volatile u32 *)usrAddr));
+
+  usrMain();                                /* go! */
+}
+
+
+void jumpToUser(u32 usrAddr) {
 
     /* tear down all the dfu related setup */
     // disable usb interrupts, clear them, turn off usb, set the disc pin
@@ -210,10 +224,7 @@ void jumpToUser(u32 usrAddr) {
 // Does nothing, as PC12 is not connected on teh Maple mini according to the schemmatic     setPin(GPIOC, 12); // disconnect usb from host. todo, macroize pin
     systemReset(); // resets clocks and periphs, not core regs
 
-
-    __MSR_MSP(*(vu32 *) usrAddr);             /* set the users stack ptr */
-
-    usrMain();                                /* go! */
+    setMspAndJump(usrAddr);
 }
 
 void nvicInit(NVIC_InitTypeDef *NVIC_InitStruct) {
