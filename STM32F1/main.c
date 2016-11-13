@@ -37,32 +37,52 @@ extern volatile dfuUploadTypes_t userUploadType;
 
 int main() 
 {
+	bool no_user_jump = FALSE;
+	bool dont_wait=FALSE;
+	
     systemReset(); // peripherals but not PC
     setupCLK();
     setupLEDAndButton();
     setupUSB();
     setupFLASH();
-	
-
-	strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
-
-
-	/* wait for host to upload program or halt bootloader */
-	bool no_user_jump = (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000)) || readButtonState() ;
-	
-	int delay_count = 0;
-
-    while ((delay_count++ < BOOTLOADER_WAIT) || no_user_jump)
+		
+	switch(checkAndClearBootloaderFlag())
 	{
+		case 0x01:
+			no_user_jump = TRUE;
+			strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
+		break;
+		case 0x02:
+			dont_wait=TRUE;
+		break;		
+		default:
+			strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
+			if (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000))
+			{
+				no_user_jump = TRUE;
+			}
+			else if (readButtonState())
+			{
+				no_user_jump = TRUE;
+			}	
+		break;
+	}	
+	
+	if (!dont_wait)
+	{
+		int delay_count = 0;
 
-        strobePin(LED_BANK, LED_PIN, 1, BLINK_SLOW,LED_ON_STATE);
-
-        if (dfuUploadStarted()) 
+		while ((delay_count++ < BOOTLOADER_WAIT) || no_user_jump)
 		{
-            dfuFinishUpload(); // systemHardReset from DFU once done
-        }
-    }
 
+			strobePin(LED_BANK, LED_PIN, 1, BLINK_SLOW,LED_ON_STATE);
+
+			if (dfuUploadStarted()) 
+			{
+				dfuFinishUpload(); // systemHardReset from DFU once done
+			}
+		}
+	}
 
 	if (checkUserCode(USER_CODE_FLASH0X8002000)) 
 	{
