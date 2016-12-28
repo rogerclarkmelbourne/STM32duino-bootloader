@@ -18,7 +18,7 @@ ST_USB = usb_lib
 
 # Optimization level [0,1,2,3,s]
 OPT ?= s
-DEBUG = 
+DEBUG =
 #DEBUG = dwarf-2
 
 INCDIRS = ./$(ST_LIB) ./$(ST_USB)
@@ -131,6 +131,7 @@ stbee :  begin clean gccversion build_stbee sizeafter finished  copy_stbee end
 naze32: begin clean gccversion build_naze32 sizeafter finished  copy_naze32 end
 generic-pb12: begin clean gccversion build_generic-pb12 sizeafter finished  copy_generic-pb12 end
 hytiny-stm32f103t: begin clean gccversion build_hytiny-stm32f103t sizeafter finished  copy_hytiny-stm32f103t end
+generic-pb1: begin clean gccversion build_generic-pb1 sizeafter finished  copy_generic-pb1 end
 build: elf bin lss sym
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
@@ -138,7 +139,7 @@ build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
 build_maple-mini: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 
 build_maple-mini: elf bin lss sym
-copy_maple_mini: 
+copy_maple_mini:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
@@ -150,7 +151,7 @@ build_maple-rev3: TARGETFLAGS= -DTARGET_MAPLE_REV3
 build_maple-rev3: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 
 build_maple-rev3: elf bin lss sym
-copy_maple-rev3: 
+copy_maple-rev3:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
@@ -161,199 +162,210 @@ build_maple-rev5: TARGETFLAGS= -DTARGET_MAPLE_REV5
 # Set the linker script
 build_maple-rev5: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_maple-rev5: elf bin lss sym
-copy_maple-rev5: 
+copy_maple-rev5:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/maple_rev5_boot20.bin
 	@echo
-	
-	
+
+
 build_generic-pc13: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13
 # Set the linker script
 build_generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pc13: elf bin lss sym
-copy_generic-pc13: 
+copy_generic-pc13:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pc13.bin
-	@echo	
-	
+	@echo
+
 build_generic-pg15: TARGETFLAGS= -DTARGET_GENERIC_F103_PG15
 # Set the linker script
 build_generic-pg15: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pg15: elf bin lss sym
-copy_generic-pg15: 
+copy_generic-pg15:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pg15.bin
-	@echo		
+	@echo
 
 
 build_generic-pd2: TARGETFLAGS= -DTARGET_GENERIC_F103_PD2
 # Set the linker script
 build_generic-pd2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pd2: elf bin lss sym
-copy_generic-pd2: 
+copy_generic-pd2:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pd2.bin
-	@echo	
-	
-	
+	@echo
+
+
 build_generic-pd1: TARGETFLAGS= -DTARGET_GENERIC_F103_PD1
 # Set the linker script
 build_generic-pd1: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pd1: elf bin lss sym
-copy_generic-pd1: 
+copy_generic-pd1:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pd1.bin
-	@echo		
-	
+	@echo
+
 build_generic-pa1: TARGETFLAGS= -DTARGET_GENERIC_F103_PA1
 # Set the linker script
 build_generic-pa1: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pa1: elf bin lss sym
-copy_generic-pa1: 
+copy_generic-pa1:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pa1.bin
-	@echo		
+	@echo
 
 build_generic-pb9: TARGETFLAGS= -DTARGET_GENERIC_F103_PB9
 # Set the linker script
 build_generic-pb9: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb9: elf bin lss sym
-copy_generic-pb9: 
+copy_generic-pb9:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pb9.bin
-	@echo	
-	
+	@echo
+
 
 build_generic-pe2: TARGETFLAGS= -DTARGET_GENERIC_F103_PE2
 # Set the linker script
 build_generic-pe2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pe2: elf bin lss sym
-copy_generic-pe2: 
+copy_generic-pe2:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pe2.bin
-	@echo		
-	
-	
+	@echo
+
+
 build_generic-pa9: TARGETFLAGS= -DTARGET_GENERIC_F103_PA9
 # Set the linker script
 build_generic-pa9: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pa9: elf bin lss sym
-copy_generic-pa9: 
+copy_generic-pa9:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pa9.bin
-	@echo		
+	@echo
 
 
 build_generic-pe5: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5
 # Set the linker script
 build_generic-pe5: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pe5: elf bin lss sym
-copy_generic-pe5: 
+copy_generic-pe5:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pe5.bin
-	@echo		
-	
-	
+	@echo
+
+
 build_generic-pe5-button-pa0: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5_BUTTON_PA0
 # Set the linker script
 build_generic-pe5-button-pa0: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pe5-button-pa0: elf bin lss sym
-copy_generic-pe5-button-pa0: 
+copy_generic-pe5-button-pa0:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pe5_button_pa0.bin
-	@echo		
-	
-	
+	@echo
+
+
 build_generic-pb7: TARGETFLAGS= -DTARGET_GENERIC_F103_PB7
 # Set the linker script
 build_generic-pb7: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb7: elf bin lss sym
-copy_generic-pb7: 
+copy_generic-pb7:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pb7.bin
-	@echo		
+	@echo
 build_generic-pb0: TARGETFLAGS= -DTARGET_GENERIC_F103_PB0
 # Set the linker script
 build_generic-pb0: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb0: elf bin lss sym
-copy_generic-pb0: 
+copy_generic-pb0:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pb0.bin
-	@echo		
-	
-	
+	@echo
+
+
 build_stbee: TARGETFLAGS= -DTARGET_STBEE
 # Set the linker script
 build_stbee: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_stbee: elf bin lss sym
-copy_stbee: 
+copy_stbee:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/stbee_boot20.bin
-	@echo	
+	@echo
 
 build_naze32: TARGETFLAGS= -DTARGET_NAZE32
 # Set the linker script
 build_naze32: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_naze32: elf bin lss sym
-copy_naze32: 
+copy_naze32:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/naze32_boot20.bin
-	@echo	
-	
+	@echo
+
 build_generic-pb12: TARGETFLAGS= -DTARGET_GENERIC_F103_PB12
 # Set the linker script
 build_generic-pb12: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb12: elf bin lss sym
-copy_generic-pb12: 
+copy_generic-pb12:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_pb12.bin
-	@echo		
-	
+	@echo
+
 build_hytiny-stm32f103t: TARGETFLAGS= -DTARGET_HYTINY_STM32F103T
 # Set the linker script
 build_hytiny-stm32f103t: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_hytiny-stm32f103t: elf bin lss sym
-copy_hytiny-stm32f103t: 
+copy_hytiny-stm32f103t:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_hytiny.bin
-	@echo		
-	
-	
-	
+	@echo
+
+build_generic-pb1: TARGETFLAGS= -DTARGET_GENERIC_F103_PB1
+# Set the linker script
+build_generic-pb1: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-pb1: elf bin lss sym
+copy_generic-pb1:
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/generic_boot20_pb1.bin
+	@echo
+
+
+
 bin: $(TARGET).bin
 elf: $(TARGET).elf
 lss: $(TARGET).lss

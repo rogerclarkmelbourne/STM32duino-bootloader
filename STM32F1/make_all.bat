@@ -17,3 +17,4 @@ make stbee
 make naze32
 make generic-pb12
 make hytiny-stm32f103t
+make generic-pb1
