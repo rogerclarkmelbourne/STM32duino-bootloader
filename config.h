@@ -124,9 +124,9 @@
     #define BUTTON_PIN           8
     #define BUTTON_PRESSED_STATE 1
 
-    /* USB Disc Pin Setup.   USB DISC is PB9 */
-    #define USB_DISC_BANK         GPIOB
-    #define USB_DISC_PIN              9
+    /* USB Disc Pin Setup.   USB DISC is PC12 */
+    #define USB_DISC_BANK         GPIOC
+    #define USB_DISC_PIN             12
 
 #elif defined TARGET_MAPLE_REV5
 
@@ -140,10 +140,11 @@
     /* On the Mini, BUT is PB8 */
     #define BUTTON_BANK      GPIOC
     #define BUTTON_PIN           9
+    #define BUTTON_PRESSED_STATE 1
 
-    /* USB Disc Pin Setup.   USB DISC is PB9 */
-    #define USB_DISC_BANK         GPIOB
-    #define USB_DISC_PIN              9
+    /* USB Disc Pin Setup.   USB DISC is PC12 */
+    #define USB_DISC_BANK         GPIOC
+    #define USB_DISC_PIN             12
 
 #elif defined TARGET_GENERIC_F103_PC13
 
