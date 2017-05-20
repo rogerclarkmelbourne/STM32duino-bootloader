@@ -45,6 +45,7 @@ typedef struct _DFUStatus {
     u8 bwPollTimeout2;
     u8 bState;  /* state of device at the time the host receives the message! */
     u8 iString;
+    u32 bwWaitResetTimeout;
 } DFUStatus;
 
 typedef enum _PLOT {

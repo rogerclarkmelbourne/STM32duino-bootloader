@@ -60,6 +60,7 @@ void dfuInit(void) {
     dfuAppStatus.bwPollTimeout2 = 0x00;
     dfuAppStatus.bState = dfuIDLE;
     dfuAppStatus.iString = 0x00;          /* all strings must be 0x00 until we make them! */
+    dfuAppStatus.bwWaitResetTimeout = 0;
     userFirmwareLen = 0;
     thisBlockLen = 0;;
     userAppAddr = USER_CODE_RAM; /* default RAM user code location */
@@ -275,8 +276,10 @@ bool dfuUpdateByRequest(void) {
         /* device has programmed new firmware but needs external
            usb reset or power on reset to run the new code */
 
-        /* consider timing out and self-resetting */
         dfuAppStatus.bState  = dfuMANIFEST_WAIT_RESET;
+
+        /* set timeout */
+        dfuAppStatus.bwWaitResetTimeout = 500;
 
     } else if (startState == dfuUPLOAD_IDLE)         {
         /* device expecting further dfu_upload requests */
@@ -369,6 +372,9 @@ void dfuUpdateByReset(void) {
 }
 
 void dfuUpdateByTimeout(void) {
+    if (dfuAppStatus.bState  == dfuMANIFEST_WAIT_RESET && --dfuAppStatus.bwWaitResetTimeout == 0) {
+        systemHardReset();
+    }
 }
 
 u8 *dfuCopyState(u16 length) {
@@ -464,7 +470,12 @@ bool dfuUploadStarted() {
 void dfuFinishUpload() {
     while (1)
 	{
+            u32 c;
+            for (c = 0; c < 9000; c++)
+                {
 		__asm("nop");
+            }
+            dfuUpdateByTimeout();
 
 /* Roger Clark. 
 	Commented out code associated with upload to RAM	
