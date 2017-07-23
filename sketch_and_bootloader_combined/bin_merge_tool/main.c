@@ -15,7 +15,7 @@ const int SKETCH_OFFSET = 0x2000;
 
     if (argc!=4)
     {
-          printf("\nUsage. mergebin bootloader.bin sketch.bin output.bin - Incorrect number of args\n\n");
+          printf("\n%s Usage. mergebin bootloader.bin sketch.bin output.bin - Incorrect number of args\n\n",argv[0]);
           return -1;
     }
 
