@@ -113,33 +113,33 @@ ELFSIZE = $(SIZE) -A $(TARGET).elf
 # go!
 all: begin gccversion build sizeafter finished end
 
-generic-pc13: begin clean gccversion build_generic-pc13 sizeafter finished  copy_generic-pc13 end
-frankenmaple: begin clean gccversion build_frankenmaple sizeafter finished  copy_frankenmaple end
+gd32f1-generic-pc13: begin clean gccversion build_gd32f1-generic-pc13 sizeafter finished  copy_gd32f1-generic-pc13 end
+gd32f1-frankenmaple: begin clean gccversion build_gd32f1-frankenmaple sizeafter finished  copy_gd32f1-frankenmaple end
 
 build: elf bin lss sym
 
 	
 	
-build_generic-pc13: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13
+build_gd32f1-generic-pc13: TARGETFLAGS= -DTARGET_GD32F1_GENERIC_F103_PC13
 # Set the linker script
-build_generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
-build_generic-pc13: elf bin lss sym
-copy_generic-pc13: 
+build_gd32f1-generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_gd32f1-generic-pc13: elf bin lss sym
+copy_gd32f1-generic-pc13:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
-	cp $(TARGET).bin binaries/generic_boot20_pc13.bin
+	cp $(TARGET).bin binaries/gd32f1_generic_boot20_pc13.bin
 	@echo	
 	
-build_frankenmaple: TARGETFLAGS= -DTARGET_FRANKENMAPLE
+build_gd32f1-frankenmaple: TARGETFLAGS= -DTARGET_GD32F1_FRANKENMAPLE
 # Set the linker script
-build_frankenmaple: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
-build_frankenmaple: elf bin lss sym
-copy_frankenmaple: 
+build_gd32f1-frankenmaple: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_gd32f1-frankenmaple: elf bin lss sym
+copy_gd32f1-frankenmaple:
 	@echo
 	@echo "Copying to binaries folder"
 	@echo
-	cp $(TARGET).bin binaries/frankenmaple.bin
+	cp $(TARGET).bin binaries/gd32f1_frankenmaple.bin
 	@echo		
 	
 	

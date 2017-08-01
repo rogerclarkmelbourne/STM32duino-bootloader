@@ -89,7 +89,7 @@
 	#define BUTTON_PRESSED_STATE 1	
 */
 
-#if defined TARGET_FRANKENMAPLE
+#if defined TARGET_GD32F1_FRANKENMAPLE
 
 	#define HAS_MAPLE_HARDWARE 1
 
@@ -109,7 +109,7 @@
 	#define USB_DISC            9
 	
 
-#elif defined TARGET_GENERIC_F103_PC13
+#elif defined TARGET_GD32F1_GENERIC_F103_PC13
 	
 	#define LED_BANK			GPIOC 
 	#define LED_PIN 			13
