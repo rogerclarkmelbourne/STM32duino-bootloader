@@ -309,6 +309,17 @@
 	#define USB_DISC_BANK       GPIOA
 	#define USB_DISC_PIN            0
 
+#elif defined TARGET_DSO138
+
+	#define LED_BANK			GPIOA
+	#define LED_PIN 			15
+	#define LED_ON_STATE		0
+
+	// "OK" Button
+	#define BUTTON_BANK GPIOB
+	#define BUTTON_PIN 15
+	#define BUTTON_PRESSED_STATE 0
+
 	
 #else
 	#error "No config for this target"
