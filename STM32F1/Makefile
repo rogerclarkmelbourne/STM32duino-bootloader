@@ -131,6 +131,7 @@ stbee :  begin clean gccversion build_stbee sizeafter finished  copy_stbee end
 naze32: begin clean gccversion build_naze32 sizeafter finished  copy_naze32 end
 generic-pb12: begin clean gccversion build_generic-pb12 sizeafter finished  copy_generic-pb12 end
 hytiny-stm32f103t: begin clean gccversion build_hytiny-stm32f103t sizeafter finished  copy_hytiny-stm32f103t end
+dso138: begin clean gccversion build_dso138 sizeafter finished  copy_dso138 end
 build: elf bin lss sym
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
@@ -351,6 +352,17 @@ copy_hytiny-stm32f103t:
 	@echo
 	cp $(TARGET).bin binaries/generic_boot20_hytiny.bin
 	@echo		
+
+build_dso138: TARGETFLAGS= -DTARGET_DSO138
+# Set the linker script
+build_dso138: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_dso138: elf bin lss sym
+copy_dso138:
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/dso138_boot20.bin
+	@echo
 	
 	
 	
