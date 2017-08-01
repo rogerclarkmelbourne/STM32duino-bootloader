@@ -227,6 +227,52 @@ void jumpToUser(u32 usrAddr) {
     setMspAndJump(usrAddr);
 }
 
+void bkp10Write(u16 value)
+{
+		// Enable clocks for the backup domain registers
+		pRCC->APB1ENR |= (RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
+		
+        // Disable backup register write protection
+        pPWR->CR |= PWR_CR_DBP;
+
+        // store value in pBK DR10
+        pBKP->DR10 = value;
+
+        // Re-enable backup register write protection
+        pPWR->CR &=~ PWR_CR_DBP;	
+}
+
+int checkAndClearBootloaderFlag()
+{
+    bool flagSet = 0x00;// Flag not used
+
+    // Enable clocks for the backup domain registers
+    pRCC->APB1ENR |= (RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
+
+    switch (pBKP->DR10)
+	{
+		case RTC_BOOTLOADER_FLAG:
+			flagSet = 0x01;
+			break;
+		case RTC_BOOTLOADER_JUST_UPLOADED:
+			flagSet = 0x02;
+			break;		
+    }
+
+	if (flagSet!=0x00)
+	{
+		bkp10Write(0x0000);// Clear the flag
+		// Disable clocks
+		pRCC->APB1ENR &= ~(RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
+	}
+
+	
+
+    return flagSet;
+}
+
+
+
 void nvicInit(NVIC_InitTypeDef *NVIC_InitStruct) {
     u32 tmppriority = 0x00;
     u32 tmpreg      = 0x00;

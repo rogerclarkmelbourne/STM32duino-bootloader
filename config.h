@@ -45,6 +45,9 @@
 // The USB clock is the same for all boards
 #define RCC_APB1ENR_USB_CLK   0x00800000 
 
+// Clocks for the backup domain registers
+#define RCC_APB1ENR_PWR_CLK   0x10000000
+#define RCC_APB1ENR_BKP_CLK   0x08000000
 
 
 // Use the usb_description_strings_util.html to make new strngs for the next 3 arrays if you need to change the text.
@@ -134,4 +137,7 @@
 #define PROD_ID0 0x03
 #define PROD_ID1 0x00
 
+// Value to place in RTC backup register 10 for persistent bootloader mode
+#define RTC_BOOTLOADER_FLAG 0x424C
+#define RTC_BOOTLOADER_JUST_UPLOADED 0x424D
 #endif

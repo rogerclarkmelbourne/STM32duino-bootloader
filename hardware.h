@@ -191,6 +191,52 @@ typedef struct {
 } SCB_TypeDef;
 
 
+/** Power interface register map. */
+typedef struct pwr_reg_map {
+    vu32 CR;      /**< Control register */
+    vu32 CSR;     /**< Control and status register */
+} pwr_reg_map;
+
+/** Power peripheral register map base pointer. */
+#define pPWR                        ((struct pwr_reg_map*)0x40007000)
+
+/** Disable backup domain write protection bit */
+#define PWR_CR_DBP                  (1 << 8)
+
+
+/** Backup peripheral register map type. */
+typedef struct bkp_reg_map {
+    const u32 RESERVED1; ///< Reserved
+    vu16 DR1;            ///< Data register 1
+    const u16 RESERVED2;
+    vu16 DR2;            ///< Data register 2
+    const u16 RESERVED3;
+    vu16 DR3;            ///< Data register 3
+    const u16 RESERVED4;
+    vu16 DR4;            ///< Data register 4
+    const u16 RESERVED5;
+    vu16 DR5;            ///< Data register 5
+    const u16 RESERVED6;
+    vu16 DR6;            ///< Data register 6
+    const u16 RESERVED7;
+    vu16 DR7;            ///< Data register 7
+    const u16 RESERVED8;
+    vu16 DR8;            ///< Data register 8
+    const u16 RESERVED9;
+    vu16 DR9;            ///< Data register 9
+    const u16 RESERVED10;
+    vu16 DR10;           ///< Data register 10
+    const u16 RESERVED11;
+    vu32 RTCCR;          ///< RTC control register
+    vu32 CR;             ///< Control register
+    vu32 CSR;            ///< Control and status register
+} bkp_reg_map;
+
+/** Backup peripheral register map base pointer. */
+#define pBKP                        ((struct bkp_reg_map*)0x40006C00)
+
+void bkp10Write(u16 value);
+
 //void setPin(u32 bank, u8 pin);
 //void resetPin(u32 bank, u8 pin);
 void gpio_write_bit(u32 bank, u8 pin, u8 val);
@@ -206,6 +252,7 @@ void setupLEDAndButton(void);
 void setupFLASH(void);
 bool checkUserCode(u32 usrAddr);
 void jumpToUser(u32 usrAddr);
+int checkAndClearBootloaderFlag();
 
 bool flashWriteWord(u32 addr, u32 word);
 bool flashErasePage(u32 addr);
