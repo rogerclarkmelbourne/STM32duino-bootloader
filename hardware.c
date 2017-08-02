@@ -29,7 +29,7 @@
  *  does not include USB stuff. EEPROM read/write functions.
  *
  */
-
+#include "common.h"
 #include "hardware.h"
 /*
 void setPin(u32 bank, u8 pin) {
@@ -108,45 +108,38 @@ void systemReset(void) {
 }
 
 void setupCLK(void) {
-volatile int waitLoop;
+	unsigned int StartUpCounter=0;
     /* enable HSE */
     SET_REG(RCC_CR, GET_REG(RCC_CR) | 0x00010001);
     while ((GET_REG(RCC_CR) & 0x00020000) == 0); /* for it to come on */
 
     /* enable flash prefetch buffer */
     SET_REG(FLASH_ACR, 0x00000012);
+	
+     /* Configure PLL */
+#ifdef XTAL12M
+    SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00110400); /* pll=72Mhz(x6),APB1=36Mhz,AHB=72Mhz */
+#else
+    SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x001D0400); /* pll=72Mhz(x9),APB1=36Mhz,AHB=72Mhz */
+#endif	
 
-
-#define APB1PS 0B100
-#define APB1PS_SHIFT 8
-#define PLLSEL 0B1
-#define PLLSEL_SHIFT 16
-#define PLLMF_SHIFT 18
-#define USBPS_SHIFT 22
-
-// Set the speed to 96Mhz as this is within spec and supports USB.
-#define SPEED_96MHZ 1
-
-#if defined(SPEED_72MHZ)
-	#define PLLMF 6 
-	#define USBPS 0x00
-#elif defined(SPEED_96MHZ)
-	#define PLLMF 8 
-	#define USBPS 0x03
-#elif defined(SPEED_120MHZ)
-	#define PLLMF 10 
-	#define USBPS 0x02
-#endif
-
-
-
-
-
-    SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | (USBPS<< USBPS_SHIFT) | (PLLMF-2)<<PLLMF_SHIFT |  (PLLSEL<<PLLSEL_SHIFT) |  (APB1PS<<APB1PS_SHIFT) );// 0x001D0400); /* pll=108Mhz,APB1=36Mhz,AHB=72Mhz */
-				
     SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x01000000); /* enable the pll */
-    while ((GET_REG(RCC_CR) & 0x03000000) == 0);         /* wait for it to come on */
+	
 
+#if !defined  (HSE_STARTUP_TIMEOUT) 
+  #define HSE_STARTUP_TIMEOUT    ((unsigned int)0x0500)   /*!< Time out for HSE start up */
+#endif /* HSE_STARTUP_TIMEOUT */   
+
+    while ((GET_REG(RCC_CR) & 0x03000000) == 0 && StartUpCounter < HSE_STARTUP_TIMEOUT)
+	{
+//		StartUpCounter++; // This is commented out, so other changes can be committed. It will be uncommented at a later date
+	}	/* wait for it to come on */
+
+	if (StartUpCounter>=HSE_STARTUP_TIMEOUT)
+	{
+		// HSE has not started. Try restarting the processor
+		systemHardReset(); 
+	}
 	
     /* Set SYSCLK as PLL */
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00000002);
