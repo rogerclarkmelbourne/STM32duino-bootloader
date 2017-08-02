@@ -337,7 +337,7 @@
 	
 	/* USB Disc Pin Setup.   USB DISC is PB9 */
 	#define USB_DISC_BANK       GPIOB
-	#define USB_DISC            9
+	#define USB_DISC_PIN        9
 
 	/* CRISTAL 12MHz */
 	#define XTAL12M		1
