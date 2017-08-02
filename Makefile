@@ -112,6 +112,7 @@ ELFSIZE = $(SIZE) -A $(TARGET).elf
 
 # go!
 all: begin gccversion build sizeafter finished end
+
 maple-mini: begin clean gccversion build_maple-mini sizeafter finished  copy_maple_mini end
 maple-rev3: begin clean gccversion build_maple-rev3 sizeafter finished  copy_maple-rev3 end
 maple-rev5: begin clean gccversion build_maple-rev5 sizeafter finished  copy_maple-rev5 end
@@ -132,6 +133,9 @@ naze32: begin clean gccversion build_naze32 sizeafter finished  copy_naze32 end
 generic-pb12: begin clean gccversion build_generic-pb12 sizeafter finished  copy_generic-pb12 end
 hytiny-stm32f103t: begin clean gccversion build_hytiny-stm32f103t sizeafter finished  copy_hytiny-stm32f103t end
 dso138: begin clean gccversion build_dso138 sizeafter finished  copy_dso138 end
+gd32f1-generic-pc13: begin clean gccversion build_gd32f1-generic-pc13 sizeafter finished  copy_gd32f1-generic-pc13 end
+gd32f1-frankenmaple: begin clean gccversion build_gd32f1-frankenmaple sizeafter finished  copy_gd32f1-frankenmaple end
+
 build: elf bin lss sym
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
@@ -364,6 +368,27 @@ copy_dso138:
 	cp $(TARGET).bin binaries/dso138_boot20.bin
 	@echo
 	
+build_gd32f1-generic-pc13: TARGETFLAGS= -DTARGET_GD32F1_GENERIC_F103_PC13
+# Set the linker script
+build_gd32f1-generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_gd32f1-generic-pc13: elf bin lss sym
+copy_gd32f1-generic-pc13:
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/gd32f1_generic_boot20_pc13.bin
+	@echo	
+	
+build_gd32f1-frankenmaple: TARGETFLAGS= -DTARGET_GD32F1_FRANKENMAPLE
+# Set the linker script
+build_gd32f1-frankenmaple: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_gd32f1-frankenmaple: elf bin lss sym
+copy_gd32f1-frankenmaple:
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin binaries/gd32f1_frankenmaple.bin
+	@echo		
 	
 	
 bin: $(TARGET).bin

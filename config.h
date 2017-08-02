@@ -320,6 +320,43 @@
 	#define BUTTON_PIN 15
 	#define BUTTON_PRESSED_STATE 0
 
+#elif defined TARGET_GD32F1_FRANKENMAPLE
+
+	#define HAS_MAPLE_HARDWARE 1
+
+	#define LED_BANK         GPIOC
+	#define LED_PIN          13
+	#define LED_ON_STATE	 1	
+
+
+	/*
+	#define BUTTON_BANK      GPIOB
+	#define BUTTON_PIN           8
+	#define BUTTON_PRESSED_STATE 1
+	*/
+	
+	/* USB Disc Pin Setup.   USB DISC is PB9 */
+	#define USB_DISC_BANK       GPIOB
+	#define USB_DISC            9
+
+	/* CRISTAL 12MHz */
+	#define XTAL12M		1
+
+#elif defined TARGET_GD32F1_GENERIC_F103_PC13
+	
+	#define LED_BANK			GPIOC 
+	#define LED_PIN 			13
+	#define LED_ON_STATE		0
+
+	// Button (if you have one)
+	
+//	#define BUTTON_BANK GPIOC
+//	#define BUTTON_PIN 14
+//	#define BUTTON_PRESSED_STATE 1
+
+	/* CRISTAL 12MHz */
+	#define XTAL12M		1
+
 	
 #else
 	#error "No config for this target"
