@@ -178,25 +178,25 @@ u8 u8_usbStringSerial[USB_SERIAL_STR_LEN] = {
     'L', 0, 'L', 0, 'M', 0, ' ', 0, '0', 0, '0', 0, '3', 0
 };
 
-	u8 u8_usbStringAlt0[ALT0_STR_LEN] = {
-	ALT0_STR_LEN,
-	0x03,
-	ALT0_MSG_STR
-	};
+    u8 u8_usbStringAlt0[ALT0_STR_LEN] = {
+    ALT0_STR_LEN,
+    0x03,
+    ALT0_MSG_STR
+    };
 
 
-	u8 u8_usbStringAlt1[ALT1_STR_LEN] = {
-	ALT1_STR_LEN,
-	0x03,
-	ALT1_MSG_STR
-	};
+    u8 u8_usbStringAlt1[ALT1_STR_LEN] = {
+    ALT1_STR_LEN,
+    0x03,
+    ALT1_MSG_STR
+    };
 
 
-	u8 u8_usbStringAlt2[ALT2_STR_LEN] = {
-	ALT2_STR_LEN,
-	0x03,
-	ALT2_MSG_STR
-	};
+    u8 u8_usbStringAlt2[ALT2_STR_LEN] = {
+    ALT2_STR_LEN,
+    0x03,
+    ALT2_MSG_STR
+    };
 
 u8 u8_usbStringInterface = NULL;
 
@@ -207,6 +207,6 @@ ONE_DESCRIPTOR usbStringDescriptor[STR_DESC_LEN] = {
     { (u8 *)u8_usbStringSerial,  USB_SERIAL_STR_LEN },
     { (u8 *)u8_usbStringAlt0,    ALT0_STR_LEN },
     { (u8 *)u8_usbStringAlt1,    ALT1_STR_LEN },
-	{ (u8 *)u8_usbStringAlt2,    ALT2_STR_LEN }
+    { (u8 *)u8_usbStringAlt2,    ALT2_STR_LEN }
 };
 

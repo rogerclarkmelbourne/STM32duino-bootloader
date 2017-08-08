@@ -37,8 +37,8 @@ extern volatile dfuUploadTypes_t userUploadType;
 
 int main()
 {
-	bool no_user_jump = FALSE;
-	bool dont_wait=FALSE;
+    bool no_user_jump = FALSE;
+    bool dont_wait=FALSE;
 
     systemReset(); // peripherals but not PC
     setupCLK();
@@ -46,61 +46,61 @@ int main()
     setupUSB();
     setupFLASH();
 
-	switch(checkAndClearBootloaderFlag())
-	{
-		case 0x01:
-			no_user_jump = TRUE;
-			strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
-		break;
-		case 0x02:
-			dont_wait=TRUE;
-		break;
-		default:
-			strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
-			if (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000))
-			{
-				no_user_jump = TRUE;
-			}
-			else if (readButtonState())
-			{
-				no_user_jump = TRUE;
-			}
-		break;
-	}
+    switch(checkAndClearBootloaderFlag())
+    {
+        case 0x01:
+            no_user_jump = TRUE;
+            strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
+        break;
+        case 0x02:
+            dont_wait=TRUE;
+        break;
+        default:
+            strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
+            if (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000))
+            {
+                no_user_jump = TRUE;
+            }
+            else if (readButtonState())
+            {
+                no_user_jump = TRUE;
+            }
+        break;
+    }
 
-	if (!dont_wait)
-	{
-		int delay_count = 0;
+    if (!dont_wait)
+    {
+        int delay_count = 0;
 
-		while ((delay_count++ < BOOTLOADER_WAIT) || no_user_jump)
-		{
+        while ((delay_count++ < BOOTLOADER_WAIT) || no_user_jump)
+        {
 
-			strobePin(LED_BANK, LED_PIN, 1, BLINK_SLOW,LED_ON_STATE);
+            strobePin(LED_BANK, LED_PIN, 1, BLINK_SLOW,LED_ON_STATE);
 
-			if (dfuUploadStarted())
-			{
-				dfuFinishUpload(); // systemHardReset from DFU once done
-			}
-		}
-	}
+            if (dfuUploadStarted())
+            {
+                dfuFinishUpload(); // systemHardReset from DFU once done
+            }
+        }
+    }
 
-	if (checkUserCode(USER_CODE_FLASH0X8002000))
-	{
-		jumpToUser(USER_CODE_FLASH0X8002000);
-	}
-	else
-	{
-		if (checkUserCode(USER_CODE_FLASH0X8005000))
-		{
-			jumpToUser(USER_CODE_FLASH0X8005000);
-		}
-		else
-		{
-			// Nothing to execute in either Flash or RAM
-			strobePin(LED_BANK, LED_PIN, 5, BLINK_FAST,LED_ON_STATE);
-			systemHardReset();
-		}
-	}
+    if (checkUserCode(USER_CODE_FLASH0X8002000))
+    {
+        jumpToUser(USER_CODE_FLASH0X8002000);
+    }
+    else
+    {
+        if (checkUserCode(USER_CODE_FLASH0X8005000))
+        {
+            jumpToUser(USER_CODE_FLASH0X8005000);
+        }
+        else
+        {
+            // Nothing to execute in either Flash or RAM
+            strobePin(LED_BANK, LED_PIN, 5, BLINK_FAST,LED_ON_STATE);
+            systemHardReset();
+        }
+    }
 
-	return 0;// Added to please the compiler
+    return 0;// Added to please the compiler
 }

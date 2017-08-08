@@ -3,12 +3,12 @@
 function convertText(txt,idNum)
 {
 
-	var txt2 ="#define ALT"+idNum+"_STR_LEN 0x"+(txt.length*2  + 2).toString(16).toUpperCase()+"<br/>\t#define ALT"+idNum+"_MSG_STR ";
-	for (var i=0;i<txt.length;i++)
-	{
-		txt2+="'"+txt[i]+"',0,";
-	}
-	return txt2.substring(0,txt2.length-1)+"<br/>";
+    var txt2 ="#define ALT"+idNum+"_STR_LEN 0x"+(txt.length*2  + 2).toString(16).toUpperCase()+"<br/>\t#define ALT"+idNum+"_MSG_STR ";
+    for (var i=0;i<txt.length;i++)
+    {
+        txt2+="'"+txt[i]+"',0,";
+    }
+    return txt2.substring(0,txt2.length-1)+"<br/>";
 }
 var bootloaderName = "STM32duino bootloader v1.0 ";
 document.write("<pre>USB Strings for config.h\n\n");

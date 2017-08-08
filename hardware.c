@@ -58,19 +58,19 @@ bool readPin(u32 bank, u8 pin) {
 
 bool readButtonState() {
     // todo, implement read
-	bool state=FALSE;
+    bool state=FALSE;
  #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)
     if (GET_REG(GPIO_IDR(BUTTON_BANK)) & (0x01 << BUTTON_PIN))
-	{
+    {
         state = TRUE;
     }
 
-	if (BUTTON_PRESSED_STATE==0)
-	{
-		state=!state;
-	}
+    if (BUTTON_PRESSED_STATE==0)
+    {
+        state=!state;
+    }
 #endif
-	return state;
+    return state;
 }
 
 void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState)
@@ -79,16 +79,16 @@ void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState)
 
     u32 c;
     while (count-- > 0)
-	{
+    {
         for (c = rate; c > 0; c--)
-		{
+        {
             asm volatile("nop");
         }
 
         gpio_write_bit( bank,pin,onState);
 
         for (c = rate; c > 0; c--)
-		{
+        {
             asm volatile("nop");
         }
         gpio_write_bit( bank,pin,1-onState);
@@ -106,7 +106,7 @@ void systemReset(void) {
 }
 
 void setupCLK(void) {
-	unsigned int StartUpCounter=0;
+    unsigned int StartUpCounter=0;
     /* enable HSE */
     SET_REG(RCC_CR, GET_REG(RCC_CR) | 0x00010001);
     while ((GET_REG(RCC_CR) & 0x00020000) == 0); /* for it to come on */
@@ -129,22 +129,22 @@ void setupCLK(void) {
 #endif /* HSE_STARTUP_TIMEOUT */
 
     while ((GET_REG(RCC_CR) & 0x03000000) == 0 && StartUpCounter < HSE_STARTUP_TIMEOUT)
-	{
-//		StartUpCounter++; // This is commented out, so other changes can be committed. It will be uncommented at a later date
-	}	/* wait for it to come on */
+    {
+//      StartUpCounter++; // This is commented out, so other changes can be committed. It will be uncommented at a later date
+    }   /* wait for it to come on */
 
-	if (StartUpCounter>=HSE_STARTUP_TIMEOUT)
-	{
-		// HSE has not started. Try restarting the processor
-		systemHardReset();
-	}
+    if (StartUpCounter>=HSE_STARTUP_TIMEOUT)
+    {
+        // HSE has not started. Try restarting the processor
+        systemHardReset();
+    }
 
     /* Set SYSCLK as PLL */
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00000002);
     while ((GET_REG(RCC_CFGR) & 0x00000008) == 0); /* wait for it to come on */
 
     pRCC->APB2ENR |= 0B111111100;// Enable All GPIO channels (A to G)
-	pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
+    pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
 }
 
 
@@ -209,7 +209,7 @@ void jumpToUser(u32 usrAddr) {
     nvicDisableInterrupts();
 
 #ifndef HAS_MAPLE_HARDWARE
-	usbDsbBus();
+    usbDsbBus();
 #endif
 
 // Does nothing, as PC12 is not connected on teh Maple mini according to the schemmatic     setPin(GPIOC, 12); // disconnect usb from host. todo, macroize pin
@@ -220,8 +220,8 @@ void jumpToUser(u32 usrAddr) {
 
 void bkp10Write(u16 value)
 {
-		// Enable clocks for the backup domain registers
-		pRCC->APB1ENR |= (RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
+        // Enable clocks for the backup domain registers
+        pRCC->APB1ENR |= (RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
 
         // Disable backup register write protection
         pPWR->CR |= PWR_CR_DBP;
@@ -241,21 +241,21 @@ int checkAndClearBootloaderFlag()
     pRCC->APB1ENR |= (RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
 
     switch (pBKP->DR10)
-	{
-		case RTC_BOOTLOADER_FLAG:
-			flagSet = 0x01;
-			break;
-		case RTC_BOOTLOADER_JUST_UPLOADED:
-			flagSet = 0x02;
-			break;
+    {
+        case RTC_BOOTLOADER_FLAG:
+            flagSet = 0x01;
+            break;
+        case RTC_BOOTLOADER_JUST_UPLOADED:
+            flagSet = 0x02;
+            break;
     }
 
-	if (flagSet!=0x00)
-	{
-		bkp10Write(0x0000);// Clear the flag
-		// Disable clocks
-		pRCC->APB1ENR &= ~(RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
-	}
+    if (flagSet!=0x00)
+    {
+        bkp10Write(0x0000);// Clear the flag
+        // Disable clocks
+        pRCC->APB1ENR &= ~(RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
+    }
 
 
 
@@ -392,32 +392,32 @@ void flashUnlock() {
 // Used to create the control register masking pattern, when setting control register mode.
 unsigned int crMask(int pin)
 {
-	unsigned int mask;
-	if (pin>=8)
-	{
-		pin-=8;
-	}
-	mask = 0x0F << (pin<<2);
-	return ~mask;
+    unsigned int mask;
+    if (pin>=8)
+    {
+        pin-=8;
+    }
+    mask = 0x0F << (pin<<2);
+    return ~mask;
 }
 
 #define FLASH_SIZE_REG 0x1FFFF7E0
 int getFlashEnd(void)
 {
-	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register
-	return ((int)(*flashSize & 0xffff) * 1024) + 0x08000000;
+    unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register
+    return ((int)(*flashSize & 0xffff) * 1024) + 0x08000000;
 }
 
 int getFlashPageSize(void)
 {
 
-	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register
-	if ((*flashSize & 0xffff) > 128)
-	{
-		return 0x800;
-	}
-	else
-	{
-		return 0x400;
-	}
+    unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register
+    if ((*flashSize & 0xffff) > 128)
+    {
+        return 0x800;
+    }
+    else
+    {
+        return 0x400;
+    }
 }

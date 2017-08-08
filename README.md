@@ -55,7 +55,7 @@ e.g.
 #define HAS_MAPLE_HARDWARE 1
 #define LED_BANK GPIOB
 #define LED_PIN 1
-#define LED_ON_STATE	1
+#define LED_ON_STATE 1
 /* On the Mini, BUT is PB8 */
 #define BUTTON_BANK GPIOB
 #define BUTTON 8

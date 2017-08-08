@@ -144,11 +144,11 @@ build_maple-mini: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 
 build_maple-mini: elf bin lss sym
 copy_maple_mini:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/maple_mini_boot20.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/maple_mini_boot20.bin
+    @echo
 
 build_maple-rev3: TARGETFLAGS= -DTARGET_MAPLE_REV3
 # Set the linker script
@@ -156,22 +156,22 @@ build_maple-rev3: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 
 build_maple-rev3: elf bin lss sym
 copy_maple-rev3:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/maple_rev3_boot20.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/maple_rev3_boot20.bin
+    @echo
 
 build_maple-rev5: TARGETFLAGS= -DTARGET_MAPLE_REV5
 # Set the linker script
 build_maple-rev5: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_maple-rev5: elf bin lss sym
 copy_maple-rev5:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/maple_rev5_boot20.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/maple_rev5_boot20.bin
+    @echo
 
 
 build_generic-pc13: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13
@@ -179,22 +179,22 @@ build_generic-pc13: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13
 build_generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pc13: elf bin lss sym
 copy_generic-pc13:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pc13.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pc13.bin
+    @echo
 
 build_generic-pg15: TARGETFLAGS= -DTARGET_GENERIC_F103_PG15
 # Set the linker script
 build_generic-pg15: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pg15: elf bin lss sym
 copy_generic-pg15:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pg15.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pg15.bin
+    @echo
 
 
 build_generic-pd2: TARGETFLAGS= -DTARGET_GENERIC_F103_PD2
@@ -202,11 +202,11 @@ build_generic-pd2: TARGETFLAGS= -DTARGET_GENERIC_F103_PD2
 build_generic-pd2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pd2: elf bin lss sym
 copy_generic-pd2:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pd2.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pd2.bin
+    @echo
 
 
 build_generic-pd1: TARGETFLAGS= -DTARGET_GENERIC_F103_PD1
@@ -214,33 +214,33 @@ build_generic-pd1: TARGETFLAGS= -DTARGET_GENERIC_F103_PD1
 build_generic-pd1: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pd1: elf bin lss sym
 copy_generic-pd1:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pd1.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pd1.bin
+    @echo
 
 build_generic-pa1: TARGETFLAGS= -DTARGET_GENERIC_F103_PA1
 # Set the linker script
 build_generic-pa1: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pa1: elf bin lss sym
 copy_generic-pa1:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pa1.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pa1.bin
+    @echo
 
 build_generic-pb9: TARGETFLAGS= -DTARGET_GENERIC_F103_PB9
 # Set the linker script
 build_generic-pb9: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb9: elf bin lss sym
 copy_generic-pb9:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb9.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb9.bin
+    @echo
 
 
 build_generic-pe2: TARGETFLAGS= -DTARGET_GENERIC_F103_PE2
@@ -248,11 +248,11 @@ build_generic-pe2: TARGETFLAGS= -DTARGET_GENERIC_F103_PE2
 build_generic-pe2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pe2: elf bin lss sym
 copy_generic-pe2:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pe2.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pe2.bin
+    @echo
 
 
 build_generic-pa9: TARGETFLAGS= -DTARGET_GENERIC_F103_PA9
@@ -260,11 +260,11 @@ build_generic-pa9: TARGETFLAGS= -DTARGET_GENERIC_F103_PA9
 build_generic-pa9: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pa9: elf bin lss sym
 copy_generic-pa9:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pa9.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pa9.bin
+    @echo
 
 
 build_generic-pe5: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5
@@ -272,11 +272,11 @@ build_generic-pe5: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5
 build_generic-pe5: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pe5: elf bin lss sym
 copy_generic-pe5:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pe5.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pe5.bin
+    @echo
 
 
 build_generic-pe5-button-pa0: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5_BUTTON_PA0
@@ -284,11 +284,11 @@ build_generic-pe5-button-pa0: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5_BUTTON_PA0
 build_generic-pe5-button-pa0: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pe5-button-pa0: elf bin lss sym
 copy_generic-pe5-button-pa0:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pe5_button_pa0.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pe5_button_pa0.bin
+    @echo
 
 
 build_generic-pb7: TARGETFLAGS= -DTARGET_GENERIC_F103_PB7
@@ -296,21 +296,21 @@ build_generic-pb7: TARGETFLAGS= -DTARGET_GENERIC_F103_PB7
 build_generic-pb7: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb7: elf bin lss sym
 copy_generic-pb7:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb7.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb7.bin
+    @echo
 build_generic-pb0: TARGETFLAGS= -DTARGET_GENERIC_F103_PB0
 # Set the linker script
 build_generic-pb0: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb0: elf bin lss sym
 copy_generic-pb0:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb0.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb0.bin
+    @echo
 
 
 build_stbee: TARGETFLAGS= -DTARGET_STBEE
@@ -318,77 +318,77 @@ build_stbee: TARGETFLAGS= -DTARGET_STBEE
 build_stbee: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_stbee: elf bin lss sym
 copy_stbee:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/stbee_boot20.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/stbee_boot20.bin
+    @echo
 
 build_naze32: TARGETFLAGS= -DTARGET_NAZE32
 # Set the linker script
 build_naze32: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_naze32: elf bin lss sym
 copy_naze32:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/naze32_boot20.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/naze32_boot20.bin
+    @echo
 
 build_generic-pb12: TARGETFLAGS= -DTARGET_GENERIC_F103_PB12
 # Set the linker script
 build_generic-pb12: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb12: elf bin lss sym
 copy_generic-pb12:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb12.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb12.bin
+    @echo
 
 build_hytiny-stm32f103t: TARGETFLAGS= -DTARGET_HYTINY_STM32F103T
 # Set the linker script
 build_hytiny-stm32f103t: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_hytiny-stm32f103t: elf bin lss sym
 copy_hytiny-stm32f103t:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_hytiny.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/generic_boot20_hytiny.bin
+    @echo
 
 build_dso138: TARGETFLAGS= -DTARGET_DSO138
 # Set the linker script
 build_dso138: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_dso138: elf bin lss sym
 copy_dso138:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/dso138_boot20.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/dso138_boot20.bin
+    @echo
 
 build_gd32f1-generic-pc13: TARGETFLAGS= -DTARGET_GD32F1_GENERIC_F103_PC13
 # Set the linker script
 build_gd32f1-generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_gd32f1-generic-pc13: elf bin lss sym
 copy_gd32f1-generic-pc13:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/gd32f1_generic_boot20_pc13.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/gd32f1_generic_boot20_pc13.bin
+    @echo
 
 build_gd32f1-frankenmaple: TARGETFLAGS= -DTARGET_GD32F1_FRANKENMAPLE
 # Set the linker script
 build_gd32f1-frankenmaple: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_gd32f1-frankenmaple: elf bin lss sym
 copy_gd32f1-frankenmaple:
-	@echo
-	@echo "Copying to binaries folder"
-	@echo
-	cp $(TARGET).bin bootloader_only_binaries/gd32f1_frankenmaple.bin
-	@echo
+    @echo
+    @echo "Copying to binaries folder"
+    @echo
+    cp $(TARGET).bin bootloader_only_binaries/gd32f1_frankenmaple.bin
+    @echo
 
 
 bin: $(TARGET).bin
@@ -396,75 +396,75 @@ elf: $(TARGET).elf
 lss: $(TARGET).lss
 sym: $(TARGET).sym
 dfu: $(TARGET).bin
-	sudo dfu-util -d 0110:1001 -a 0 -D $(TARGET).bin
+    sudo dfu-util -d 0110:1001 -a 0 -D $(TARGET).bin
 
 begin:
-	mkdir -p build/stm32_lib
-	mkdir -p build/usb_lib
-	@echo --
-	@echo $(MSG_BEGIN)
-	@echo $(COBJ)
+    mkdir -p build/stm32_lib
+    mkdir -p build/usb_lib
+    @echo --
+    @echo $(MSG_BEGIN)
+    @echo $(COBJ)
 
 finished:
-	@echo $(MSG_ERRORS_NONE)
+    @echo $(MSG_ERRORS_NONE)
 tags:
-	etags `find . -name "*.c" -o -name "*.cpp" -o -name "*.h"`
-	@echo $(MSG_ETAGS)
+    etags `find . -name "*.c" -o -name "*.cpp" -o -name "*.h"`
+    @echo $(MSG_ETAGS)
 end:
-	@echo $(MSG_END)
-	@echo
+    @echo $(MSG_END)
+    @echo
 sizeafter:
-	@if [ -f $(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
+    @if [ -f $(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
 gccversion:
-	@$(CC) --version
+    @$(CC) --version
 
 program:
-	@echo "Flash-programming with OpenOCD"
-	cp $(TARGET).bin flash/tmpflash.bin
-	cd flash && openocd -f flash.cfg
+    @echo "Flash-programming with OpenOCD"
+    cp $(TARGET).bin flash/tmpflash.bin
+    cd flash && openocd -f flash.cfg
 
 program_serial:
-	@echo "Flash-programming with stm32loader.py"
-	./flash/stm32loader.py -p /dev/ttyUSB0 -evw build/maple_boot.bin
+    @echo "Flash-programming with stm32loader.py"
+    ./flash/stm32loader.py -p /dev/ttyUSB0 -evw build/maple_boot.bin
 
 debug: $(TARGET).bin
-	@echo "Flash-programming with OpenOCD - DEBUG"
-	cp $(TARGET).bin flash/tmpflash.bin
-	cd flash && openocd -f debug.cfg
+    @echo "Flash-programming with OpenOCD - DEBUG"
+    cp $(TARGET).bin flash/tmpflash.bin
+    cd flash && openocd -f debug.cfg
 
 install: $(TARGET).bin
-	cp $(TARGET).bin build/main.bin
-	openocd -f flash/perry_flash.cfg
+    cp $(TARGET).bin build/main.bin
+    openocd -f flash/perry_flash.cfg
 
 run: $(TARGET).bin
-	openocd -f flash/run.cfg
+    openocd -f flash/run.cfg
 
 # Create final output file (.hex) from ELF output file.
 %.hex: %.elf
-	@echo
-	@echo $(MSG_FLASH) $@
-	$(OBJCOPY) -O binary $< $@
+    @echo
+    @echo $(MSG_FLASH) $@
+    $(OBJCOPY) -O binary $< $@
 
 # Create final output file (.bin) from ELF output file.
 %.bin: %.elf
-	@echo
-	@echo $(MSG_FLASH) $@
-	$(OBJCOPY) -O binary $< $@
+    @echo
+    @echo $(MSG_FLASH) $@
+    $(OBJCOPY) -O binary $< $@
 
 
 # Create extended listing file from ELF output file.
 # testing: option -C
 %.lss: %.elf
-	@echo
-	@echo $(MSG_EXTENDED_LISTING) $@
-	$(OBJDUMP) -h -S -D $< > $@
+    @echo
+    @echo $(MSG_EXTENDED_LISTING) $@
+    $(OBJDUMP) -h -S -D $< > $@
 
 
 # Create a symbol table from ELF output file.
 %.sym: %.elf
-	@echo
-	@echo $(MSG_SYMBOL_TABLE) $@
-	$(NM) -n $< > $@
+    @echo
+    @echo $(MSG_SYMBOL_TABLE) $@
+    $(NM) -n $< > $@
 
 
 # Link: create ELF output file from object files.
@@ -472,44 +472,44 @@ run: $(TARGET).bin
 .PRECIOUS : $(COBJ) $(AOBJ)
 
 %.elf:  $(COBJ) $(AOBJ)
-	@echo
-	@echo $(MSG_LINKING) $@
-	$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJ) $(COBJ) --output $@ $(LDFLAGS)
+    @echo
+    @echo $(MSG_LINKING) $@
+    $(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJ) $(COBJ) --output $@ $(LDFLAGS)
 
 # Compile: create object files from C source files. ARM/Thumb
 $(COBJ) : $(BUILDDIR)/%.o : %.c
-	@echo
-	@echo $(MSG_COMPILING) $<
-	$(CC) -c $(THUMB) $(ALL_CFLAGS) $< -o $@
+    @echo
+    @echo $(MSG_COMPILING) $<
+    $(CC) -c $(THUMB) $(ALL_CFLAGS) $< -o $@
 
 # Assemble: create object files from assembler source files. ARM/Thumb
 $(AOBJ) : $(BUILDDIR)/%.o : %.s
-	@echo
-	@echo $(MSG_ASSEMBLING) $<
-	$(CC) -c $(THUMB) $(ALL_ASFLAGS) $< -o $@
+    @echo
+    @echo $(MSG_ASSEMBLING) $<
+    $(CC) -c $(THUMB) $(ALL_ASFLAGS) $< -o $@
 
 clean: begin clean_list finished end
 
 clean_list :
-	@echo
-	@echo $(MSG_CLEANING)
-	$(REMOVE) $(TARGET).hex
-	$(REMOVE) $(TARGET).bin
-	$(REMOVE) $(TARGET).obj
-	$(REMOVE) $(TARGET).elf
-	$(REMOVE) $(TARGET).map
-	$(REMOVE) $(TARGET).obj
-	$(REMOVE) $(TARGET).a90
-	$(REMOVE) $(TARGET).sym
-	$(REMOVE) $(TARGET).lnk
-	$(REMOVE) $(TARGET).lss
-	$(REMOVE) $(COBJ)
-	$(REMOVE) $(AOBJ)
-	$(REMOVE) $(LST)
-	$(REMOVE) flash/tmpflash.bin
-#	$(REMOVE) $(SRC:.c=.s)
-#	$(REMOVE) $(SRC:.c=.d)
-	$(REMOVE) .dep/*
+    @echo
+    @echo $(MSG_CLEANING)
+    $(REMOVE) $(TARGET).hex
+    $(REMOVE) $(TARGET).bin
+    $(REMOVE) $(TARGET).obj
+    $(REMOVE) $(TARGET).elf
+    $(REMOVE) $(TARGET).map
+    $(REMOVE) $(TARGET).obj
+    $(REMOVE) $(TARGET).a90
+    $(REMOVE) $(TARGET).sym
+    $(REMOVE) $(TARGET).lnk
+    $(REMOVE) $(TARGET).lss
+    $(REMOVE) $(COBJ)
+    $(REMOVE) $(AOBJ)
+    $(REMOVE) $(LST)
+    $(REMOVE) flash/tmpflash.bin
+#   $(REMOVE) $(SRC:.c=.s)
+#   $(REMOVE) $(SRC:.c=.d)
+    $(REMOVE) .dep/*
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
@@ -520,5 +520,5 @@ clean_list :
 build elf hex bin lss sym clean clean_list program cscope
 
 cscope:
-	rm -rf *.cscope
-	find . -iname "*.[hcs]" | grep -v examples | xargs cscope -R -b
+    rm -rf *.cscope
+    find . -iname "*.[hcs]" | grep -v examples | xargs cscope -R -b

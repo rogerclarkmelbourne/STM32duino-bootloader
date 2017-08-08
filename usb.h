@@ -49,13 +49,13 @@ int wTransferSize;
 #define F_SUSPEND_ENABLED 1
 
 /* defines which interrupts are handled */
-#define ISR_MSK (CNTR_CTRM   |			\
-                 CNTR_WKUPM  |			\
-                 CNTR_SUSPM  |			\
-                 CNTR_ERRM   |			\
-                 CNTR_SOFM   |			\
-                 CNTR_ESOFM  |			\
-                 CNTR_RESETM			\
+#define ISR_MSK (CNTR_CTRM   |          \
+                 CNTR_WKUPM  |          \
+                 CNTR_SUSPM  |          \
+                 CNTR_ERRM   |          \
+                 CNTR_SOFM   |          \
+                 CNTR_ESOFM  |          \
+                 CNTR_RESETM            \
                 )
 
 typedef enum _RESUME_STATE {
