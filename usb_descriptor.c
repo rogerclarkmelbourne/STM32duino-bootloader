@@ -118,7 +118,7 @@ u8 u8_usbConfigDescriptorDFU[u8_usbConfigDescriptorDFU_LENGTH] = {
     0x02,   /* nInterfaceProtocol, switched to 0x02 while in dfu_mode */
 
     0x05,   /* iInterface: */
-	
+
     /************ Descriptor of DFU interface 0 Alternate setting 2 *********/
     0x09,   /* bLength: Interface Descriptor size */
     0x04,   /* bDescriptorType: */
@@ -130,8 +130,8 @@ u8 u8_usbConfigDescriptorDFU[u8_usbConfigDescriptorDFU_LENGTH] = {
 
     0x02,   /* nInterfaceProtocol, switched to 0x02 while in dfu_mode */
 
-    0x06,   /* iInterface: */	
-	
+    0x06,   /* iInterface: */
+
 
     /******************** DFU Functional Descriptor********************/
     0x09,   /*blength = 7 Bytes*/
@@ -188,7 +188,7 @@ u8 u8_usbStringSerial[USB_SERIAL_STR_LEN] = {
 	u8 u8_usbStringAlt1[ALT1_STR_LEN] = {
 	ALT1_STR_LEN,
 	0x03,
-	ALT1_MSG_STR	
+	ALT1_MSG_STR
 	};
 
 
@@ -196,7 +196,7 @@ u8 u8_usbStringSerial[USB_SERIAL_STR_LEN] = {
 	ALT2_STR_LEN,
 	0x03,
 	ALT2_MSG_STR
-	};	
+	};
 
 u8 u8_usbStringInterface = NULL;
 

@@ -76,7 +76,7 @@ bool dfuUpdateByRequest(void) {
     /* were using the global pInformation struct from usb_lib here,
        see comment in maple_dfu.h around DFUEvent struct */
     dfuBusy = TRUE;
-	
+
 
 
     u8 startState = dfuAppStatus.bState;
@@ -101,10 +101,10 @@ bool dfuUpdateByRequest(void) {
 						break;
 						*/
 					case 1:
-					
+
 					    userAppAddr = USER_CODE_FLASH0X8005000;
 						userUploadType = DFU_UPLOAD_FLASH_0X8005000;
-						
+
 						/* make sure the flash is setup properly, unlock it */
 						setupFLASH();
 						flashUnlock();
@@ -123,7 +123,7 @@ bool dfuUpdateByRequest(void) {
 
 						break;
 					default:
-					// Roger Clark. Report error 
+					// Roger Clark. Report error
 						dfuAppStatus.bState  = dfuERROR;
 						dfuAppStatus.bStatus = errWRITE;
 						break;
@@ -151,17 +151,17 @@ bool dfuUpdateByRequest(void) {
 				    userAppAddr = USER_CODE_FLASH0X8005000;
 					userAppEnd = getFlashEnd();
 					break;
-				case 2: 
+				case 2:
 				    userAppAddr = USER_CODE_FLASH0X8002000;
 					userAppEnd = getFlashEnd();
 					break;
 				default:
-				// Roger Clark. 
+				// Roger Clark.
 				// Changed this to report error that its unable to write to this memory
 				// However the code should never get here as only AlternateSetting 1 and 2 are allowed (see above)
 					dfuAppStatus.bState  = dfuERROR;
 					dfuAppStatus.bStatus = errWRITE;
-					break;					
+					break;
 			}
         } else if (pInformation->USBbRequest == DFU_ABORT) {
             dfuAppStatus.bState  = dfuIDLE;
@@ -180,14 +180,14 @@ bool dfuUpdateByRequest(void) {
 
         if (pInformation->USBbRequest == DFU_GETSTATUS) {
             /* todo, add routine to wait for last block write to finish */
-			
+
 			/* Roger Clark. Commented out code associated with RAM upload
-			
-            if (userUploadType == DFU_UPLOAD_RAM) 
+
+            if (userUploadType == DFU_UPLOAD_RAM)
 			{
                 if (code_copy_lock == WAIT) {
                     code_copy_lock = BEGINNING;
-                    dfuAppStatus.bwPollTimeout0 = 0x20; // 32 ms 
+                    dfuAppStatus.bwPollTimeout0 = 0x20; // 32 ms
                     dfuAppStatus.bwPollTimeout1 = 0x00;
                     dfuAppStatus.bState = dfuDNBUSY;
 
@@ -203,8 +203,8 @@ bool dfuUpdateByRequest(void) {
                     dfuAppStatus.bState = dfuDNLOAD_IDLE;
                 }
 
-            } 
-			else 
+            }
+			else
 			*/
 			{
                 dfuAppStatus.bState = dfuDNLOAD_IDLE;
@@ -412,20 +412,20 @@ u8 *dfuCopyUPLOAD(u16 length) {
 void dfuCopyBufferToExec() {
     int i;
     u32 *userSpace;
-	
-/* Roger Clark. 
+
+/* Roger Clark.
 	Commented out code associated with upload to RAM
 
-    if (userUploadType == DFU_UPLOAD_RAM) 
+    if (userUploadType == DFU_UPLOAD_RAM)
 	{
         userSpace = (u32 *)(USER_CODE_RAM + userFirmwareLen);
         // we dont need to handle when thisBlock len is not divisible by 4,
-        //   since the linker will align everything to 4B anyway 
+        //   since the linker will align everything to 4B anyway
         for (i = 0; i < thisBlockLen; i = i + 4) {
             *userSpace++ = *(u32 *)(recvBuffer + i);
         }
-    } 
-	else 
+    }
+	else
 */
 	{
 		if (userUploadType == DFU_UPLOAD_FLASH_0X8005000)
@@ -434,7 +434,7 @@ void dfuCopyBufferToExec() {
 		}
 		else
 		{
-			userSpace = (u32 *)(USER_CODE_FLASH0X8002000 + userFirmwareLen);		
+			userSpace = (u32 *)(USER_CODE_FLASH0X8002000 + userFirmwareLen);
 		}
 
         flashErasePage((u32)(userSpace));
@@ -466,10 +466,10 @@ void dfuFinishUpload() {
 	{
 		__asm("nop");
 
-/* Roger Clark. 
-	Commented out code associated with upload to RAM	
+/* Roger Clark.
+	Commented out code associated with upload to RAM
 
-		if (userUploadType==DFU_UPLOAD_RAM) 
+		if (userUploadType==DFU_UPLOAD_RAM)
 		{
             if (code_copy_lock == BEGINNING) {
                 code_copy_lock = MIDDLE;
@@ -479,9 +479,9 @@ void dfuFinishUpload() {
                 code_copy_lock = END;
             }
         }
-		
-*/		
-		
+
+*/
+
         /* otherwise do nothing, dfu state machine resets itself */
     }
 }

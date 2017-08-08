@@ -43,7 +43,7 @@ void resetPin(u32 bank, u8 pin) {
 }
 */
 void gpio_write_bit(u32 bank, u8 pin, u8 val) {
-    val = !val;          // "set" bits are lower than "reset" bits  
+    val = !val;          // "set" bits are lower than "reset" bits
     SET_REG(GPIO_BSRR(bank), (1U << pin) << (16 * val));
 }
 
@@ -59,12 +59,12 @@ bool readPin(u32 bank, u8 pin) {
 bool readButtonState() {
     // todo, implement read
 	bool state=FALSE;
- #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)	
-    if (GET_REG(GPIO_IDR(BUTTON_BANK)) & (0x01 << BUTTON_PIN)) 
+ #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)
+    if (GET_REG(GPIO_IDR(BUTTON_BANK)) & (0x01 << BUTTON_PIN))
 	{
         state = TRUE;
-    } 
-	
+    }
+
 	if (BUTTON_PRESSED_STATE==0)
 	{
 		state=!state;
@@ -73,20 +73,20 @@ bool readButtonState() {
 	return state;
 }
 
-void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState) 
+void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState)
 {
     gpio_write_bit( bank,pin,1-onState);
 
     u32 c;
-    while (count-- > 0) 
+    while (count-- > 0)
 	{
         for (c = rate; c > 0; c--)
 		{
             asm volatile("nop");
         }
-		
+
         gpio_write_bit( bank,pin,onState);
-		
+
         for (c = rate; c > 0; c--)
 		{
             asm volatile("nop");
@@ -113,20 +113,20 @@ void setupCLK(void) {
 
     /* enable flash prefetch buffer */
     SET_REG(FLASH_ACR, 0x00000012);
-	
+
      /* Configure PLL */
 #ifdef XTAL12M
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00110400); /* pll=72Mhz(x6),APB1=36Mhz,AHB=72Mhz */
 #else
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x001D0400); /* pll=72Mhz(x9),APB1=36Mhz,AHB=72Mhz */
-#endif	
+#endif
 
     SET_REG(RCC_CR, GET_REG(RCC_CR)     | 0x01000000); /* enable the pll */
-	
 
-#if !defined  (HSE_STARTUP_TIMEOUT) 
+
+#if !defined  (HSE_STARTUP_TIMEOUT)
   #define HSE_STARTUP_TIMEOUT    ((unsigned int)0x0500)   /*!< Time out for HSE start up */
-#endif /* HSE_STARTUP_TIMEOUT */   
+#endif /* HSE_STARTUP_TIMEOUT */
 
     while ((GET_REG(RCC_CR) & 0x03000000) == 0 && StartUpCounter < HSE_STARTUP_TIMEOUT)
 	{
@@ -136,13 +136,13 @@ void setupCLK(void) {
 	if (StartUpCounter>=HSE_STARTUP_TIMEOUT)
 	{
 		// HSE has not started. Try restarting the processor
-		systemHardReset(); 
+		systemHardReset();
 	}
-	
+
     /* Set SYSCLK as PLL */
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00000002);
     while ((GET_REG(RCC_CFGR) & 0x00000008) == 0); /* wait for it to come on */
-	
+
     pRCC->APB2ENR |= 0B111111100;// Enable All GPIO channels (A to G)
 	pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
 }
@@ -150,10 +150,10 @@ void setupCLK(void) {
 
 void setupLEDAndButton (void) {
  // SET_REG(AFIO_MAPR,(GET_REG(AFIO_MAPR) & ~AFIO_MAPR_SWJ_CFG) | AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW);// Try to disable SWD AND JTAG so we can use those pins (not sure if this works).
- 
+
  #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)
   SET_REG(GPIO_CR(BUTTON_BANK,BUTTON_PIN),(GPIO_CR(BUTTON_BANK,BUTTON_PIN) & crMask(BUTTON_PIN)) | CR_INPUT_PU_PD << CR_SHITF(BUTTON_PIN));
-  
+
   gpio_write_bit(BUTTON_BANK, BUTTON_PIN,1-BUTTON_PRESSED_STATE);// set pulldown resistor in case there is no button.
  #endif
   SET_REG(GPIO_CR(LED_BANK,LED_PIN),(GET_REG(GPIO_CR(LED_BANK,LED_PIN)) & crMask(LED_PIN)) | CR_OUTPUT_PP << CR_SHITF(LED_PIN));
@@ -207,11 +207,11 @@ void jumpToUser(u32 usrAddr) {
     flashLock();
     usbDsbISR();
     nvicDisableInterrupts();
-	
-#ifndef HAS_MAPLE_HARDWARE	
+
+#ifndef HAS_MAPLE_HARDWARE
 	usbDsbBus();
 #endif
-	
+
 // Does nothing, as PC12 is not connected on teh Maple mini according to the schemmatic     setPin(GPIOC, 12); // disconnect usb from host. todo, macroize pin
     systemReset(); // resets clocks and periphs, not core regs
 
@@ -222,7 +222,7 @@ void bkp10Write(u16 value)
 {
 		// Enable clocks for the backup domain registers
 		pRCC->APB1ENR |= (RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
-		
+
         // Disable backup register write protection
         pPWR->CR |= PWR_CR_DBP;
 
@@ -230,7 +230,7 @@ void bkp10Write(u16 value)
         pBKP->DR10 = value;
 
         // Re-enable backup register write protection
-        pPWR->CR &=~ PWR_CR_DBP;	
+        pPWR->CR &=~ PWR_CR_DBP;
 }
 
 int checkAndClearBootloaderFlag()
@@ -247,7 +247,7 @@ int checkAndClearBootloaderFlag()
 			break;
 		case RTC_BOOTLOADER_JUST_UPLOADED:
 			flagSet = 0x02;
-			break;		
+			break;
     }
 
 	if (flagSet!=0x00)
@@ -257,7 +257,7 @@ int checkAndClearBootloaderFlag()
 		pRCC->APB1ENR &= ~(RCC_APB1ENR_PWR_CLK | RCC_APB1ENR_BKP_CLK);
 	}
 
-	
+
 
     return flagSet;
 }
@@ -399,19 +399,19 @@ unsigned int crMask(int pin)
 	}
 	mask = 0x0F << (pin<<2);
 	return ~mask;
-}	
+}
 
 #define FLASH_SIZE_REG 0x1FFFF7E0
 int getFlashEnd(void)
 {
-	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register 
+	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register
 	return ((int)(*flashSize & 0xffff) * 1024) + 0x08000000;
 }
 
 int getFlashPageSize(void)
 {
 
-	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register 
+	unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register
 	if ((*flashSize & 0xffff) > 128)
 	{
 		return 0x800;

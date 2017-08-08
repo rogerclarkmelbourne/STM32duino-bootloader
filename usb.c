@@ -39,9 +39,9 @@ extern u8 u8_usbFunctionalDescriptor[];
 
 void setupUSB (void) {
 
-#ifdef HAS_MAPLE_HARDWARE	
-  /* Setup USB DISC pin as output open drain */	
-  SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN),(GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN)) & crMask(USB_DISC_PIN)) | CR_OUTPUT_OD << CR_SHITF(USB_DISC_PIN));  
+#ifdef HAS_MAPLE_HARDWARE
+  /* Setup USB DISC pin as output open drain */
+  SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN),(GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN)) & crMask(USB_DISC_PIN)) | CR_OUTPUT_OD << CR_SHITF(USB_DISC_PIN));
   gpio_write_bit(USB_DISC_BANK,USB_DISC_PIN,1);
 
   /* turn on the USB clock */
@@ -58,7 +58,7 @@ void setupUSB (void) {
           (GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN)) & crMask(USB_DISC_PIN)) | CR_OUTPUT_PP << CR_SHITF(USB_DISC_PIN));
 
   gpio_write_bit(USB_DISC_BANK,USB_DISC_PIN,0);  /* present ourselves to the host */
-  
+
   volatile unsigned int delay;
   for(delay = 0;delay<512;delay++);
 
@@ -67,16 +67,16 @@ void setupUSB (void) {
    SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN),
           (GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN)) & crMask(USB_DISC_PIN)) | CR_INPUT << CR_SHITF(USB_DISC_PIN)); //Sets the PA12 as floating input
  //  pRCC->APB1ENR |= RCC_APB1ENR_USB_CLK;
-#endif  
+#endif
   /* initialize the usb application */
-  
+
   wTransferSize=getFlashPageSize();
   u8_usbConfigDescriptorDFU[41]=(wTransferSize & 0x00FF);
   u8_usbConfigDescriptorDFU[42]=(wTransferSize & 0xFF00)>>8;
-  
+
   u8_usbFunctionalDescriptor[5]=(wTransferSize & 0x00FF);
-  u8_usbFunctionalDescriptor[6]=(wTransferSize & 0xFF00)>>8;  
-  
+  u8_usbFunctionalDescriptor[6]=(wTransferSize & 0xFF00)>>8;
+
   usbAppInit();
 
 }

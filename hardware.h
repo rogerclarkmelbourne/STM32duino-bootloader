@@ -75,7 +75,7 @@
 #define GPIO_CR(port,pin) (port + (0x04*(pin>7)))
 
 #define CR_OUTPUT_OD 		0x05
-#define CR_OUTPUT_PP		0x01	
+#define CR_OUTPUT_PP		0x01
 #define CR_INPUT 	  		0x04
 #define CR_INPUT_PU_PD		0x08
 
@@ -123,7 +123,7 @@
 #define AFIO_MAPR_SWJ_CFG_NO_JTAG_SW           (0x2 << 24)
 #define AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW        (0x4 << 24)
 
-        
+
 
 
 // more bit twiddling to set Control register bits
@@ -264,5 +264,5 @@ void nvicDisableInterrupts(void);
 
 int getFlashEnd(void);
 int getFlashPageSize(void);
-	
+
 #endif
