@@ -365,7 +365,7 @@
 #define STARTUP_BLINKS 5
 #ifndef BOOTLOADER_WAIT
 #ifdef BUTTON_BANK
-	#define BOOTLOADER_WAIT 15
+	#define BOOTLOADER_WAIT 6
 #else
 	#define BOOTLOADER_WAIT 30
 #endif
