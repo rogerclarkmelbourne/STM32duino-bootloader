@@ -59,7 +59,7 @@ bool readPin(u32 bank, u8 pin) {
 bool readButtonState() {
     // todo, implement read
     bool state=FALSE;
- #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)
+#if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)
     if (GET_REG(GPIO_IDR(BUTTON_BANK)) & (0x01 << BUTTON_PIN))
     {
         state = TRUE;
@@ -114,7 +114,7 @@ void setupCLK(void) {
     /* enable flash prefetch buffer */
     SET_REG(FLASH_ACR, 0x00000012);
 
-     /* Configure PLL */
+    /* Configure PLL */
 #ifdef XTAL12M
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00110400); /* pll=72Mhz(x6),APB1=36Mhz,AHB=72Mhz */
 #else
@@ -125,7 +125,7 @@ void setupCLK(void) {
 
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    ((unsigned int)0x0500)   /*!< Time out for HSE start up */
+#define HSE_STARTUP_TIMEOUT    ((unsigned int)0x0500)   /*!< Time out for HSE start up */
 #endif /* HSE_STARTUP_TIMEOUT */
 
     while ((GET_REG(RCC_CR) & 0x03000000) == 0 && StartUpCounter < HSE_STARTUP_TIMEOUT)
@@ -149,14 +149,14 @@ void setupCLK(void) {
 
 
 void setupLEDAndButton (void) {
- // SET_REG(AFIO_MAPR,(GET_REG(AFIO_MAPR) & ~AFIO_MAPR_SWJ_CFG) | AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW);// Try to disable SWD AND JTAG so we can use those pins (not sure if this works).
+    // SET_REG(AFIO_MAPR,(GET_REG(AFIO_MAPR) & ~AFIO_MAPR_SWJ_CFG) | AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW);// Try to disable SWD AND JTAG so we can use those pins (not sure if this works).
 
- #if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)
-  SET_REG(GPIO_CR(BUTTON_BANK,BUTTON_PIN),(GPIO_CR(BUTTON_BANK,BUTTON_PIN) & crMask(BUTTON_PIN)) | CR_INPUT_PU_PD << CR_SHITF(BUTTON_PIN));
+#if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_PRESSED_STATE)
+    SET_REG(GPIO_CR(BUTTON_BANK,BUTTON_PIN),(GPIO_CR(BUTTON_BANK,BUTTON_PIN) & crMask(BUTTON_PIN)) | CR_INPUT_PU_PD << CR_SHITF(BUTTON_PIN));
 
-  gpio_write_bit(BUTTON_BANK, BUTTON_PIN,1-BUTTON_PRESSED_STATE);// set pulldown resistor in case there is no button.
- #endif
-  SET_REG(GPIO_CR(LED_BANK,LED_PIN),(GET_REG(GPIO_CR(LED_BANK,LED_PIN)) & crMask(LED_PIN)) | CR_OUTPUT_PP << CR_SHITF(LED_PIN));
+    gpio_write_bit(BUTTON_BANK, BUTTON_PIN,1-BUTTON_PRESSED_STATE);// set pulldown resistor in case there is no button.
+#endif
+    SET_REG(GPIO_CR(LED_BANK,LED_PIN),(GET_REG(GPIO_CR(LED_BANK,LED_PIN)) & crMask(LED_PIN)) | CR_OUTPUT_PP << CR_SHITF(LED_PIN));
 }
 
 void setupFLASH() {
@@ -182,20 +182,19 @@ bool checkUserCode(u32 usrAddr) {
 }
 
 void setMspAndJump(u32 usrAddr) {
-  // Dedicated function with no call to any function (appart the last call)
-  // This way, there is no manipulation of the stack here, ensuring that GGC
-  // didn't insert any pop from the SP after having set the MSP.
-  typedef void (*funcPtr)(void);
-  u32 jumpAddr = *(vu32 *)(usrAddr + 0x04); /* reset ptr in vector table */
+    // Dedicated function with no call to any function (appart the last call)
+    // This way, there is no manipulation of the stack here, ensuring that GGC
+    // didn't insert any pop from the SP after having set the MSP.
+    typedef void (*funcPtr)(void);
+    u32 jumpAddr = *(vu32 *)(usrAddr + 0x04); /* reset ptr in vector table */
 
-  funcPtr usrMain = (funcPtr) jumpAddr;
+    funcPtr usrMain = (funcPtr) jumpAddr;
 
-  SET_REG(SCB_VTOR, (vu32) (usrAddr));
+    SET_REG(SCB_VTOR, (vu32) (usrAddr));
 
-  asm volatile("msr msp, %0"::"g"
-               (*(volatile u32 *)usrAddr));
+    asm volatile("msr msp, %0"::"g"(*(volatile u32 *)usrAddr));
 
-  usrMain();                                /* go! */
+    usrMain();                                /* go! */
 }
 
 
