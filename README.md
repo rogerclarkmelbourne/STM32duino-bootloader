@@ -11,7 +11,7 @@ This repo is a derivation of  https://github.com/jonatanolofsson/maple-bootloade
 
 The bootloader has been reworked so that all versions are contained in the Master branch, rather than 1 branch per version / board.
 
-Note. 
+Note.
 The upload to RAM option has effectively been removed, as it was useless and caused problems.
 The bootloader still has a DFU - AltID for RAM uploads, however this returns an error the host attempts to uplaod to this AltID. The AltID was kept, to allow backwards compatibility with anyone still using the old Maple IDE which has a upload to RAM option.
 
@@ -20,8 +20,8 @@ The makefile now has multple build targets including "maple-mini" (roughly equiv
 Additionally the bootloader now works with "generic" STM32F103 boards, which do not have the additional USB reset hardware which all Maple, and Maple mini boards have.
 
 On "generic" boards, the USB reset (to force re-enumeration by the host), is triggered by reconfiguring USB line D+ (PA12) into GPIO mode, and driving PA12 low for a short period, before setting the pin back to its USB operational mode.
-This system to reset the USB was written by @Victor_pv. 
-Note. It is not guaranteed to work on all "generic" STM32 boards, and relies on PA12 having a pull-up resistor of around 1.5k - however most "generic" boards seem to have this. 
+This system to reset the USB was written by @Victor_pv.
+Note. It is not guaranteed to work on all "generic" STM32 boards, and relies on PA12 having a pull-up resistor of around 1.5k - however most "generic" boards seem to have this.
 Its unclear if this method to reset the USB bus conforms precisely to the USB standard, but it seems to work fine on all PC's and Mac's (and Linux boxes) on which its been tested - and seems usable for hobby / non commericial / non-critical systems.
 
 
@@ -36,7 +36,7 @@ generic-pd1
 generic-pa1
 generic-pb9
 
-In addition to the LED, the difference in the build targets is 
+In addition to the LED, the difference in the build targets is
 (a) whether the device has maple USB reset hardware.
 (b) Which pin the "button" is attached to.
 
@@ -45,7 +45,7 @@ Note. Most "generic" STM32F103 boards only have a reset button, and not a user /
 IMPORTANT.
 If you have a board where you have external hardware attached to pin PC12 which will pull this pin HIGH, you will need to make a new build target for you board which uses a different pin for the Button, or completely modify the code so that the Button is ignored.
 
-The configuration for each build target / board is defined in config.h 
+The configuration for each build target / board is defined in config.h
 
 The Makefile sets the board name as a #define e.g. #define TARGET_GENERIC_F103_PD2, and config.h contains a block of config defines for each board.
 
@@ -55,7 +55,7 @@ e.g.
 #define HAS_MAPLE_HARDWARE 1
 #define LED_BANK GPIOB
 #define LED_PIN 1
-#define LED_ON_STATE	1	
+#define LED_ON_STATE 1
 /* On the Mini, BUT is PB8 */
 #define BUTTON_BANK GPIOB
 #define BUTTON 8
@@ -90,7 +90,7 @@ Note the code directly links flash page size to DFU block size. It would probabl
 #####Other improvements on the original Maple bootloader
 
 1. Smaller footprint - now only 8k (This became possible due to code changes by @jonatanolofsson which allowed the GCC optimisation for size flag to be used
-2. Additional DFU AltID upload type was added, which allows the sketch to be loaded at 0x8002000 instead of 0x8005000 (due to reduce size of the bootloader is self), 
+2. Additional DFU AltID upload type was added, which allows the sketch to be loaded at 0x8002000 instead of 0x8005000 (due to reduce size of the bootloader is self),
 Note. upload to 0x8005000 was retained for backwards compatibility.
 
 

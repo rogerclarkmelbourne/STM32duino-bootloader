@@ -1,6 +1,6 @@
 /**
  *
- * Maple Mini bootloader transition sketch. 
+ * Maple Mini bootloader transition sketch.
  * Based on sketch from Gregwar for Robotis OpenCM9.04, which is based on Maple bootloader code.
  *
  * WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
@@ -30,19 +30,19 @@ typedef struct {
   volatile uint32 APB1ENR;
   volatile uint32 BDCR;
   volatile uint32 CSR;
-} 
+}
 RCC_RegStruct;
 
-typedef enum { 
-  RESET = 0, SET   = !RESET } 
+typedef enum {
+  RESET = 0, SET   = !RESET }
 FlagStatus, ITStatus;
 
-typedef enum { 
-  DISABLE = 0, ENABLE  = !DISABLE} 
+typedef enum {
+  DISABLE = 0, ENABLE  = !DISABLE}
 FunctionalState;
 
-typedef enum { 
-  ERROR = 0, SUCCESS  = !ERROR} 
+typedef enum {
+  ERROR = 0, SUCCESS  = !ERROR}
 ErrorStatus;
 
 #define BOOTLOADER_FLASH   ((uint32)0x08000000)
@@ -163,7 +163,7 @@ void setupFLASH() {
     uint32 rwmVal = pRCC->CR;
     rwmVal |= 0x01;
     pRCC->CR = rwmVal;
-  }   
+  }
 
   /* wait for it to come on */
   while ((pRCC->CR & 0x02) == 0x00) {
@@ -246,7 +246,7 @@ void loop() {
     while (1){
       digitalWrite(BOARD_LED_PIN, LOW);
       delay(500);
-      digitalWrite(BOARD_LED_PIN, HIGH); 
+      digitalWrite(BOARD_LED_PIN, HIGH);
       delay(500);
     }
   }

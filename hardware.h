@@ -39,8 +39,8 @@
 #define GPIOE ((u32)0x40011800)
 #define GPIOF ((u32)0x40011C00)
 #define GPIOG ((u32)0x40012000)
-#define AFIO_BASE              	((u32)0x40010000)
-#define AFIO_MAPR  				(AFIO_BASE + 0x04)
+#define AFIO_BASE               ((u32)0x40010000)
+#define AFIO_MAPR               (AFIO_BASE + 0x04)
 
 
 #define RCC_CR      RCC
@@ -74,10 +74,10 @@
 #define GPIO_BSRR(port) (port+0x10)
 #define GPIO_CR(port,pin) (port + (0x04*(pin>7)))
 
-#define CR_OUTPUT_OD 		0x05
-#define CR_OUTPUT_PP		0x01	
-#define CR_INPUT 	  		0x04
-#define CR_INPUT_PU_PD		0x08
+#define CR_OUTPUT_OD        0x05
+#define CR_OUTPUT_PP        0x01
+#define CR_INPUT            0x04
+#define CR_INPUT_PU_PD      0x08
 
 #define SCS_BASE   ((u32)0xE000E000)
 #define NVIC_BASE  (SCS_BASE + 0x0100)
@@ -123,7 +123,7 @@
 #define AFIO_MAPR_SWJ_CFG_NO_JTAG_SW           (0x2 << 24)
 #define AFIO_MAPR_SWJ_CFG_NO_JTAG_NO_SW        (0x4 << 24)
 
-        
+
 
 
 // more bit twiddling to set Control register bits
@@ -264,5 +264,5 @@ void nvicDisableInterrupts(void);
 
 int getFlashEnd(void);
 int getFlashPageSize(void);
-	
+
 #endif

@@ -43,7 +43,7 @@
 
 
 // The USB clock is the same for all boards
-#define RCC_APB1ENR_USB_CLK   0x00800000 
+#define RCC_APB1ENR_USB_CLK   0x00800000
 
 // Clocks for the backup domain registers
 #define RCC_APB1ENR_PWR_CLK   0x10000000
@@ -62,312 +62,312 @@
 #define ALT2_MSG_STR 'S',0,'T',0,'M',0,'3',0,'2',0,'d',0,'u',0,'i',0,'n',0,'o',0,' ',0,'b',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,' ',0,'v',0,'1',0,'.',0,'0',0,' ',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0,' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'0',0,'x',0,'8',0,'0',0,'0',0,'2',0,'0',0,'0',0,'0',0
 
 // Jump locations for legacy bootloader (0x8005000) and new / smaller bootloder (0x8002000)
-#define USER_CODE_FLASH0X8005000   	((u32)0x08005000)
-#define USER_CODE_FLASH0X8002000	((u32)0x08002000)
+#define USER_CODE_FLASH0X8005000    ((u32)0x08005000)
+#define USER_CODE_FLASH0X8002000    ((u32)0x08002000)
 
 #define LARGEST_FLASH_PAGE_SIZE 0x800
 
 // Upload to RAM has been removed / depreacted so these values a not used any more
-#define USER_CODE_RAM     			((u32)0x20000C00)
+#define USER_CODE_RAM               ((u32)0x20000C00)
 
 // RAM_END, set ram end to the end of ram on the device wth the least RAM (STM32F103C)
-#define RAM_END           			((u32)0x20005000)
+#define RAM_END                     ((u32)0x20005000)
 
 /* Porting information Please read.
 
-	These defineds are use to setup the hardware of the GPIO. 
-	See http://www.st.com/web/en/resource/technical/document/reference_manual/CD00171190.pdf
+    These defineds are use to setup the hardware of the GPIO.
+    See http://www.st.com/web/en/resource/technical/document/reference_manual/CD00171190.pdf
 
-	Two GPIO pins need to be defined, the LED and the Button.
-	
-	For each pin, the following is required
-	
-	LED_BANK, this is the GPIO port, e.g. GPIOA,GPIOB, GPIOC etc etc etc
-	LED_PIN, this is the pin number e.g PB1 = 1
-	LED_ON_STATE is whether the pin needs to be 1 or 0 for the LED to be lit, this is needed because on some boards the led is wired between Vcc and the Pin
-	instead of from the pin to GND
-	
-	BUTTON_BANK   Port name of the pin used for the button 
-	#define BUTTON_PIN  
-	#define BUTTON_PRESSED_STATE 1	
+    Two GPIO pins need to be defined, the LED and the Button.
+
+    For each pin, the following is required
+
+    LED_BANK, this is the GPIO port, e.g. GPIOA,GPIOB, GPIOC etc etc etc
+    LED_PIN, this is the pin number e.g PB1 = 1
+    LED_ON_STATE is whether the pin needs to be 1 or 0 for the LED to be lit, this is needed because on some boards the led is wired between Vcc and the Pin
+    instead of from the pin to GND
+
+    BUTTON_BANK   Port name of the pin used for the button
+    #define BUTTON_PIN
+    #define BUTTON_PRESSED_STATE 1
 */
 
 #if defined TARGET_MAPLE_MINI
 
-	#define HAS_MAPLE_HARDWARE 1
+    #define HAS_MAPLE_HARDWARE 1
 
-	#define LED_BANK         GPIOB
-	#define LED_PIN          1
-	#define LED_ON_STATE	 1	
+    #define LED_BANK         GPIOB
+    #define LED_PIN          1
+    #define LED_ON_STATE     1
 
-	/* On the Mini, BUT is PB8 */
-	#define BUTTON_BANK      GPIOB
-	#define BUTTON_PIN           8
-	#define BUTTON_PRESSED_STATE 1
-	
-	/* USB Disc Pin Setup.   USB DISC is PB9 */
-	#define USB_DISC_BANK       GPIOB
-	#define USB_DISC_PIN            9
-	
+    /* On the Mini, BUT is PB8 */
+    #define BUTTON_BANK      GPIOB
+    #define BUTTON_PIN           8
+    #define BUTTON_PRESSED_STATE 1
+
+    /* USB Disc Pin Setup.   USB DISC is PB9 */
+    #define USB_DISC_BANK       GPIOB
+    #define USB_DISC_PIN            9
+
 #elif defined TARGET_MAPLE_REV3
 
-	#warning "Target MAPLE_REV3"
+    #warning "Target MAPLE_REV3"
 
 // Flag that this type of board has the custom maple disconnect hardware
-	#define HAS_MAPLE_HARDWARE 1
-	
-	#define LED_BANK         GPIOB
-	#define LED_PIN              1
-	#define LED_ON_STATE	 1
+    #define HAS_MAPLE_HARDWARE 1
 
-	#define BUTTON_BANK      GPIOB
-	#define BUTTON_PIN           8
-	#define BUTTON_PRESSED_STATE 1	
+    #define LED_BANK         GPIOB
+    #define LED_PIN              1
+    #define LED_ON_STATE     1
 
-	/* USB Disc Pin Setup.   USB DISC is PB9 */
-	#define USB_DISC_BANK         GPIOB
-	#define USB_DISC_PIN              9
-	
+    #define BUTTON_BANK      GPIOB
+    #define BUTTON_PIN           8
+    #define BUTTON_PRESSED_STATE 1
+
+    /* USB Disc Pin Setup.   USB DISC is PB9 */
+    #define USB_DISC_BANK         GPIOB
+    #define USB_DISC_PIN              9
+
 #elif defined TARGET_MAPLE_REV5
 
 // Flag that this type of board has the custom maple disconnect hardware
-	#define HAS_MAPLE_HARDWARE 1
+    #define HAS_MAPLE_HARDWARE 1
 
-	#define LED_BANK         GPIOA
-	#define LED_PIN              5
-	#define LED_ON_STATE	 0
+    #define LED_BANK         GPIOA
+    #define LED_PIN              5
+    #define LED_ON_STATE     0
 
-	/* On the Mini, BUT is PB8 */
-	#define BUTTON_BANK      GPIOC
-	#define BUTTON_PIN           9
+    /* On the Mini, BUT is PB8 */
+    #define BUTTON_BANK      GPIOC
+    #define BUTTON_PIN           9
 
-	/* USB Disc Pin Setup.   USB DISC is PB9 */
-	#define USB_DISC_BANK         GPIOB
-	#define USB_DISC_PIN              9
-	
+    /* USB Disc Pin Setup.   USB DISC is PB9 */
+    #define USB_DISC_BANK         GPIOB
+    #define USB_DISC_PIN              9
+
 #elif defined TARGET_GENERIC_F103_PC13
-	
-	#define LED_BANK			GPIOC 
-	#define LED_PIN 			13
-	#define LED_ON_STATE		0
 
-	// Button (if you have one)
-	
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
-	
-	
+    #define LED_BANK            GPIOC
+    #define LED_PIN             13
+    #define LED_ON_STATE        0
+
+    // Button (if you have one)
+
+    #define BUTTON_BANK GPIOC
+    #define BUTTON_PIN 14
+    #define BUTTON_PRESSED_STATE 1
+
+
 #elif defined TARGET_GENERIC_F103_PG15
-	
-	#define LED_BANK			GPIOG 
-	#define LED_PIN 			15
-	#define LED_ON_STATE		1
 
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
-	
+    #define LED_BANK            GPIOG
+    #define LED_PIN             15
+    #define LED_ON_STATE        1
+
+    // Button (if you have one)
+    #define BUTTON_BANK GPIOC
+    #define BUTTON_PIN 14
+    #define BUTTON_PRESSED_STATE 1
+
 #elif defined TARGET_GENERIC_F103_PD2
-	
-	#define LED_BANK			GPIOD 
-	#define LED_PIN 			2
-	#define LED_ON_STATE		1
 
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
-	
+    #define LED_BANK            GPIOD
+    #define LED_PIN             2
+    #define LED_ON_STATE        1
+
+    // Button (if you have one)
+    #define BUTTON_BANK GPIOC
+    #define BUTTON_PIN 14
+    #define BUTTON_PRESSED_STATE 1
+
 #elif defined TARGET_GENERIC_F103_PD1
-	
-	#define LED_BANK			GPIOD 
-	#define LED_PIN 			1
-	#define LED_ON_STATE		1
 
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
+    #define LED_BANK            GPIOD
+    #define LED_PIN             1
+    #define LED_ON_STATE        1
+
+    // Button (if you have one)
+    #define BUTTON_BANK GPIOC
+    #define BUTTON_PIN 14
+    #define BUTTON_PRESSED_STATE 1
 
 #elif defined TARGET_GENERIC_F103_PA1
-	
-	#define LED_BANK			GPIOA 
-	#define LED_PIN 			1
-	#define LED_ON_STATE		1
 
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
+    #define LED_BANK            GPIOA
+    #define LED_PIN             1
+    #define LED_ON_STATE        1
+
+    // Button (if you have one)
+    #define BUTTON_BANK GPIOC
+    #define BUTTON_PIN 14
+    #define BUTTON_PRESSED_STATE 1
 
 #elif defined TARGET_GENERIC_F103_PB9
-	
-	#define LED_BANK			GPIOB 
-	#define LED_PIN 			9
-	#define LED_ON_STATE		1
 
-	// Button (if you have one)
-	#define BUTTON_BANK GPIOC
-	#define BUTTON_PIN 14
-	#define BUTTON_PRESSED_STATE 1
+    #define LED_BANK            GPIOB
+    #define LED_PIN             9
+    #define LED_ON_STATE        1
+
+    // Button (if you have one)
+    #define BUTTON_BANK GPIOC
+    #define BUTTON_PIN 14
+    #define BUTTON_PRESSED_STATE 1
 
 #elif defined TARGET_GENERIC_F103_PE2
-	
-	#define LED_BANK			GPIOE 
-	#define LED_PIN 			2
-	#define LED_ON_STATE		1
+
+    #define LED_BANK            GPIOE
+    #define LED_PIN             2
+    #define LED_ON_STATE        1
 
 #elif defined TARGET_GENERIC_F103_PA9
-	
-	#define LED_BANK			GPIOA 
-	#define LED_PIN 			9
-	#define LED_ON_STATE		1
-	
+
+    #define LED_BANK            GPIOA
+    #define LED_PIN             9
+    #define LED_ON_STATE        1
+
 #elif defined TARGET_GENERIC_F103_PE5
-	
-	#define LED_BANK			GPIOE 
-	#define LED_PIN 			5
-	#define LED_ON_STATE		1	
-	
-	#define BUTTON_BANK GPIOD
-	#define BUTTON_PIN 2
-	#define BUTTON_PRESSED_STATE 1
-	
+
+    #define LED_BANK            GPIOE
+    #define LED_PIN             5
+    #define LED_ON_STATE        1
+
+    #define BUTTON_BANK GPIOD
+    #define BUTTON_PIN 2
+    #define BUTTON_PRESSED_STATE 1
+
 #elif defined TARGET_GENERIC_F103_PE5_BUTTON_PA0
-	
-	#define LED_BANK			GPIOE 
-	#define LED_PIN 			5
-	#define LED_ON_STATE		1	
-	
-	#define BUTTON_BANK GPIOA
-	#define BUTTON_PIN 0
-	#define BUTTON_PRESSED_STATE 1	
+
+    #define LED_BANK            GPIOE
+    #define LED_PIN             5
+    #define LED_ON_STATE        1
+
+    #define BUTTON_BANK GPIOA
+    #define BUTTON_PIN 0
+    #define BUTTON_PRESSED_STATE 1
 
 #elif defined TARGET_GENERIC_F103_PB7
-	
-	#define LED_BANK			GPIOB 
-	#define LED_PIN 			7
-	#define LED_ON_STATE		1	
+
+    #define LED_BANK            GPIOB
+    #define LED_PIN             7
+    #define LED_ON_STATE        1
 
 #elif defined TARGET_GENERIC_F103_PB0
-	
-	#define LED_BANK			GPIOB 
-	#define LED_PIN 		0
-	#define LED_ON_STATE		1	
-	#define BOOTLOADER_WAIT 30
+
+    #define LED_BANK            GPIOB
+    #define LED_PIN         0
+    #define LED_ON_STATE        1
+    #define BOOTLOADER_WAIT 30
 
 #elif defined TARGET_STBEE
-	
-	#define HAS_MAPLE_HARDWARE 	1
 
-	#define LED_BANK		GPIOD 
-	#define LED_PIN 		4
-	#define LED_ON_STATE		0	
+    #define HAS_MAPLE_HARDWARE  1
 
-	/* BUTTON is PA0 (pull down) */
-	#define BUTTON_BANK		GPIOA
-	#define BUTTON_PIN 		0
-	#define BUTTON_PRESSED_STATE	1
+    #define LED_BANK        GPIOD
+    #define LED_PIN         4
+    #define LED_ON_STATE        0
 
-	/* USB Disc Pin Setup.   USB DISC is PD3 */
-	#define USB_DISC_BANK           GPIOD
-	#define USB_DISC_PIN                3
+    /* BUTTON is PA0 (pull down) */
+    #define BUTTON_BANK     GPIOA
+    #define BUTTON_PIN      0
+    #define BUTTON_PRESSED_STATE    1
 
-	/* CRISTAL 12MHz */
-	#define XTAL12M		1
-	
+    /* USB Disc Pin Setup.   USB DISC is PD3 */
+    #define USB_DISC_BANK           GPIOD
+    #define USB_DISC_PIN                3
+
+    /* CRISTAL 12MHz */
+    #define XTAL12M     1
+
 #elif defined TARGET_NAZE32
-	
-	#define LED_BANK			GPIOB 
-	#define LED_PIN 			3
-	#define LED_ON_STATE		0
-	
+
+    #define LED_BANK            GPIOB
+    #define LED_PIN             3
+    #define LED_ON_STATE        0
+
 #elif defined TARGET_GENERIC_F103_PB12
-	
-	#define LED_BANK			GPIOB 
-	#define LED_PIN 			12
-	#define LED_ON_STATE		1	
-	#define BOOTLOADER_WAIT 10	
-	
-	#define BUTTON_BANK      GPIOB
-	#define BUTTON_PIN           2
-	#define BUTTON_PRESSED_STATE 1	
-	
+
+    #define LED_BANK            GPIOB
+    #define LED_PIN             12
+    #define LED_ON_STATE        1
+    #define BOOTLOADER_WAIT 10
+
+    #define BUTTON_BANK      GPIOB
+    #define BUTTON_PIN           2
+    #define BUTTON_PRESSED_STATE 1
+
 #elif defined TARGET_HYTINY_STM32F103T
 
-	#define HAS_MAPLE_HARDWARE 1
+    #define HAS_MAPLE_HARDWARE 1
 
-	
-	#define LED_BANK			GPIOA 
-	#define LED_PIN 			1
-	#define LED_ON_STATE		0	
-	#define BOOTLOADER_WAIT 30	
-	
-	/* USB Disc Pin Setup.   USB DISC is PA0 */
-	#define USB_DISC_BANK       GPIOA
-	#define USB_DISC_PIN            0
+
+    #define LED_BANK            GPIOA
+    #define LED_PIN             1
+    #define LED_ON_STATE        0
+    #define BOOTLOADER_WAIT 30
+
+    /* USB Disc Pin Setup.   USB DISC is PA0 */
+    #define USB_DISC_BANK       GPIOA
+    #define USB_DISC_PIN            0
 
 #elif defined TARGET_DSO138
 
-	#define LED_BANK			GPIOA
-	#define LED_PIN 			15
-	#define LED_ON_STATE		0
+    #define LED_BANK            GPIOA
+    #define LED_PIN             15
+    #define LED_ON_STATE        0
 
-	// "OK" Button
-	#define BUTTON_BANK GPIOB
-	#define BUTTON_PIN 15
-	#define BUTTON_PRESSED_STATE 0
+    // "OK" Button
+    #define BUTTON_BANK GPIOB
+    #define BUTTON_PIN 15
+    #define BUTTON_PRESSED_STATE 0
 
 #elif defined TARGET_GD32F1_FRANKENMAPLE
 
-	#define HAS_MAPLE_HARDWARE 1
+    #define HAS_MAPLE_HARDWARE 1
 
-	#define LED_BANK         GPIOC
-	#define LED_PIN          13
-	#define LED_ON_STATE	 1	
+    #define LED_BANK         GPIOC
+    #define LED_PIN          13
+    #define LED_ON_STATE     1
 
 
-	/*
-	#define BUTTON_BANK      GPIOB
-	#define BUTTON_PIN           8
-	#define BUTTON_PRESSED_STATE 1
-	*/
-	
-	/* USB Disc Pin Setup.   USB DISC is PB9 */
-	#define USB_DISC_BANK       GPIOB
-	#define USB_DISC_PIN        9
+    /*
+    #define BUTTON_BANK      GPIOB
+    #define BUTTON_PIN           8
+    #define BUTTON_PRESSED_STATE 1
+    */
 
-	/* CRISTAL 12MHz */
-	#define XTAL12M		1
+    /* USB Disc Pin Setup.   USB DISC is PB9 */
+    #define USB_DISC_BANK       GPIOB
+    #define USB_DISC_PIN        9
+
+    /* CRISTAL 12MHz */
+    #define XTAL12M     1
 
 #elif defined TARGET_GD32F1_GENERIC_F103_PC13
-	
-	#define LED_BANK			GPIOC 
-	#define LED_PIN 			13
-	#define LED_ON_STATE		0
 
-	// Button (if you have one)
-	
-//	#define BUTTON_BANK GPIOC
-//	#define BUTTON_PIN 14
-//	#define BUTTON_PRESSED_STATE 1
+    #define LED_BANK            GPIOC
+    #define LED_PIN             13
+    #define LED_ON_STATE        0
 
-	/* CRISTAL 12MHz */
-	#define XTAL12M		1
+    // Button (if you have one)
 
-	
+//  #define BUTTON_BANK GPIOC
+//  #define BUTTON_PIN 14
+//  #define BUTTON_PRESSED_STATE 1
+
+    /* CRISTAL 12MHz */
+    #define XTAL12M     1
+
+
 #else
-	#error "No config for this target"
+    #error "No config for this target"
 #endif
 
 #define STARTUP_BLINKS 5
 #ifndef BOOTLOADER_WAIT
 #ifdef BUTTON_BANK
-	#define BOOTLOADER_WAIT 6
+    #define BOOTLOADER_WAIT 6
 #else
-	#define BOOTLOADER_WAIT 30
+    #define BOOTLOADER_WAIT 30
 #endif
 #endif
 

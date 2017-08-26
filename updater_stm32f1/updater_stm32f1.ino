@@ -437,7 +437,7 @@ bool isNewBootloaderAlreadyInstalled()
 {
   char *existingBootloader = (char *) BOOTLOADER_FLASH;
   int bootloaderSize=sizeof(maple_mini_boot20);
- 
+
   for(int i=0;i<bootloaderSize;i++)
   {
     if (  maple_mini_boot20[i]!= *(existingBootloader+i))
@@ -470,7 +470,7 @@ void setup()
     while(1);
   }
 
- 
+
   digitalWrite(BOARD_LED_PIN, LOW);
   Serial.println ("**************************************************************************************************");
   Serial.println ("*** This sketch will update the bootloader in the Maple Mini to the STM32duino bootloader     ****");
