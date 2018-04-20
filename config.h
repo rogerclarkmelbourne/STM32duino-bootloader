@@ -147,14 +147,16 @@
 
 #elif defined TARGET_GENERIC_F103_PC13
 
+
     #define LED_BANK            GPIOC
     #define LED_PIN             13
     #define LED_ON_STATE        0
 
-    // Button (if you have one)
-
-    #define BUTTON_BANK GPIOC
-    #define BUTTON_PIN 14
+// Use Boot1 PB2 as the button, as hardly anyone uses this pin as GPIO
+// Need to set the button input mode to just CR_INPUT and not CR_INPUT_PU_PD because the external pullup on the jumplink is very weak
+	#define BUTTON_INPUT_MODE 	CR_INPUT
+    #define BUTTON_BANK GPIOB
+    #define BUTTON_PIN 2
     #define BUTTON_PRESSED_STATE 1
 
 
@@ -360,6 +362,13 @@
 
 #else
     #error "No config for this target"
+#endif
+
+// Check if button pulldown should be enabled 
+// Default to True as this was the default prior to needing to disable it
+// in order to use the boot1 pin on the Blue Pill which has a very week pullup
+#ifndef BUTTON_INPUT_MODE
+	#define BUTTON_INPUT_MODE 	CR_INPUT_PU_PD
 #endif
 
 #define STARTUP_BLINKS 5
