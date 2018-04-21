@@ -121,6 +121,7 @@ generic-pg15: begin clean gccversion build_generic-pg15 sizeafter finished  copy
 generic-pd2: begin clean gccversion build_generic-pd2 sizeafter finished  copy_generic-pd2 end
 generic-pd1: begin clean gccversion build_generic-pd1 sizeafter finished  copy_generic-pd1 end
 generic-pa1: begin clean gccversion build_generic-pa1 sizeafter finished  copy_generic-pa1 end
+generic-pa1-button-pa8: begin clean gccversion build_generic-pa1-button-pa8 sizeafter finished  copy_generic-pa1-button-pa8 end
 generic-pb9: begin clean gccversion build_generic-pb9 sizeafter finished  copy_generic-pb9 end
 generic-pe2: begin clean gccversion build_generic-pe2 sizeafter finished  copy_generic-pe2 end
 generic-pa9: begin clean gccversion build_generic-pa9 sizeafter finished  copy_generic-pa9 end
@@ -231,6 +232,17 @@ copy_generic-pa1:
 	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pa1.bin
 	@echo
 
+build_generic-pa1-button-pa8: TARGETFLAGS= -DTARGET_GENERIC_F103_PA1_BUTTON_PA8
+# Set the linker script
+build_generic-pa1-button-pa8: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-pa1-button-pa8: elf bin lss sym
+copy_generic-pa1-button-pa8:
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pa1_button_pa8.bin
+	@echo
+
 build_generic-pb9: TARGETFLAGS= -DTARGET_GENERIC_F103_PB9
 # Set the linker script
 build_generic-pb9: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
@@ -301,6 +313,7 @@ copy_generic-pb7:
 	@echo
 	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb7.bin
 	@echo
+
 build_generic-pb0: TARGETFLAGS= -DTARGET_GENERIC_F103_PB0
 # Set the linker script
 build_generic-pb0: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
