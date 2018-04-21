@@ -6,6 +6,7 @@ make generic-pg15
 make generic-pd2
 make generic-pd1
 make generic-pa1
+make generic-pa1-button-pa8
 make generic-pb9
 make generic-pe2
 make generic-pa9

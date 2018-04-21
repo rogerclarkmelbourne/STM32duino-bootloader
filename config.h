@@ -204,6 +204,16 @@
     #define BUTTON_PIN 14
     #define BUTTON_PRESSED_STATE 1
 
+#elif defined TARGET_GENERIC_F103_PA1_BUTTON_PA8
+
+    #define LED_BANK            GPIOA
+    #define LED_PIN             1
+    #define LED_ON_STATE        1
+
+    #define BUTTON_BANK GPIOA
+    #define BUTTON_PIN 8
+    #define BUTTON_PRESSED_STATE 0
+
 #elif defined TARGET_GENERIC_F103_PB9
 
     #define LED_BANK            GPIOB
