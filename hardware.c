@@ -156,7 +156,9 @@ void setupLEDAndButton (void) {
 
     gpio_write_bit(BUTTON_BANK, BUTTON_PIN,1-BUTTON_PRESSED_STATE);// set pulldown resistor in case there is no button.
 #endif
+#if defined(LED_BANK) && defined(LED_PIN) && defined(LED_ON_STATE)
     SET_REG(GPIO_CR(LED_BANK,LED_PIN),(GET_REG(GPIO_CR(LED_BANK,LED_PIN)) & crMask(LED_PIN)) | CR_OUTPUT_PP << CR_SHITF(LED_PIN));
+#endif
 }
 
 void setupFLASH() {

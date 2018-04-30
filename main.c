@@ -50,13 +50,17 @@ int main()
     {
         case 0x01:
             no_user_jump = TRUE;
+#if defined(LED_BANK) && defined(LED_PIN) && defined(LED_ON_STATE)
             strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
+#endif
         break;
         case 0x02:
             dont_wait=TRUE;
         break;
         default:
+#if defined(LED_BANK) && defined(LED_PIN) && defined(LED_ON_STATE)
             strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
+#endif
             if (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000))
             {
                 no_user_jump = TRUE;
@@ -74,9 +78,9 @@ int main()
 
         while ((delay_count++ < BOOTLOADER_WAIT) || no_user_jump)
         {
-
+#if defined(LED_BANK) && defined(LED_PIN) && defined(LED_ON_STATE)
             strobePin(LED_BANK, LED_PIN, 1, BLINK_SLOW,LED_ON_STATE);
-
+#endif
             if (dfuUploadStarted())
             {
                 dfuFinishUpload(); // systemHardReset from DFU once done
@@ -97,7 +101,9 @@ int main()
         else
         {
             // Nothing to execute in either Flash or RAM
+#if defined(LED_BANK) && defined(LED_PIN) && defined(LED_ON_STATE)
             strobePin(LED_BANK, LED_PIN, 5, BLINK_FAST,LED_ON_STATE);
+#endif
             systemHardReset();
         }
     }

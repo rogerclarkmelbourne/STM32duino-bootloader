@@ -160,6 +160,9 @@
     #define BUTTON_PRESSED_STATE 1
 
 
+#elif defined TARGET_GENERIC_F103_NONE
+
+
 #elif defined TARGET_GENERIC_F103_PG15
 
     #define LED_BANK            GPIOG
