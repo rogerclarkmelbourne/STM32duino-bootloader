@@ -1,8 +1,8 @@
 # STM32duino-bootloader
 
-Please Note. This code does not work with all STM32F103 Boards
+Please Note: This code does not work with all STM32F103 Boards
 
-Also Note. Use GCC 4.8 (not 4.9 or newer, as these versions have more aggressive optimisation which causes hardware registers not be read correctly and consequently the bootloader does not work)
+Also Note: Use GCC 4.8 (not 4.9 or newer, as those versions have more aggressive optimisation which cause hardware registers to be read incorrectly and consequently the bootloader does not work)
 
 
 Bootloader for STM32F103 boards, for use with the Arduino_STM32 repo and the Arduino IDE
@@ -13,21 +13,21 @@ The bootloader has been reworked so that all versions are contained in the Maste
 
 Note.
 The upload to RAM option has effectively been removed, as it was useless and caused problems.
-The bootloader still has a DFU - AltID for RAM uploads, however this returns an error the host attempts to uplaod to this AltID. The AltID was kept, to allow backwards compatibility with anyone still using the old Maple IDE which has a upload to RAM option.
+The bootloader still has a DFU - AltID for RAM uploads, however it returns an error if the host attempts to uplaod to the AltID. The AltID was kept to allow backward compatibility with anyone still using the old Maple IDE which has a upload to RAM option.
 
 The makefile now has multple build targets including "maple-mini" (roughly equivalent to the old mini-boot branch), maple-rev3 etc etc.
 
-Additionally the bootloader now works with "generic" STM32F103 boards, which do not have the additional USB reset hardware which all Maple, and Maple mini boards have.
+Additionally, the bootloader now works with "generic" STM32F103 boards that do not have the additional USB reset hardware which all Maple and Maple mini boards have.
 
-On "generic" boards, the USB reset (to force re-enumeration by the host), is triggered by reconfiguring USB line D+ (PA12) into GPIO mode, and driving PA12 low for a short period, before setting the pin back to its USB operational mode.
-This system to reset the USB was written by @Victor_pv.
-Note. It is not guaranteed to work on all "generic" STM32 boards, and relies on PA12 having a pull-up resistor of around 1.5k - however most "generic" boards seem to have this.
-Its unclear if this method to reset the USB bus conforms precisely to the USB standard, but it seems to work fine on all PC's and Mac's (and Linux boxes) on which its been tested - and seems usable for hobby / non commericial / non-critical systems.
+On "generic" boards, the USB reset (to force re-enumeration by the host), is triggered by reconfiguring the USB D+ line (PA12) into GPIO mode, and driving PA12 low for a short period, before setting the pin back to its USB operational mode.
+This USB reset method was written by @Victor_pv.
+Note: It is not guaranteed to work on all "generic" STM32 boards, and relies on PA12 having a pull-up resistor of around 1.5k - however most "generic" boards seem to have this.
+Its unclear if this method to reset the USB bus conforms precisely to the USB standard, but it seems to work fine on all PCs, Macs and Linux boxes on which it's been tested - and seems usable for hobby / non commericial / non-critical systems.
 
 
-There are multiple build targets for "generic" STM32F103 boards, because each vendor seems to have the "LED" on a different port/pin, and the bootloader flashes the LED to indicate the current operation / state.
+There are multiple build targets for "generic" STM32F103 boards - because each vendor seems to have the "LED" on a different port/pin - and the bootloader flashes the LED to indicate the current operation / state.
 
-So if your board has an LED on pin PC13 the makefile target is "generic-pc13" . At the time of writing the following geneirc targets are available (more may be added without this readme being updated each time, so please check the makefile to see the latest list of build targets)
+So if your board has an LED on pin PC13 the makefile target is "generic-pc13." At the time of writing, the following generic targets are available (more may be added without this readme being updated each time, so please check the makefile to see the latest list of build targets)
 
 generic-pc13
 generic-pg15
@@ -36,14 +36,14 @@ generic-pd1
 generic-pa1
 generic-pb9
 
-In addition to the LED, the difference in the build targets is
+In addition to the LED, differences in the build targets are:
 (a) whether the device has maple USB reset hardware.
 (b) Which pin the "button" is attached to.
 
-Note. Most "generic" STM32F103 boards only have a reset button, and not a user / test button. So the bootloader code always configures the Button input pin as PullDown,  hence if a button is not present on the Button pin (Default is PC14), the pin should remain in a LOW state, and the bootloader will assume that the Button is not being pressed.
+Note: Most "generic" STM32F103 boards only have a reset button, and not a user / test button. So the bootloader code always configures the Button input pin as PullDown. Hence, if a button is not present on the Button pin (Default is PC14), the pin should remain in a LOW state, and the bootloader will assume the Button is not being pressed.
 
-IMPORTANT.
-If you have a board where you have external hardware attached to pin PC12 which will pull this pin HIGH, you will need to make a new build target for you board which uses a different pin for the Button, or completely modify the code so that the Button is ignored.
+IMPORTANT!
+If your board has external hardware attached to pin PC12 and it pulls that pin HIGH, you will need to make a new build target for your board which uses a different pin for the Button, or change the code to make it ignore the Button.
 
 The configuration for each build target / board is defined in config.h
 
@@ -70,31 +70,31 @@ Boards which have the Maple USB reset hardware need to defined HAS_MAPLE_HARDWAR
 
 There are definitions for LED_BANK (GPIO Port)
 LED pin (Pin in that port)
-LED_ON_STATE ( Whether the LED is lit when the pin is high (1) or low (0) - Note. this is because some generic boards have the LED between Vcc and the pin, hence are on when the LED PIN is LOW)
+LED_ON_STATE (Whether the LED is lit when the pin is high (1) or low (0) - Note: this is because some generic boards have the LED between Vcc and the pin, hence are on when the LED PIN is LOW)
 
 Button bank (port) and pin
 
 For boards with Maple hardware, the "Disconnect" pin USB_DISC need to be defined.
 On generic" boards, as this is always PA12 - as USB D+ is always on this pin on STM32F103 devices.
-(Note. For generic boards, this define could probably be moved to the usb code as it never changes)
+(Note: For generic boards, this define could probably be moved to the usb code as it never changes)
 
-Note.
-USER_CODE_RAM and RAM_END are allways the same, and probably need to be consolodated, rather than being defined for each board.
+Note:
+USER_CODE_RAM and RAM_END are allways the same, and probably need to be consolidated, rather than defined for each board.
 
-There is no longer a need to configure FLASH SIZE, as this is now detemined by reading the size from a register in the processor.
-The Flash page (and hence DFU upload block size) no longer needs to be defined either, as the flash page size is inferred from the total flash size. All devices up to 128kb have a 1k page size, and any board with more then 128k flash have a 2k page size.
+There is no longer a need to configure FLASH SIZE, as it is detemined by reading the size from a register in the processor.
+The Flash page (and hence DFU upload block size) no longer needs to be defined either, as the flash page size is inferred from the total flash size. All devices up to 128kb have a 1k page size, and boards with more than 128k of flash have a 2k page size.
 
-Note the code directly links flash page size to DFU block size. It would probably be possible to decouple this and possibly increase upload speeds, but it has not been done as yet.
+Note the code directly links flash page size to DFU block size. It would probably be possible to decouple this and possibly increase upload speeds, but it has not been done yet.
 
 
 #####Other improvements on the original Maple bootloader
 
 1. Smaller footprint - now only 8k (This became possible due to code changes by @jonatanolofsson which allowed the GCC optimisation for size flag to be used
-2. Additional DFU AltID upload type was added, which allows the sketch to be loaded at 0x8002000 instead of 0x8005000 (due to reduce size of the bootloader is self),
-Note. upload to 0x8005000 was retained for backwards compatibility.
+2. Additional DFU AltID upload type was added, which allows the sketch to be loaded at 0x8002000 instead of 0x8005000 (due to the reduced size of the bootloader itself),
+Note: Upload to 0x8005000 was retained for backward compatibility.
 
 
-If you have questions about the bootloader please raise and issue and I will attempt to answer them.
+If you have questions about the bootloader please raise an issue and I will attempt to answer them.
 
 
 
