@@ -56,14 +56,21 @@ int main()
             dont_wait=TRUE;
         break;
         default:
-            strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
-            if (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000))
+			#ifdef FASTBOOT
+				dont_wait=TRUE;
+			#else
+				strobePin(LED_BANK, LED_PIN, STARTUP_BLINKS, BLINK_FAST,LED_ON_STATE);
+			#endif            
+			if (!checkUserCode(USER_CODE_FLASH0X8005000) && !checkUserCode(USER_CODE_FLASH0X8002000))
             {
                 no_user_jump = TRUE;
             }
             else if (readButtonState())
             {
-                no_user_jump = TRUE;
+				no_user_jump = TRUE;
+				#ifdef FASTBOOT
+					dont_wait=FALSE;
+				#endif
             }
         break;
     }
