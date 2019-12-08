@@ -404,6 +404,7 @@ unsigned int crMask(int pin)
 int getFlashEnd(void)
 {
     unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register
+    *flashSize = 32;
     return ((int)(*flashSize & 0xffff) * 1024) + 0x08000000;
 }
 
@@ -411,6 +412,7 @@ int getFlashPageSize(void)
 {
 
     unsigned short *flashSize = (unsigned short *) (FLASH_SIZE_REG);// Address register
+    *flashSize = 32;
     if ((*flashSize & 0xffff) > 128)
     {
         return 0x800;
