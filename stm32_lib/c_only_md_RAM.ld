@@ -29,7 +29,6 @@ MEMORY
 
 /* higher address of the user mode stack */
 _estack = 0x20005000;
-
 _magicRate = 0x5000;
 SECTIONS
 {
