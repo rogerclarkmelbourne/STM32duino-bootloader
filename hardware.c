@@ -115,9 +115,14 @@ void setupCLK(void) {
     SET_REG(FLASH_ACR, 0x00000012);
 
     /* Configure PLL */
-#ifdef XTAL12M
+#if defined XTAL16M
+    // 16 MHz crystal  (using the Bit 17 PLLXTPRE=1 => HSE clock divided by 2 before PLL entry)
+    SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x001F0400); /* pll=72Mhz(x9/2),APB1=36Mhz,AHB=72Mhz */
+#elif defined XTAL12M
+    // 12 MHz crystal
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x00110400); /* pll=72Mhz(x6),APB1=36Mhz,AHB=72Mhz */
 #else
+    // 8 MHz crystal default
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) | 0x001D0400); /* pll=72Mhz(x9),APB1=36Mhz,AHB=72Mhz */
 #endif
 
