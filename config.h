@@ -369,6 +369,12 @@
     /* CRISTAL 12MHz */
     #define XTAL12M     1
 
+#elif defined TARGET_CC3D
+
+    #define LED_BANK            GPIOB
+    #define LED_PIN             3
+    #define LED_ON_STATE        0
+
 
 #else
     #error "No config for this target"

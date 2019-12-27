@@ -21,3 +21,4 @@ make hytiny-stm32f103t
 make dso138
 make gd32f1-generic-pc13
 make gd32f1-frankenmaple
+make cc3d
