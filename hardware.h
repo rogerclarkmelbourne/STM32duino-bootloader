@@ -243,6 +243,7 @@ void gpio_write_bit(u32 bank, u8 pin, u8 val);
 unsigned int crMask(int pin);
 
 bool readPin(u32 bank, u8 pin);
+bool readButtonState();
 void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState);
 
 void systemHardReset(void);
