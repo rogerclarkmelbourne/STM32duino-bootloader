@@ -138,6 +138,7 @@ dso138: begin clean gccversion build_dso138 sizeafter finished  copy_dso138 end
 gd32f1-generic-pc13: begin clean gccversion build_gd32f1-generic-pc13 sizeafter finished  copy_gd32f1-generic-pc13 end
 gd32f1-frankenmaple: begin clean gccversion build_gd32f1-frankenmaple sizeafter finished  copy_gd32f1-frankenmaple end
 cc3d: begin clean gccversion build_cc3d sizeafter finished  copy_cc3d end
+generic-pc13-fastboot: begin clean gccversion build_generic-pc13-fastboot sizeafter finished  copy_generic-pc13-fastboot end
 
 build: elf bin lss sym
 
@@ -425,6 +426,17 @@ copy_cc3d:
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin bootloader_only_binaries/cc3d.bin
+	@echo
+
+build_generic-pc13-fastboot: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13_FASTBOOT $(DEFINES)
+# Set the linker script
+build_generic-pc13-fastboot: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_generic-pc13-fastboot: elf bin lss sym
+copy_generic-pc13-fastboot:
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pc13_fastboot.bin
 	@echo
 
 
