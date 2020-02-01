@@ -139,6 +139,7 @@ gd32f1-generic-pc13: begin clean gccversion build_gd32f1-generic-pc13 sizeafter 
 gd32f1-frankenmaple: begin clean gccversion build_gd32f1-frankenmaple sizeafter finished  copy_gd32f1-frankenmaple end
 cc3d: begin clean gccversion build_cc3d sizeafter finished  copy_cc3d end
 generic-pc13-fastboot: begin clean gccversion build_generic-pc13-fastboot sizeafter finished  copy_generic-pc13-fastboot end
+smart-v2: begin clean gccversion build_smart-v2 sizeafter finished  copy_smart-v2 end
 
 build: elf bin lss sym
 
@@ -439,6 +440,16 @@ copy_generic-pc13-fastboot:
 	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pc13_fastboot.bin
 	@echo
 
+build_smart-v2: TARGETFLAGS= -DTARGET_STM32_SMART_V20 $(DEFINES)
+# Set the linker script
+build_smart-v2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_smart-v2: elf bin lss sym
+copy_smart-v2:
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin bootloader_only_binaries/smart-v2.bin
+	@echo
 
 bin: $(TARGET).bin
 elf: $(TARGET).elf
