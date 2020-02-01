@@ -388,6 +388,18 @@
     /* CRISTAL 12MHz */
     #define XTAL12M     1
 
+#elif defined TARGET_STM32_SMART_V20
+
+    #define LED_BANK            GPIOC
+    #define LED_PIN             13
+    #define LED_ON_STATE        1
+
+    #define BUTTON_BANK GPIOA
+    #define BUTTON_PIN 0
+    #define BUTTON_PRESSED_STATE 1
+
+    /* CRISTAL 8MHz */
+
 #elif defined TARGET_CC3D
 
     #define LED_BANK            GPIOB

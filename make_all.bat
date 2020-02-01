@@ -24,3 +24,4 @@ make gd32f1-generic-pc13
 make gd32f1-frankenmaple
 make cc3d
 make generic-pc13-fastboot
+make smart-v2
