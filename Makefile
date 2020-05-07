@@ -24,6 +24,7 @@ DEBUG =
 
 INCDIRS = ./$(ST_LIB) ./$(ST_USB)
 
+# Compiler Flags
 CFLAGS = $(DEBUG)
 CFLAGS += -O$(OPT)
 CFLAGS += -ffunction-sections -fdata-sections
@@ -33,10 +34,16 @@ CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(BUILDDIR)/$(subst $(suffix $<),.lst,$<)
 CFLAGS += $(patsubst %,-I%,$(INCDIRS))
+CFLAGS += -MD -MP -MF .dep/$(@F).d
+CFLAGS += -g -mcpu=$(MCU) $(THUMB_IW) -I.
+CFLAGS += $(THUMB)
 
 # Assembler Flags
 ASFLAGS = -Wa,-adhlns=$(BUILDDIR)/$(<:.s=.lst)#,--g$(DEBUG)
+ASFLAGS += -g -mcpu=$(MCU) $(THUMB_IW) -I. -x assembler-with-cpp
+ASFLAGS += $(THUMB)
 
+# Linker Flags
 LDFLAGS = -nostartfiles -Wl,-Map=$(TARGET).map,--cref,--gc-sections
 LDFLAGS += -lc -lgcc
 LDFLAGS += -T$(ST_LIB)/c_only_md_high_density.ld
@@ -70,12 +77,6 @@ MSG_LINKING = Linking:
 MSG_COMPILING = Compiling C:
 MSG_ASSEMBLING = Assembling:
 MSG_CLEANING = Cleaning project:
-
-# Combine all necessary flags and optional flags.
-# Add target processor to flags.
-GENDEPFLAGS = -MD -MP -MF .dep/$(@F).d
-ALL_CFLAGS  = -g -mcpu=$(MCU) $(THUMB_IW) -I. $(CFLAGS) $(TARGETFLAGS) $(GENDEPFLAGS)
-ALL_ASFLAGS = -g -mcpu=$(MCU) $(THUMB_IW) -I. -x assembler-with-cpp $(ASFLAGS)
 
 # --------------------------------------------- #
 # file management
@@ -144,137 +145,137 @@ smart-v2: begin clean gccversion build_smart-v2 sizeafter finished  copy_smart-v
 
 build: elf bin lss sym
 
-build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI $(DEFINES)
+build_maple-mini: CFLAGS += -DTARGET_MAPLE_MINI
 build_maple-mini: elf bin lss sym
 copy_maple_mini: BINFILE=maple_mini_boot20.bin
 copy_maple_mini: copy
 
-build_maple-rev3: TARGETFLAGS= -DTARGET_MAPLE_REV3 $(DEFINES)
+build_maple-rev3: CFLAGS += -DTARGET_MAPLE_REV3
 build_maple-rev3: elf bin lss sym
 copy_maple-rev3: BINFILE=/maple_rev3_boot20.bin
 copy_maple-rev3: copy
 
-build_maple-rev5: TARGETFLAGS= -DTARGET_MAPLE_REV5 $(DEFINES)
+build_maple-rev5: CFLAGS += -DTARGET_MAPLE_REV5
 build_maple-rev5: elf bin lss sym
 copy_maple-rev5: BINFILE=maple_rev5_boot20.bin
 copy_maple-rev5: copy
 
-build_generic-none: TARGETFLAGS= -DTARGET_GENERIC_F103_NONE $(DEFINES)
+build_generic-none: CFLAGS += -DTARGET_GENERIC_F103_NONE
 build_generic-none: elf bin lss sym
 copy_generic-none: BINFILE=generic-none_bootloader.bin
 copy_generic-none: copy
 
-build_generic-pc13: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13 $(DEFINES)
+build_generic-pc13: CFLAGS += -DTARGET_GENERIC_F103_PC13
 build_generic-pc13: elf bin lss sym
 copy_generic-pc13: BINFILE=generic_boot20_pc13.bin
 copy_generic-pc13: copy
 
-build_generic-pg15: TARGETFLAGS= -DTARGET_GENERIC_F103_PG15 $(DEFINES)
+build_generic-pg15: CFLAGS += -DTARGET_GENERIC_F103_PG15
 build_generic-pg15: elf bin lss sym
 copy_generic-pg15: BINFILE=generic_boot20_pg15.bin
 copy_generic-pg15: copy
 
-build_generic-pd2: TARGETFLAGS= -DTARGET_GENERIC_F103_PD2 $(DEFINES)
+build_generic-pd2: CFLAGS += -DTARGET_GENERIC_F103_PD2
 build_generic-pd2: elf bin lss sym
 copy_generic-pd2: BINFILE=generic_boot20_pd2.bin
 copy_generic-pd2: copy
 
-build_generic-pd1: TARGETFLAGS= -DTARGET_GENERIC_F103_PD1 $(DEFINES)
+build_generic-pd1: CFLAGS += -DTARGET_GENERIC_F103_PD1
 build_generic-pd1: elf bin lss sym
 copy_generic-pd1: BINFILE=generic_boot20_pd1.bin
 copy_generic-pd1: copy
 
-build_generic-pa1: TARGETFLAGS= -DTARGET_GENERIC_F103_PA1 $(DEFINES)
+build_generic-pa1: CFLAGS += -DTARGET_GENERIC_F103_PA1
 build_generic-pa1: elf bin lss sym
 copy_generic-pa1: BINFILE=generic_boot20_pa1.bin
 copy_generic-pa1: copy
 
-build_generic-pa1-button-pa8: TARGETFLAGS= -DTARGET_GENERIC_F103_PA1_BUTTON_PA8 $(DEFINES)
+build_generic-pa1-button-pa8: CFLAGS += -DTARGET_GENERIC_F103_PA1_BUTTON_PA8
 build_generic-pa1-button-pa8: elf bin lss sym
 copy_generic-pa1-button-pa8: BINFILE=generic_boot20_pa1_button_pa8.bin
 copy_generic-pa1-button-pa8: copy
 
-build_generic-pb9: TARGETFLAGS= -DTARGET_GENERIC_F103_PB9 $(DEFINES)
+build_generic-pb9: CFLAGS += -DTARGET_GENERIC_F103_PB9
 build_generic-pb9: elf bin lss sym
 copy_generic-pb9: BINFILE=generic_boot20_pb9.bin
 copy_generic-pb9: copy
 
-build_generic-pe2: TARGETFLAGS= -DTARGET_GENERIC_F103_PE2 $(DEFINES)
+build_generic-pe2: CFLAGS += -DTARGET_GENERIC_F103_PE2
 build_generic-pe2: elf bin lss sym
 copy_generic-pe2: BINFILE=generic_boot20_pe2.bin
 copy_generic-pe2: copy
 
-build_generic-pa9: TARGETFLAGS= -DTARGET_GENERIC_F103_PA9 $(DEFINES)
+build_generic-pa9: CFLAGS += -DTARGET_GENERIC_F103_PA9
 build_generic-pa9: elf bin lss sym
 copy_generic-pa9: BINFILE=generic_boot20_pa9.bin
 copy_generic-pa9: copy
 
-build_generic-pe5: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5 $(DEFINES)
+build_generic-pe5: CFLAGS += -DTARGET_GENERIC_F103_PE5
 build_generic-pe5: elf bin lss sym
 copy_generic-pe5: BINFILE=generic_boot20_pe5.bin
 copy_generic-pe5: copy
 
-build_generic-pe5-button-pa0: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5_BUTTON_PA0 $(DEFINES)
+build_generic-pe5-button-pa0: CFLAGS += -DTARGET_GENERIC_F103_PE5_BUTTON_PA0
 build_generic-pe5-button-pa0: elf bin lss sym
 copy_generic-pe5-button-pa0: BINFILE=generic_boot20_pe5_button_pa0.bin
 copy_generic-pe5-button-pa0: copy
 
-build_generic-pb7: TARGETFLAGS= -DTARGET_GENERIC_F103_PB7 $(DEFINES)
+build_generic-pb7: CFLAGS += -DTARGET_GENERIC_F103_PB7
 build_generic-pb7: elf bin lss sym
 copy_generic-pb7: BINFILE=generic_boot20_pb7.bin
 copy_generic-pb7: copy
 
-build_generic-pb0: TARGETFLAGS= -DTARGET_GENERIC_F103_PB0 $(DEFINES)
+build_generic-pb0: CFLAGS += -DTARGET_GENERIC_F103_PB0
 build_generic-pb0: elf bin lss sym
 copy_generic-pb0: BINFILE=generic_boot20_pb0.bin
 copy_generic-pb0: copy
 
-build_stbee: TARGETFLAGS= -DTARGET_STBEE $(DEFINES)
+build_stbee: CFLAGS += -DTARGET_STBEE
 build_stbee: elf bin lss sym
 copy_stbee: BINFILE=stbee_boot20.bin
 copy_stbee: copy
 
-build_naze32: TARGETFLAGS= -DTARGET_NAZE32 $(DEFINES)
+build_naze32: CFLAGS += -DTARGET_NAZE32
 build_naze32: elf bin lss sym
 copy_naze32: BINFILE=naze32_boot20.bin
 copy_naze32: copy
 
-build_generic-pb12: TARGETFLAGS= -DTARGET_GENERIC_F103_PB12  $(DEFINES)
+build_generic-pb12: CFLAGS += -DTARGET_GENERIC_F103_PB12
 build_generic-pb12: elf bin lss sym
 copy_generic-pb12: BINFILE=generic_boot20_pb12.bin
 copy_generic-pb12: copy
 
-build_hytiny-stm32f103t: TARGETFLAGS= -DTARGET_HYTINY_STM32F103T $(DEFINES)
+build_hytiny-stm32f103t: CFLAGS += -DTARGET_HYTINY_STM32F103T
 build_hytiny-stm32f103t: elf bin lss sym
 copy_hytiny-stm32f103t: BINFILE=generic_boot20_hytiny.bin
 copy_hytiny-stm32f103t: copy
 
-build_dso138: TARGETFLAGS= -DTARGET_DSO138 $(DEFINES)
+build_dso138: CFLAGS += -DTARGET_DSO138
 build_dso138: elf bin lss sym
 copy_dso138: BINFILE=dso138_boot20.bin
 copy_dso138: copy
 
-build_gd32f1-generic-pc13: TARGETFLAGS= -DTARGET_GD32F1_GENERIC_F103_PC13 $(DEFINES)
+build_gd32f1-generic-pc13: CFLAGS += -DTARGET_GD32F1_GENERIC_F103_PC13
 build_gd32f1-generic-pc13: elf bin lss sym
 copy_gd32f1-generic-pc13: BINFILE=gd32f1_generic_boot20_pc13.bin
 copy_gd32f1-generic-pc13: copy
 
-build_gd32f1-frankenmaple: TARGETFLAGS= -DTARGET_GD32F1_FRANKENMAPLE $(DEFINES)
+build_gd32f1-frankenmaple: CFLAGS += -DTARGET_GD32F1_FRANKENMAPLE
 build_gd32f1-frankenmaple: elf bin lss sym
 copy_gd32f1-frankenmaple: BINFILE=gd32f1_frankenmaple.bin
 copy_gd32f1-frankenmaple: copy
 
-build_cc3d: TARGETFLAGS= -DTARGET_CC3D
+build_cc3d: CFLAGS += -DTARGET_CC3D
 build_cc3d: elf bin lss sym
 copy_cc3d: BINFILE=cc3d.bin
 copy_cc3d: copy
 
-build_generic-pc13-fastboot: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13_FASTBOOT $(DEFINES)
+build_generic-pc13-fastboot: CFLAGS += -DTARGET_GENERIC_F103_PC13_FASTBOOT
 build_generic-pc13-fastboot: elf bin lss sym
 copy_generic-pc13-fastboot: BINFILE=generic_boot20_pc13_fastboot.bin
 copy_generic-pc13-fastboot: copy
 
-build_smart-v2: TARGETFLAGS= -DTARGET_STM32_SMART_V20 $(DEFINES)
+build_smart-v2: CFLAGS += -DTARGET_STM32_SMART_V20
 build_smart-v2: elf bin lss sym
 copy_smart-v2: BINFILE=smart-v2.bin
 copy_smart-v2: copy
@@ -369,19 +370,19 @@ run: $(TARGET).bin
 %.elf:  $(COBJ) $(AOBJ)
 	@echo
 	@echo $(MSG_LINKING) $@
-	$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJ) $(COBJ) --output $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(AOBJ) $(COBJ) --output $@ $(LDFLAGS)
 
 # Compile: create object files from C source files. ARM/Thumb
 $(COBJ) : $(BUILDDIR)/%.o : %.c
 	@echo
 	@echo $(MSG_COMPILING) $<
-	$(CC) -c $(THUMB) $(ALL_CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@
 
 # Assemble: create object files from assembler source files. ARM/Thumb
 $(AOBJ) : $(BUILDDIR)/%.o : %.s
 	@echo
 	@echo $(MSG_ASSEMBLING) $<
-	$(CC) -c $(THUMB) $(ALL_ASFLAGS) $< -o $@
+	$(CC) -c $(ASFLAGS) $< -o $@
 
 clean: begin clean_list finished end
 
