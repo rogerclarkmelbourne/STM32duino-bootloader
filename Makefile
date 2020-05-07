@@ -38,7 +38,7 @@ ASFLAGS = -Wa,-adhlns=$(BUILDDIR)/$(<:.s=.lst)#,--g$(DEBUG)
 
 LDFLAGS = -nostartfiles -Wl,-Map=$(TARGET).map,--cref,--gc-sections
 LDFLAGS += -lc -lgcc
-
+LDFLAGS += -T$(ST_LIB)/c_only_md_high_density.ld
 
 
 # Define programs and commands.
@@ -144,9 +144,6 @@ smart-v2: begin clean gccversion build_smart-v2 sizeafter finished  copy_smart-v
 build: elf bin lss sym
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI $(DEFINES)
-# Set the linker script
-build_maple-mini: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
-
 build_maple-mini: elf bin lss sym
 copy_maple_mini:
 	@echo
@@ -156,9 +153,6 @@ copy_maple_mini:
 	@echo
 
 build_maple-rev3: TARGETFLAGS= -DTARGET_MAPLE_REV3 $(DEFINES)
-# Set the linker script
-build_maple-rev3: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
-
 build_maple-rev3: elf bin lss sym
 copy_maple-rev3:
 	@echo
@@ -168,8 +162,6 @@ copy_maple-rev3:
 	@echo
 
 build_maple-rev5: TARGETFLAGS= -DTARGET_MAPLE_REV5 $(DEFINES)
-# Set the linker script
-build_maple-rev5: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_maple-rev5: elf bin lss sym
 copy_maple-rev5:
 	@echo
@@ -179,8 +171,6 @@ copy_maple-rev5:
 	@echo
 
 build_generic-none: TARGETFLAGS= -DTARGET_GENERIC_F103_NONE $(DEFINES)
-# Set the linker script
-build_generic-none: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-none: elf bin lss sym
 copy_generic-none:
 	@echo
@@ -191,8 +181,6 @@ copy_generic-none:
 
 
 build_generic-pc13: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13 $(DEFINES)
-# Set the linker script
-build_generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pc13: elf bin lss sym
 copy_generic-pc13:
 	@echo
@@ -202,8 +190,6 @@ copy_generic-pc13:
 	@echo
 
 build_generic-pg15: TARGETFLAGS= -DTARGET_GENERIC_F103_PG15 $(DEFINES)
-# Set the linker script
-build_generic-pg15: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pg15: elf bin lss sym
 copy_generic-pg15:
 	@echo
@@ -214,8 +200,6 @@ copy_generic-pg15:
 
 
 build_generic-pd2: TARGETFLAGS= -DTARGET_GENERIC_F103_PD2 $(DEFINES)
-# Set the linker script
-build_generic-pd2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pd2: elf bin lss sym
 copy_generic-pd2:
 	@echo
@@ -226,8 +210,6 @@ copy_generic-pd2:
 
 
 build_generic-pd1: TARGETFLAGS= -DTARGET_GENERIC_F103_PD1 $(DEFINES)
-# Set the linker script
-build_generic-pd1: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pd1: elf bin lss sym
 copy_generic-pd1:
 	@echo
@@ -237,8 +219,6 @@ copy_generic-pd1:
 	@echo
 
 build_generic-pa1: TARGETFLAGS= -DTARGET_GENERIC_F103_PA1 $(DEFINES)
-# Set the linker script
-build_generic-pa1: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pa1: elf bin lss sym
 copy_generic-pa1:
 	@echo
@@ -248,8 +228,6 @@ copy_generic-pa1:
 	@echo
 
 build_generic-pa1-button-pa8: TARGETFLAGS= -DTARGET_GENERIC_F103_PA1_BUTTON_PA8 $(DEFINES)
-# Set the linker script
-build_generic-pa1-button-pa8: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pa1-button-pa8: elf bin lss sym
 copy_generic-pa1-button-pa8:
 	@echo
@@ -259,8 +237,6 @@ copy_generic-pa1-button-pa8:
 	@echo
 
 build_generic-pb9: TARGETFLAGS= -DTARGET_GENERIC_F103_PB9 $(DEFINES)
-# Set the linker script
-build_generic-pb9: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb9: elf bin lss sym
 copy_generic-pb9:
 	@echo
@@ -271,8 +247,6 @@ copy_generic-pb9:
 
 
 build_generic-pe2: TARGETFLAGS= -DTARGET_GENERIC_F103_PE2 $(DEFINES)
-# Set the linker script
-build_generic-pe2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pe2: elf bin lss sym
 copy_generic-pe2:
 	@echo
@@ -283,8 +257,6 @@ copy_generic-pe2:
 
 
 build_generic-pa9: TARGETFLAGS= -DTARGET_GENERIC_F103_PA9 $(DEFINES)
-# Set the linker script
-build_generic-pa9: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pa9: elf bin lss sym
 copy_generic-pa9:
 	@echo
@@ -295,8 +267,6 @@ copy_generic-pa9:
 
 
 build_generic-pe5: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5 $(DEFINES)
-# Set the linker script
-build_generic-pe5: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pe5: elf bin lss sym
 copy_generic-pe5:
 	@echo
@@ -307,8 +277,6 @@ copy_generic-pe5:
 
 
 build_generic-pe5-button-pa0: TARGETFLAGS= -DTARGET_GENERIC_F103_PE5_BUTTON_PA0 $(DEFINES)
-# Set the linker script
-build_generic-pe5-button-pa0: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pe5-button-pa0: elf bin lss sym
 copy_generic-pe5-button-pa0:
 	@echo
@@ -319,8 +287,6 @@ copy_generic-pe5-button-pa0:
 
 
 build_generic-pb7: TARGETFLAGS= -DTARGET_GENERIC_F103_PB7 $(DEFINES)
-# Set the linker script
-build_generic-pb7: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb7: elf bin lss sym
 copy_generic-pb7:
 	@echo
@@ -330,8 +296,6 @@ copy_generic-pb7:
 	@echo
 
 build_generic-pb0: TARGETFLAGS= -DTARGET_GENERIC_F103_PB0 $(DEFINES)
-# Set the linker script
-build_generic-pb0: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb0: elf bin lss sym
 copy_generic-pb0:
 	@echo
@@ -342,8 +306,6 @@ copy_generic-pb0:
 
 
 build_stbee: TARGETFLAGS= -DTARGET_STBEE $(DEFINES)
-# Set the linker script
-build_stbee: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_stbee: elf bin lss sym
 copy_stbee:
 	@echo
@@ -353,8 +315,6 @@ copy_stbee:
 	@echo
 
 build_naze32: TARGETFLAGS= -DTARGET_NAZE32 $(DEFINES)
-# Set the linker script
-build_naze32: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_naze32: elf bin lss sym
 copy_naze32:
 	@echo
@@ -364,8 +324,6 @@ copy_naze32:
 	@echo
 
 build_generic-pb12: TARGETFLAGS= -DTARGET_GENERIC_F103_PB12  $(DEFINES)
-# Set the linker script
-build_generic-pb12: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pb12: elf bin lss sym
 copy_generic-pb12:
 	@echo
@@ -375,8 +333,6 @@ copy_generic-pb12:
 	@echo
 
 build_hytiny-stm32f103t: TARGETFLAGS= -DTARGET_HYTINY_STM32F103T $(DEFINES)
-# Set the linker script
-build_hytiny-stm32f103t: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_hytiny-stm32f103t: elf bin lss sym
 copy_hytiny-stm32f103t:
 	@echo
@@ -386,8 +342,6 @@ copy_hytiny-stm32f103t:
 	@echo
 
 build_dso138: TARGETFLAGS= -DTARGET_DSO138 $(DEFINES)
-# Set the linker script
-build_dso138: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_dso138: elf bin lss sym
 copy_dso138:
 	@echo
@@ -397,8 +351,6 @@ copy_dso138:
 	@echo
 
 build_gd32f1-generic-pc13: TARGETFLAGS= -DTARGET_GD32F1_GENERIC_F103_PC13 $(DEFINES)
-# Set the linker script
-build_gd32f1-generic-pc13: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_gd32f1-generic-pc13: elf bin lss sym
 copy_gd32f1-generic-pc13:
 	@echo
@@ -408,8 +360,6 @@ copy_gd32f1-generic-pc13:
 	@echo
 
 build_gd32f1-frankenmaple: TARGETFLAGS= -DTARGET_GD32F1_FRANKENMAPLE $(DEFINES)
-# Set the linker script
-build_gd32f1-frankenmaple: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_gd32f1-frankenmaple: elf bin lss sym
 copy_gd32f1-frankenmaple:
 	@echo
@@ -419,8 +369,6 @@ copy_gd32f1-frankenmaple:
 	@echo
 
 build_cc3d: TARGETFLAGS= -DTARGET_CC3D
-# Set the linker script
-build_cc3d: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_cc3d: elf bin lss sym
 copy_cc3d:
 	@echo
@@ -430,8 +378,6 @@ copy_cc3d:
 	@echo
 
 build_generic-pc13-fastboot: TARGETFLAGS= -DTARGET_GENERIC_F103_PC13_FASTBOOT $(DEFINES)
-# Set the linker script
-build_generic-pc13-fastboot: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_generic-pc13-fastboot: elf bin lss sym
 copy_generic-pc13-fastboot:
 	@echo
@@ -441,8 +387,6 @@ copy_generic-pc13-fastboot:
 	@echo
 
 build_smart-v2: TARGETFLAGS= -DTARGET_STM32_SMART_V20 $(DEFINES)
-# Set the linker script
-build_smart-v2: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
 build_smart-v2: elf bin lss sym
 copy_smart-v2:
 	@echo
