@@ -12,6 +12,7 @@ THUMB_IW = -mthumb-interwork
 # Target file name (without extension).
 BUILDDIR = build
 BINDIR = bootloader_only_binaries
+BOARDSDIR = boards
 TARGET = $(BUILDDIR)/maple_boot
 
 ST_LIB = stm32_lib
@@ -112,8 +113,22 @@ LST = $(patsubst %, $(BUILDDIR)/%,$(_LST))
 HEXSIZE = $(SIZE) --target=binary $(TARGET).hex
 ELFSIZE = $(SIZE) -A $(TARGET).elf
 
+BOARDS = $(notdir $(basename $(wildcard $(BOARDSDIR)/*.mk)))
+
+# If $(MAKECMDGOALS) is in the list of $(BOARDS):
+ifneq ($(filter $(MAKECMDGOALS),$(BOARDS)),)
+include $(BOARDSDIR)/$(MAKECMDGOALS).mk
+BINFILE = $(MAKECMDGOALS).bin
+endif
+
 # go!
-all: begin gccversion build sizeafter finished end
+all:
+	set -e ;\
+	for board in $(BOARDS) ; do \
+		make $$board ;\
+	done
+
+$(BOARDS): begin clean gccversion build sizeafter finished copy end
 
 maple-mini: begin clean gccversion build_maple-mini sizeafter finished  copy_maple_mini end
 maple-rev3: begin clean gccversion build_maple-rev3 sizeafter finished  copy_maple-rev3 end
@@ -413,7 +428,7 @@ clean_list :
 
 # Listing of phony targets.
 .PHONY : all begin finish tags end sizeafter gccversion \
-build elf hex bin lss sym copy clean clean_list program cscope
+build elf hex bin lss sym copy clean clean_list program cscope $(BOARDS)
 
 cscope:
 	rm -rf *.cscope
