@@ -406,7 +406,19 @@
     #define LED_PIN             3
     #define LED_ON_STATE        0
 
+#elif defined TARGET_MEEB_3DP
 
+    #define LED_BANK            GPIOC
+    #define LED_PIN             13
+    #define LED_ON_STATE        0    
+    
+    #define BUTTON_BANK             GPIOC
+    #define BUTTON_PIN              14
+    #define BUTTON_PRESSED_STATE    1
+    
+    #define BOOTLOADER_WAIT 15
+    
+    #define XTAL12M     1
 #else
     #error "No config for this target"
 #endif

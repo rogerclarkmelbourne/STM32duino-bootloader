@@ -25,3 +25,4 @@ make gd32f1-frankenmaple
 make cc3d
 make generic-pc13-fastboot
 make smart-v2
+make meeb_3dp
