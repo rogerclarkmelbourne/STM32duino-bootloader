@@ -416,7 +416,7 @@
     #define BUTTON_PIN              14
     #define BUTTON_PRESSED_STATE    1
     
-    #define BOOTLOADER_WAIT 15
+    #define BOOTLOADER_WAIT 10
     
     #define XTAL12M     1
 #else
