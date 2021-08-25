@@ -103,6 +103,8 @@ void systemReset(void) {
     SET_REG(RCC_CFGR, GET_REG(RCC_CFGR) & 0xFF80FFFF);
 
     SET_REG(RCC_CIR, 0x00000000);  /* disable all RCC interrupts */
+
+    pRCC->APB1ENR &= (~RCC_APB1ENR_USB_CLK);
 }
 
 void setupCLK(void) {
