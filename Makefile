@@ -130,6 +130,7 @@ generic-pe5: begin clean gccversion build_generic-pe5 sizeafter finished  copy_g
 generic-pe5-button-pa0: begin clean gccversion build_generic-pe5-button-pa0 sizeafter finished  copy_generic-pe5-button-pa0 end
 generic-pb7: begin clean gccversion build_generic-pb7 sizeafter finished  copy_generic-pb7 end
 generic-pb0: begin clean gccversion build_generic-pb0 sizeafter finished  copy_generic-pb0 end
+yehuo-znz: begin clean gccversion build_yehuo-znz sizeafter finished  copy_yehuo-znz end
 stbee :  begin clean gccversion build_stbee sizeafter finished  copy_stbee end
 naze32: begin clean gccversion build_naze32 sizeafter finished  copy_naze32 end
 generic-pb12: begin clean gccversion build_generic-pb12 sizeafter finished  copy_generic-pb12 end
@@ -327,6 +328,17 @@ copy_generic-pb7:
 	@echo "Copying to binaries folder"
 	@echo
 	cp $(TARGET).bin bootloader_only_binaries/generic_boot20_pb7.bin
+	@echo
+
+build_yehuo-znz: TARGETFLAGS= -DTARGET_YEHUO_F103_ZNZ $(DEFINES)
+# Set the linker script
+build_yehuo-znz: LDFLAGS +=-T$(ST_LIB)/c_only_md_high_density.ld
+build_yehuo-znz: elf bin lss sym
+copy_yehuo-znz:
+	@echo
+	@echo "Copying to binaries folder"
+	@echo
+	cp $(TARGET).bin bootloader_only_binaries/yehuo_boot20_znz.bin
 	@echo
 
 build_generic-pb0: TARGETFLAGS= -DTARGET_GENERIC_F103_PB0 $(DEFINES)

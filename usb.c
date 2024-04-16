@@ -31,14 +31,17 @@
  */
 
 #include "usb.h"
+
 #include "dfu.h"
+#include "hardware.h"
+
+u16 wTransferSize;
 
 
 extern u8 u8_usbConfigDescriptorDFU[];
 extern u8 u8_usbFunctionalDescriptor[];
 
 void setupUSB (void) {
-
 #ifdef HAS_MAPLE_HARDWARE
     /* Setup USB DISC pin as output open drain */
     SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN),(GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN)) & crMask(USB_DISC_PIN)) | CR_OUTPUT_OD << CR_SHITF(USB_DISC_PIN));
@@ -55,6 +58,7 @@ void setupUSB (void) {
 #define USB_DISC_PIN              12
 
     SET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN),(GET_REG(GPIO_CR(USB_DISC_BANK,USB_DISC_PIN)) & crMask(USB_DISC_PIN)) | CR_OUTPUT_PP << CR_SHITF(USB_DISC_PIN));
+
 
     gpio_write_bit(USB_DISC_BANK,USB_DISC_PIN,0);  /* present ourselves to the host */
 
