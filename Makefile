@@ -26,6 +26,7 @@ INCDIRS = ./$(ST_LIB) ./$(ST_USB)
 CFLAGS = $(DEBUG)
 CFLAGS += -O$(OPT)
 CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += -std=gnu11
 CFLAGS += -Wall -Wimplicit
 CFLAGS += -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch

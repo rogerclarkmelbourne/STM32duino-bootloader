@@ -33,6 +33,8 @@
 #include "usb.h"
 #include "dfu.h"
 
+int wTransferSize;
+
 
 extern u8 u8_usbConfigDescriptorDFU[];
 extern u8 u8_usbFunctionalDescriptor[];
