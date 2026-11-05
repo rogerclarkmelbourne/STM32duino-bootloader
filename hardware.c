@@ -199,7 +199,7 @@ void setMspAndJump(u32 usrAddr) {
 
     SET_REG(SCB_VTOR, (vu32) (usrAddr));
 
-    asm volatile("msr msp, %0"::"g"(*(volatile u32 *)usrAddr));
+    asm volatile("msr msp, %0"::"r"(*(volatile u32 *)usrAddr));
 
     usrMain();                                /* go! */
 }
